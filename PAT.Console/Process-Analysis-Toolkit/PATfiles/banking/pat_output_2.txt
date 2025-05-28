@@ -1,0 +1,18 @@
+=======================================================
+Assertion: banking() |= [](( account1_open|| account2_open)-> bank_is_open)
+********Verification Result********
+The Assertion (banking() |= [](( account1_open|| account2_open)-> bank_is_open)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:6117
+Total Transitions:67287
+Time Used:0.4802586s
+Estimated Memory Used:37245.464KB
+
+

@@ -1,0 +1,19 @@
+#define N 2;
+
+var step[N];
+var pos[N];
+var counter = 0; //which counts how many processes are in the critical session.
+Process0() = Repeat0(1); cs.0{counter = counter+1;} -> reset{pos[0] = 0; counter = counter-1;} -> Process0();
+Repeat0(j) = [j < N] update.0.1{pos[0] = j;} -> update.0.2{step[j] = 0;} -> 
+                ([step[j] != 0 || (pos[1] < j)]idle.j -> Repeat0(j+1))
+        [] [j == N] Skip;
+
+Process1() = Repeat1(1); cs.1{counter = counter+1;} -> reset{pos[1] = 0; counter = counter-1;} -> Process1();
+Repeat1(j) = [j < N] update.1.1{pos[1] = j;} -> update.1.2{step[j] = 1;} -> 
+                ([step[j] != 1 || (pos[0] < j)]idle.j -> Repeat1(j+1))
+        [] [j == N] Skip;
+
+Peterson() = Process0() ||| Process1();
+
+#define goal counter > 1;
+#assert Peterson() reaches goal;

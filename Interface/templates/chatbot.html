@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAT Agent Chatbot</title>
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/prompts.js"></script>
+  <style>
+    body {
+      background: #1a1a1a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+      height: calc(100vh);
+    }
+
+    .chat-container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: linear-gradient(145deg, #222, #2a2a2a);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .message {
+      padding: 12px 18px;
+      margin: 10px 0;
+      border-radius: 12px;
+      max-width: 80%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .user-message {
+      background: #2962ff;
+      margin-left: auto;
+      color: white;
+    }
+
+    .bot-message {
+      background: #c0c4cc;
+      margin-right: auto;
+      color: #fff;
+    }
+
+    .input-container {
+      display: flex;
+      margin-top: 30px;
+      gap: 12px;
+      position: sticky;
+      bottom: 0;
+      padding: 20px 0;
+      background: inherit;
+    }
+
+    .input-container input {
+      flex: 1;
+      padding: 15px 20px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 2px solid #444;
+      background: #2a2a2a;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .input-container input:focus {
+      border-color: #2962ff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.2);
+    }
+
+    .input-container button {
+      padding: 12px 25px;
+      background: #2962ff;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      height: 50px;
+    }
+
+    .input-container button:hover {
+      background: #1e4bd8;
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="chat-container">
+    <header>
+      <h1 style="margin-bottom: 30px; font-size: 2em; color: #2962ff;">PAT Agent Chatbot</h1>
+      <p style="color: #888; margin-bottom: 20px;">Ask me about implementing algorithms or building systems!</p>
+    </header>
+
+    <div class="chat-messages" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
+      <div v-for="(msg, index) in conversation" :key="index"
+        :class="['message', msg.sender === 'user' ? 'user-message' : 'bot-message']">
+        <p style="margin: 0;">{{ msg.text }}</p>
+        <!-- <span style="font-size: 12px; opacity: 0.7; display: block; margin-top: 5px;">
+          {{ msg.sender === 'user' ? '' : 'PAT Agent' }}
+        </span> -->
+      </div>
+    </div>
+
+    <div class="input-container">
+      <input type="text" v-model="userInput" @keyup.enter="sendMessage"
+        placeholder="Describe your algorithm or system..." :disabled="loading">
+      <button @click="sendMessage" :disabled="loading">
+        <span v-if="!loading">Send</span>
+        <span v-else>Processing...</span>
+      </button>
+    </div>
+
+    <loading-overlay v-if="loading" text="Analyzing your request"></loading-overlay>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        conversation: [],
+        userInput: "",
+        loading: false
+      },
+      methods: {
+        async sendMessage() {
+          if (!this.userInput.trim()) return;
+          // Append user's message
+          this.conversation.push({ sender: 'user', text: this.userInput });
+          const message = this.userInput;
+          this.userInput = "";
+          this.loading = true;
+          try {
+            // Analyze the user input using our planning model endpoint.
+            const analysis = await this.analyzeUserInput(message);
+            // Append the model's analysis to the conversation.
+            try {
+              resultObj = JSON.parse(analysis);
+            } catch (e) {
+              // If parsing fails, default to a "clarify" result.
+              resultObj = { type: "clarify", algorithm: "", description: "" };
+            }
+            // Append the model's analysis (formatted as JSON) to the conversation.
+            // this.conversation.push({ sender: 'bot', text: JSON.stringify(resultObj, null, 2) });
+            // Decide the next step based on the analysis.
+            if (
+              (resultObj.type === "customization-algorithm" || resultObj.type === "customization-system") &&
+              resultObj.algorithm && resultObj.algorithm.trim() !== ""
+            ) {
+              this.conversation.push({
+                sender: 'bot',
+                text: `It looks like your description closely matches an algorithm in our database. Let's verify if this is the one you're looking for. Redirecting...`
+              });
+              setTimeout(() => {
+                window.location.href = `./customize.html?algorithm=${encodeURIComponent(resultObj.algorithm)}`;
+              }, 5000);
+            } else if (resultObj.type === "new system") {
+              // Redirect to the new system design page.
+              this.conversation.push({
+                sender: 'bot',
+                text: "It seems that we have no matching algorithm or system implementation in our database yet, let's guide you to build a PAT model with ease using our interface. Redirecting..."
+              });
+              setTimeout(() => { window.location.href = "/index.html"; }, 5000);
+            } else {
+              // Otherwise, ask the user to clarify.
+              this.conversation.push({ sender: 'bot', text: "Could you please clarify your request?" });
+            }
+          } catch (error) {
+            console.error("Error analyzing input:", error);
+            this.conversation.push({ sender: 'bot', text: "Sorry, there was an error processing your request." });
+          } finally {
+            this.loading = false;
+          }
+        },
+        async analyzeUserInput(inputText) {
+          // Fetch the list of classical algorithms from the server.
+          let classicalSummary = "";
+          try {
+            const classicalRes = await fetch('/get_classical_algorithms', {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const classicalData = await classicalRes.json();
+            // Assume the response is { data: [ {id, name, description}, ... ] }
+            if (classicalData.data && classicalData.data.length) {
+              classicalSummary = classicalData.data.map(item => {
+                return `${item.id}: This is the algorithm of ${item.name}. It should look for ${item.matchtype}. ${item.description}`;
+              }).join("\n");
+            }
+          } catch (error) {
+            console.error("Error fetching classical algorithms:", error);
+          }
+
+          // Use the chatbotPrompt function from prompts.js
+          const prompt = chatbotPrompt(inputText, classicalSummary);
+
+          const response = await fetch('/get_chatbot_model_answers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: prompt,
+              context: {},
+              history: "chatbot"
+            })
+          });
+          const data = await response.json();
+          // the response is in data.data.answerGPT.
+          return data.data && data.data.answerGPT ? data.data.answerGPT : "";
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

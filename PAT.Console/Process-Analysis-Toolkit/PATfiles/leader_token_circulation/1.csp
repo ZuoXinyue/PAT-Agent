@@ -1,0 +1,70 @@
+// Constants
+#define NUM_POSITIONS 3;
+#define BINARY_DOMAIN 2;
+
+// Variables 
+var leader[NUM_POSITIONS] = [1, 0, 0];
+var token[NUM_POSITIONS] = [0, 0, 0]; 
+var label[NUM_POSITIONS] = [0, 0, 0];
+
+// Rule1 process
+Rule1() = 
+    // Position pair (0,1)
+    [leader[0] == 0 && leader[1] == 1 && label[0] == 0 && label[1] == 0] 
+        rule1_0_1_label0{token[0] = 0; token[1] = 1; label[1] = 1;} -> Rule1()
+    []
+    [leader[0] == 0 && leader[1] == 1 && label[0] == 1 && label[1] == 1] 
+        rule1_0_1_label1{token[0] = 0; token[1] = 1; label[1] = 0;} -> Rule1()
+    []
+    // Position pair (1,2)
+    [leader[1] == 0 && leader[2] == 1 && label[1] == 0 && label[2] == 0] 
+        rule1_1_2_label0{token[1] = 0; token[2] = 1; label[2] = 1;} -> Rule1()
+    []
+    [leader[1] == 0 && leader[2] == 1 && label[1] == 1 && label[2] == 1] 
+        rule1_1_2_label1{token[1] = 0; token[2] = 1; label[2] = 0;} -> Rule1()
+    []
+    // Position pair (2,0)
+    [leader[2] == 0 && leader[0] == 1 && label[2] == 0 && label[0] == 0] 
+        rule1_2_0_label0{token[2] = 0; token[0] = 1; label[0] = 1;} -> Rule1()
+    []
+    [leader[2] == 0 && leader[0] == 1 && label[2] == 1 && label[0] == 1] 
+        rule1_2_0_label1{token[2] = 0; token[0] = 1; label[0] = 0;} -> Rule1();
+
+// Rule2 process
+Rule2() = 
+    // Position pair (0,1)
+    [leader[1] == 0 && label[0] == 0 && label[1] == 1] 
+        rule2_0_1_label0{token[0] = 0; token[1] = 1; label[1] = 0;} -> Rule2()
+    []
+    [leader[1] == 0 && label[0] == 1 && label[1] == 0] 
+        rule2_0_1_label1{token[0] = 0; token[1] = 1; label[1] = 1;} -> Rule2()
+    []
+    // Position pair (1,2)
+    [leader[2] == 0 && label[1] == 0 && label[2] == 1] 
+        rule2_1_2_label0{token[1] = 0; token[2] = 1; label[2] = 0;} -> Rule2()
+    []
+    [leader[2] == 0 && label[1] == 1 && label[2] == 0] 
+        rule2_1_2_label1{token[1] = 0; token[2] = 1; label[2] = 1;} -> Rule2()
+    []
+    // Position pair (2,0)
+    [leader[0] == 0 && label[2] == 0 && label[0] == 1] 
+        rule2_2_0_label0{token[2] = 0; token[0] = 1; label[0] = 0;} -> Rule2()
+    []
+    [leader[0] == 0 && label[2] == 1 && label[0] == 0] 
+        rule2_2_0_label1{token[2] = 0; token[0] = 1; label[0] = 1;} -> Rule2();
+
+// Overall system
+leader_token_circulation = Rule1() ||| Rule2();
+
+// State definitions
+#define oneToken ((token[0] == 1 && token[1] == 0 && token[2] == 0) || 
+                 (token[0] == 0 && token[1] == 1 && token[2] == 0) || 
+                 (token[0] == 0 && token[1] == 0 && token[2] == 1));
+
+#define token0 (token[0] == 1);
+#define token1 (token[1] == 1);
+#define token2 (token[2] == 1);
+
+// Assertions
+
+#assert leader_token_circulation |= []<>(token0 -> (!token2 U token1)) && []<>(token1 -> (!token0 U token2)) && []<>(token2 -> (!token1 U token0));

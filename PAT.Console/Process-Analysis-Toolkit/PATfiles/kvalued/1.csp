@@ -1,0 +1,22 @@
+//shared binary array of size N
+var B = [0,0,0,0,1];
+
+////////////////The Concrete Implementation Model//////////////////
+Readers() = read_inv -> UpScan(0);
+UpScan(i) =  if(B[i] == 1) { DownScan(i - 1, i) } else { UpScan(i + 1) };
+DownScan(i, v) =
+		ifa(i >= 0) {
+			if(B[i] == 1) { DownScan(i - 1, i) } else { DownScan(i - 1, v) }
+		} else {
+			t -> read_res.v -> Readers()
+		};
+
+Writer(i) = write_inv.i -> t{B[i] = 1;} -> WriterDownScan(i-1);
+WriterDownScan(i) = if(i >= 0 ) { t{B[i] = 0;} -> WriterDownScan(i-1) } else { write_res -> Skip } ;
+
+Writers() = (Writer(0)[]Writer(1)[]Writer(2)[]Writer(3)[]Writer(4)); Writers();
+Register() = ((|||{3}@Readers()) ||| Writers());
+
+////////////////The Properties//////////////////
+
+#assert Register() |= []<> read_res.4;

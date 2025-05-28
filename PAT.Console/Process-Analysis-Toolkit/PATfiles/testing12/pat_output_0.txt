@@ -1,0 +1,19 @@
+=======================================================
+Assertion: leader_odd_ring() |= <>[] oneLeader
+********Verification Result********
+The Assertion (leader_odd_ring() |= <>[] oneLeader) is NOT valid.
+A counterexample is presented as follows.
+<init -> P2_E -> P1_E -> P2_D -> P1_G1 -> P1_I -> P0_A -> P2_I -> (P2_I -> P2_I)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:87
+Total Transitions:153
+Time Used:0.013959s
+Estimated Memory Used:41247.928KB
+
+

@@ -1,0 +1,131 @@
+#import "PAT.Lib.VibePuzzle";
+
+#define ROWS 7;
+#define COLS 6;
+#define MAX_STEPS 6; //max steps allowed
+
+/*
+//Game Rule
+Objective: make all the figures disappear
+Rule: 
+1. figures will disappear when there are 3 or more adjecent same figures in a row or column.
+2. figures will automatically shift down if the space below is empty
+
+Move: swap any two adjecent figures (cannot swap figure with a empty space)
+
+
+//this model models the board
+
+0	1	2	3	4	5
+6	7	8	9	10	11
+12	13	14	15	16	17
+18	19	20	21	22	23
+24	25	26	27	28	29
+30	31	32	33	34	35
+36	37	38	39	40	41
+
+*/
+
+#define em 0; //empty space
+#define t1 1;
+#define t2 2;
+#define t3 3;
+#define t4 4;
+#define t5 5;
+#define t6 6;
+
+//board is the only state variable to be tracked. all other variables are hidden or constant.
+
+//difficulty level: hard  : 6 steps
+var board = [
+em,	em,	em,	em,	t1,	em,
+em,	em,	em,	em,	t4,	em,
+em,	em,	em,	em,	t6,	em,
+em,	em,	em,	t2,	t5,	t2,
+em,	em,	em,	t3,	t3,	t5,
+em,	em,	em,	t6,	t6,	t4,
+t1,	t1,	t2,	t3,	t4,	t5 
+];
+
+
+/*
+//difficulty level: midle : 4 steps
+var board = [
+em,	em,	em,	em,	em,	em,
+t1,	t4,	em,	em,	em,	em,
+t3,	t4,	em,	em,	em,	em,
+t2,	t3,	em,	em,	em,	em,
+t2,	t1,	em,	em,	em,	em,
+t3,	t4,	em,	em,	em,	em,
+t1,	t2,	em,	em,	em,	em 
+];
+*/
+
+/*
+//difficulty level: midle : 4 steps
+var board = [
+em,	em,	em,	em,	em,	em,
+em,	em,	em,	em,	em,	em,
+em,	t2,	t4,	em,	em,	em,
+em,	t4,	t2,	em,	em,	em,
+t1,	t1,	t4,	em,	em,	em,
+t2,	t4,	t3,	em,	em,	em,
+t1,	t3,	t2,	t3,	em,	em 
+];
+*/
+
+/*
+//difficulty level: easy : 2 steps
+var board = [
+em,	em,	em,	em,	em,	em,
+em,	em,	em,	em,	em,	em,
+em,	em,	em,	em,	em,	em,
+em,	em,	em,	em,	em,	em,
+em,	em,	em,	em,	em,	em,
+em,	em,	em,	em,	t2,	t3,	t3,
+t2,	t2,	t1,	t3,	t1,	t1 
+];
+*/
+
+var step=0;
+
+//swap item i with the one on the left
+left(i) = [step<MAX_STEPS && !call(isDead, board, ROWS, COLS) && i%COLS!=0 && board[i]!=em && board[i-1]!=em && board[i-1]!=board[i] ] 
+		swap_left.i{
+			step++;
+			//swap
+			var temp = board[i];
+			board[i] = board[i-1];
+			board[i-1] = temp; 		
+			
+			board = call(eliminate, board, ROWS, COLS);
+			
+		} -> Game();
+	
+//swap item i with the one on the row above
+up(i) = [step<MAX_STEPS && !call(isDead, board, ROWS, COLS) && i>=COLS && board[i]!=em && board[i-COLS]!=em && board[i-COLS]!=board[i] ] 
+		swap_up.i{
+			step++;
+			//swap
+			var temp = board[i];
+			board[i] = board[i-COLS];
+			board[i-COLS] = temp;
+			
+			board = call(eliminate, board, ROWS, COLS);
+			
+		} -> Game();
+
+
+Game() = [] x:{0..ROWS*COLS-1}@( left(x) [] up(x)) ;
+
+
+#define goal 
+	board[0]==em && board[1]==em && board[2]==em && board[3]==em && board[4]==em && board[5]==em && 
+	board[6]==em && board[7]==em && board[8]==em && board[9]==em && board[10]==em && board[11]==em && 
+	board[12]==em && board[13]==em && board[14]==em && board[15]==em && board[16]==em && board[17]==em && 
+	board[18]==em && board[19]==em && board[20]==em && board[21]==em && board[22]==em && board[23]==em && 
+	board[24]==em && board[25]==em && board[26]==em && board[27]==em && board[28]==em && board[29]==em && 
+	board[30]==em && board[31]==em && board[32]==em && board[33]==em && board[34]==em && board[35]==em && 
+	board[36]==em && board[37]==em && board[38]==em && board[39]==em && board[40]==em && board[41]==em ;
+
+#assert Game() reaches goal;

@@ -1,0 +1,20 @@
+=======================================================
+Assertion: Game() reaches goal with min(counter)
+********Verification Result********
+The Assertion (Game() reaches goal with min(counter)) is VALID and min(counter) = 29 among 83905 reachable states.
+The following trace leads to a state where the condition is satisfied with the above value.
+<init -> INIT -> bingdown.4 -> bingright.4 -> bingright.1 -> bingdown.1 -> jiangdown.6 -> jiangleft.5 -> jiangleft.5 -> bingup.2 -> bingright.2 -> bingup.4 -> bingup.4 -> jiangleft.9 -> bingdown.2 -> bingdown.2 -> bingright.4 -> bingdown.4 -> caocaodown -> jiangright.7 -> jiangright.7 -> jiangup.8 -> jiangup.5 -> jiangup.6 -> bingup.1 -> bingleft.1 -> jiangleft.9 -> bingleft.4 -> bingdown.4 -> caocaodown -> jiangright.5 -> jiangright.5 -> jiangup.6 -> bingup.1 -> bingright.1 -> bingup.3 -> bingup.3 -> jiangleft.9 -> bingdown.1 -> bingdown.1 -> caocaoleft -> bingup.2 -> bingup.2 -> bingright.4 -> bingup.4 -> bingright.1 -> bingright.1 -> caocaodown>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:2349043
+Total Transitions:4716200
+Time Used:378.5725331s
+Estimated Memory Used:389279.264KB
+
+

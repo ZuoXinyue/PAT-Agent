@@ -1,0 +1,17 @@
+=======================================================
+Assertion: leader_token_circulation() |= []<> token0&&[]<> token1&&[]<> token2
+********Verification Result********
+The Assertion (leader_token_circulation() |= []<> token0&&[]<> token1&&[]<> token2) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:22
+Total Transitions:29
+Time Used:0.0084507s
+Estimated Memory Used:41190.704KB
+
+

@@ -1,0 +1,19 @@
+=======================================================
+Assertion: keyless_car() |= []<> owner1_start_driving
+********Verification Result********
+The Assertion (keyless_car() |= []<> owner1_start_driving) is NOT valid.
+A counterexample is presented as follows.
+<init -> owner2_move_far_to_near -> owner2_pickup_key -> owner2_unlock_door -> owner1_move_far_to_near -> open_door -> owner2_enter_car -> consume_fuel -> owner2_deposit_key -> refuel_car -> (consume_fuel -> refuel_car)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:638
+Total Transitions:2829
+Time Used:0.0577655s
+Estimated Memory Used:42969KB
+
+

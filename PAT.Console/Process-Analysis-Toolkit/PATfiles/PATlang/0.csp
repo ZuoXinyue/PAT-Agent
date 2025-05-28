@@ -1,0 +1,28 @@
+#define D1 2;
+#define D2 3;
+
+//A synchronous channel
+channel c 0;
+
+//An asynchronous channel
+channel ac 1;
+
+//example of multi-dimensional array 
+var x[D1][D2];
+//example of multi-dimensional array with initial value
+var y[D1][D2] = [1..6];
+
+//example of channel to send multiple data in one action. An array can be sent in the channel as a whole.
+//in the channel input events, constanst can be used to make sure that only channel data with matching value are received, otherwise the input event is blocked.
+P(i) = c!x.i -> ac?u.1 -> P(x);
+
+Q(i) = c?z.m -> 
+	   //the channel communication are pass-by-value, change the value of x will not affect z.
+	   //although z is recieved as a two dimensional array, but it can only be accessed as a 1 dimensional array. This is a limiation of PAT, since PAT does not store multi-dimentional array internally.
+	   tau{x[0][1] = 5; x[0][2] = z[1];} ->
+	   //value of z can be used, but can not be updated.
+	   ac!z[1].m -> Q(m);
+
+ aSys1 = P(1) ||| Q(2);
+
+#assert aSys1 deadlockfree;

@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Bully() |= []( node1_is_coordinator->( node1_leads_node2&& node1_leads_node3))
+********Verification Result********
+The Assertion (Bully() |= []( node1_is_coordinator->( node1_leads_node2&& node1_leads_node3))) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:3
+Total Transitions:6
+Time Used:0.0079166s
+Estimated Memory Used:8520.888KB
+
+

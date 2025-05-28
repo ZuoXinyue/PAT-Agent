@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAT Agent - Verification Results</title>
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/timeline.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <script src="/loading.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .result-card {
+      border: 1px solid #444;
+      border-radius: 8px;
+      background: #222;
+      margin-bottom: 20px;
+      padding: 15px;
+    }
+
+    .result-card pre {
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      color: #ccc;
+    }
+
+    .match {
+      color: lightgreen;
+      font-weight: bold;
+    }
+
+    .mismatch {
+      color: red;
+      font-weight: bold;
+    }
+
+    .highlight {
+
+      background: #62d562;
+      color: black;
+      padding: 20px;
+      font-size: 14px;
+      border-radius: 10px;
+      /* margin: 20px 0; */
+      font-weight: bold;
+
+    }
+
+    .congratulation {
+      color: #025d02;
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 6px;
+
+    }
+
+    .filesaved {
+      margin-bottom: 0px;
+    }
+  </style>
+</head>
+
+<body>
+  <main id="app">
+
+    <timeline :current-step=7></timeline>
+
+    <div class="container">
+      <loading-overlay v-if="loading" text="Loading verification data..."></loading-overlay>
+      
+      <div v-else style="height: calc(100vh - 100px); overflow: auto;">
+        <div v-for="(group, index) in verificationGroups" :key="index" class="result-card">
+          <h2 style="color: #ccc;">Assertion {{ index + 1 }}</h2>
+          <p><strong>Requirement (from .csp):</strong></p>
+          <pre>{{ group.assertion }}</pre>
+          <p><strong>PAT Verification Result:</strong></p>
+          <pre>{{ group.patResult }}</pre>
+          <p>
+            <strong>Actual Outcome (verified by PAT):</strong>
+            <span
+              :class="{'match': group.actualResult === group.desiredOutcome, 'mismatch': group.actualResult !== group.desiredOutcome}">
+              {{ group.actualResult }}
+            </span>
+          </p>
+          <p>
+            <strong>Desired Outcome (designed by us):</strong>
+            <span
+              :class="{'match': group.actualResult === group.desiredOutcome, 'mismatch': group.actualResult !== group.desiredOutcome}">
+              {{ group.desiredOutcome }}
+            </span>
+          </p>
+        </div>
+
+        <!-- If any mismatches are found -->
+        <div v-if="hasMismatch" class="highlight">
+          <p>Looks like the code does not satisfy some of our requirements, let's try to fix them automatically with the
+            PAT feedback we have.</p>
+          <button @click="goToRefine">Fix Code</button>
+        </div>
+
+        <!-- If no mismatches are found -->
+        <div v-else class="highlight">
+          <p class="congratulation">Congratulations! Our code successfully satisfies all of our requirements!</p>
+          <p class="filesaved" v-if="verifiedCodePath">It has been saved to {{ verifiedCodePath }}</p>
+          <button v-if="!verifiedCodePath" @click="saveCode">Save Verified Code</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.vm = new Vue({
+      el: '#app',
+      data: {
+        loading: false,
+        verificationGroups: [],  // Each group: { assertion, patResult, desiredOutcome, actualResult }
+        hasMismatch: false,   // Dynamic model name; update as needed.
+        verifiedCodePath: "",     // Will store the verified file path after saving.
+        attemptCount: localStorage.getItem("attemptCount") ? parseInt(localStorage.getItem("attemptCount")) : 0,  // Retrieve from localStorage
+        maxAttempts: 5,
+        maxAttemptsReached: false
+      },
+      mounted() {
+        this.fetchVerificationData();
+      },
+      methods: {
+        async fetchVerificationData() {
+          try {
+            this.loading = true;
+            const startTime = Date.now(); // Start timing
+            const modelName = localStorage.getItem('modelName');
+            
+            const response = await fetch(`/get_verification_data?model_name=${encodeURIComponent(modelName)}`, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+
+            // Process each group: extract the actual outcome from the PAT result.
+            data.forEach(group => {
+              let outcome = "";
+              const match = group.patResult.match(/is\s+(\w+)/i);
+              if (match && match[1]) {
+                outcome = (match[1].toUpperCase() === "VALID") ? "Valid" : "Invalid";
+              }
+              group.actualResult = outcome;
+              // If desiredOutcome is empty, default to "Valid" (deadlockfree)
+              if (!group.desiredOutcome || group.desiredOutcome.trim() === "") {
+                group.desiredOutcome = "Valid";
+              }
+            });
+
+            this.verificationGroups = data;
+            // Determine if any group has a mismatch.
+            this.hasMismatch = this.verificationGroups.some(group => group.actualResult !== group.desiredOutcome);
+
+            // If mismatches exist, extract mismatch traces (e.g. the last non-empty line from each mismatched group's patResult)
+            if (this.hasMismatch) {
+              let mismatches = [];
+              this.verificationGroups.forEach(group => {
+                if (group.actualResult !== group.desiredOutcome) {
+                  // Extract the last non-empty line from patResult
+                  let lines = group.patResult.split("\n").map(l => l.trim()).filter(l => l);
+                  let trace = (lines.length > 0) ? lines[lines.length - 1] : "";
+                  mismatches.push({
+                    assertion: group.assertion,
+                    trace: trace,
+                    current_result: group.actualResult,
+                    desired_result: group.desiredOutcome
+                  });
+                }
+              });
+              // Save mismatches to server
+              await fetch('/save_mismatch_traces', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mismatches })
+              });
+
+
+            } else {
+              // If no mismatches, automatically save the verified code
+              this.saveCode();
+            }
+
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+
+
+            const endTime = Date.now(); // End timing
+            const runTimeInSeconds = (endTime - startTime) / 1000; // Calculate run time in seconds
+
+            // After success, send the runtime to the server
+            fetch('/save_run_time', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                modelName: localStorage.getItem('modelName'),
+                stage: `verification-time_${timestamp}`,  // <-- stage with timestamp
+                runTime: runTimeInSeconds,
+                hasMismatch: this.hasMismatch
+              })
+            }).then(response => response.json())
+              .then(saveResult => {
+                console.log('Run time saved:', saveResult);
+              })
+              .catch(error => {
+                console.error('Error saving run time:', error);
+              });
+          } catch (error) {
+            console.error("Error fetching verification data:", error);
+          } finally {
+            this.loading = false;
+          }
+        },
+        goToRefine() {
+          if (this.attemptCount < this.maxAttempts) {
+            this.$confirmDialog({
+              title: 'Fix Code Confirmation',
+              message: 'We will attempt to fix the code to address the issues found. Continue?',
+              confirmText: 'Yes, fix the code',
+              cancelText: 'Cancel',
+              onConfirm: () => {
+                this.attemptCount++;  // Increment attempt count
+                localStorage.setItem("attemptCount", this.attemptCount);  // Save it in localStorage
+                window.location.href = "/refine.html";  // Go to refine page
+              }
+            });
+          } else {
+            this.maxAttemptsReached = true;
+            this.$confirmDialog({
+              title: 'Maximum Attempts Reached',
+              message: "We've tried many times but there still seem to be semantic (logical) errors with the code. Let's try refining our description or requirements.",
+              confirmText: 'Return to Start',
+              cancelText: 'Stay Here',
+              onConfirm: () => {
+                window.location.href = "/index.html";
+              }
+            });
+          }
+        },
+        async saveCode() {
+          try {
+            this.loading = true; // Show loading overlay
+            
+            // Retrieve the last refined code from claude-refinement.json via an endpoint.
+            const res = await fetch('/get_last_claude_refinement', {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const refinementData = await res.json();
+            // Assume the endpoint returns { data: { answerClaude: "..." } }
+            const codeToSave = refinementData.data.answerClaude;
+
+            // Call an endpoint to save the code into verifiedCode.csp under the folder for this model.
+            const modelName = localStorage.getItem('modelName');
+            const saveRes = await fetch('/save_verified_code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                model_name: modelName,
+                code: codeToSave
+              })
+            });
+            const saveResult = await saveRes.json();
+            // Assume the endpoint returns { path: "<file path>" }
+            this.verifiedCodePath = saveResult.path || "";
+
+            // Also store the new system in the database of algorithms (self-evolving) if we have no mismatches (i.e. code is correct).
+            const evolveRes = await fetch('/add_new_classical_algorithm', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code: codeToSave })
+            });
+            const evolveData = await evolveRes.json();
+            if (evolveData.status === 'success') {
+              console.log("New algorithm added to database-algorithm.json:", evolveData.newEntry);
+            } else {
+              console.warn("Could not add new algorithm:", evolveData.message || evolveData.error);
+            }
+            
+            // Show success message
+            this.$confirmDialog({
+              title: 'Code Saved Successfully',
+              message: `Verified code has been saved to ${this.verifiedCodePath} and added to the algorithm database.`,
+              confirmText: 'OK',
+              cancelText: null
+            });
+            
+          } catch (error) {
+            console.error("Error saving verified code:", error);
+            
+            // Show error message
+            this.$confirmDialog({
+              title: 'Error Saving Code',
+              message: 'There was an error saving the verified code: ' + error.message,
+              confirmText: 'Try Again',
+              cancelText: 'Cancel',
+              onConfirm: () => this.saveCode()
+            });
+          } finally {
+            this.loading = false; // Hide loading overlay
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+=======================================================
+Assertion: LiftSystem() |= []( inside-><> dooropen)
+********Verification Result********
+The Assertion (LiftSystem() |= []( inside-><> dooropen)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:273
+Total Transitions:918
+Time Used:0.026918s
+Estimated Memory Used:41730.432KB
+
+

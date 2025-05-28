@@ -1,0 +1,77 @@
+#define SIGNAL_RED 0;
+#define SIGNAL_GREEN 1;
+#define POINTP_STATE_NONE 0;
+#define POINTP_STATE_TRACKB 1;
+#define POINTP_STATE_TRACKC 2;
+#define TRAIN_LOC_NONE 0;
+#define TRAIN_LOC_TRACKA 1;
+#define TRAIN_LOC_TRACKB 2;
+#define TRAIN_LOC_TRACKC 3;
+
+var Train_location = TRAIN_LOC_NONE;
+var PointP_connection = POINTP_STATE_NONE;
+var TrackA_signal = SIGNAL_RED;
+var TrackB_signal = SIGNAL_RED;
+var TrackC_signal = SIGNAL_RED;
+
+Train() = 
+    [Train_location == TRAIN_LOC_NONE && TrackA_signal == SIGNAL_GREEN] 
+    enter_trackA{Train_location = TRAIN_LOC_TRACKA;} -> Train()
+    []
+    [Train_location == TRAIN_LOC_TRACKA && PointP_connection == POINTP_STATE_TRACKB && 
+     TrackB_signal == SIGNAL_GREEN && TrackA_signal == SIGNAL_RED] 
+    enter_trackB{Train_location = TRAIN_LOC_TRACKB;} -> Train()
+    []
+    [Train_location == TRAIN_LOC_TRACKA && PointP_connection == POINTP_STATE_TRACKC && 
+     TrackC_signal == SIGNAL_GREEN && TrackA_signal == SIGNAL_RED] 
+    enter_trackC{Train_location = TRAIN_LOC_TRACKC;} -> Train();
+
+PointP() = 
+    [Train_location == TRAIN_LOC_NONE && TrackA_signal == SIGNAL_RED && 
+     TrackB_signal == SIGNAL_RED && TrackC_signal == SIGNAL_RED && 
+     (PointP_connection == POINTP_STATE_NONE || PointP_connection == POINTP_STATE_TRACKC)] 
+    switch_to_trackB{PointP_connection = POINTP_STATE_TRACKB;} -> PointP()
+    []
+    [Train_location == TRAIN_LOC_NONE && TrackA_signal == SIGNAL_RED && 
+     TrackB_signal == SIGNAL_RED && TrackC_signal == SIGNAL_RED && 
+     (PointP_connection == POINTP_STATE_NONE || PointP_connection == POINTP_STATE_TRACKB)] 
+    switch_to_trackC{PointP_connection = POINTP_STATE_TRACKC;} -> PointP();
+
+TrackA() = 
+    [Train_location == TRAIN_LOC_TRACKA && TrackA_signal == SIGNAL_RED] 
+    trackA_turn_green{TrackA_signal = SIGNAL_GREEN;} -> TrackA()
+    []
+    [(Train_location == TRAIN_LOC_NONE || Train_location == TRAIN_LOC_TRACKB || 
+      Train_location == TRAIN_LOC_TRACKC) && TrackA_signal == SIGNAL_GREEN] 
+    trackA_turn_red{TrackA_signal = SIGNAL_RED;} -> TrackA();
+
+TrackB() = 
+    [PointP_connection == POINTP_STATE_TRACKB && Train_location == TRAIN_LOC_TRACKB && 
+     TrackA_signal == SIGNAL_RED && TrackB_signal == SIGNAL_RED] 
+    trackB_turn_green{TrackB_signal = SIGNAL_GREEN;} -> TrackB()
+    []
+    [(Train_location == TRAIN_LOC_NONE || Train_location == TRAIN_LOC_TRACKA || 
+      Train_location == TRAIN_LOC_TRACKC) && TrackB_signal == SIGNAL_GREEN] 
+    trackB_turn_red{TrackB_signal = SIGNAL_RED;} -> TrackB();
+
+TrackC() = 
+    [PointP_connection == POINTP_STATE_TRACKC && Train_location == TRAIN_LOC_TRACKC && 
+     TrackA_signal == SIGNAL_RED && TrackC_signal == SIGNAL_RED] 
+    trackC_turn_green{TrackC_signal = SIGNAL_GREEN;} -> TrackC()
+    []
+    [(Train_location == TRAIN_LOC_NONE || Train_location == TRAIN_LOC_TRACKA || 
+      Train_location == TRAIN_LOC_TRACKB) && TrackC_signal == SIGNAL_GREEN] 
+    trackC_turn_red{TrackC_signal = SIGNAL_RED;} -> TrackC();
+
+railwaysys2 = Train() ||| PointP() ||| TrackA() ||| TrackB() ||| TrackC();
+
+#define at_most_one_green (!((TrackA_signal == SIGNAL_GREEN && TrackB_signal == SIGNAL_GREEN) || 
+                              (TrackA_signal == SIGNAL_GREEN && TrackC_signal == SIGNAL_GREEN) || 
+                              (TrackB_signal == SIGNAL_GREEN && TrackC_signal == SIGNAL_GREEN)));
+
+#define all_red (TrackA_signal == SIGNAL_RED && TrackB_signal == SIGNAL_RED && TrackC_signal == SIGNAL_RED);
+#define trackB_red (TrackB_signal == SIGNAL_RED);
+#define Train_not_in_B (Train_location != TRAIN_LOC_TRACKB);
+#define trackB_green (TrackB_signal == SIGNAL_GREEN);
+#define A_connect_to_B (PointP_connection == POINTP_STATE_TRACKB);
+#assert railwaysys2 |= [](trackB_green -> A_connect_to_B);

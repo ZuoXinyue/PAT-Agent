@@ -1,0 +1,49 @@
+#define BOAT_CAPACITY 2;
+#define MIN_BOAT_LOAD 1;
+#define TOTAL_MISSIONARIES 3;
+#define TOTAL_CANNIBALS 3;
+#define BANK_A_ID 1;
+#define BANK_B_ID 2;
+
+var missionariesOnA = TOTAL_MISSIONARIES;
+var cannibalsOnA = TOTAL_CANNIBALS;
+var missionariesOnB = 0;
+var cannibalsOnB = 0;
+var boatLocation = BANK_A_ID;
+
+Cross() = 
+    [boatLocation == BANK_A_ID && missionariesOnA >= 1 && (missionariesOnA - 1 == 0 || missionariesOnA - 1 >= cannibalsOnA) && (missionariesOnB + 1 >= cannibalsOnB)] 
+    cross_one_missionary{missionariesOnA = missionariesOnA - 1; missionariesOnB = missionariesOnB + 1; boatLocation = BANK_B_ID;} -> Return()
+    []
+    [boatLocation == BANK_A_ID && missionariesOnA >= 2 && (missionariesOnA - 2 == 0 || missionariesOnA - 2 >= cannibalsOnA) && (missionariesOnB + 2 >= cannibalsOnB)]
+    cross_two_missionaries{missionariesOnA = missionariesOnA - 2; missionariesOnB = missionariesOnB + 2; boatLocation = BANK_B_ID;} -> Return()
+    []
+    [boatLocation == BANK_A_ID && cannibalsOnA >= 1 && (missionariesOnA == 0 || missionariesOnA >= cannibalsOnA - 1) && (missionariesOnB == 0 || missionariesOnB >= cannibalsOnB + 1)]
+    cross_one_cannibal{cannibalsOnA = cannibalsOnA - 1; cannibalsOnB = cannibalsOnB + 1; boatLocation = BANK_B_ID;} -> Return()
+    []
+    [boatLocation == BANK_A_ID && cannibalsOnA >= 2 && (missionariesOnA == 0 || missionariesOnA >= cannibalsOnA - 2) && (missionariesOnB == 0 || missionariesOnB >= cannibalsOnB + 2)]
+    cross_two_cannibals{cannibalsOnA = cannibalsOnA - 2; cannibalsOnB = cannibalsOnB + 2; boatLocation = BANK_B_ID;} -> Return()
+    []
+    [boatLocation == BANK_A_ID && missionariesOnA >= 1 && cannibalsOnA >= 1 && (missionariesOnA - 1 == 0 || missionariesOnA - 1 >= cannibalsOnA - 1) && (missionariesOnB + 1 >= cannibalsOnB + 1)]
+    cross_missionary_and_cannibal{missionariesOnA = missionariesOnA - 1; cannibalsOnA = cannibalsOnA - 1; missionariesOnB = missionariesOnB + 1; cannibalsOnB = cannibalsOnB + 1; boatLocation = BANK_B_ID;} -> Return();
+
+Return() = 
+    [boatLocation == BANK_B_ID && missionariesOnB >= 1 && (missionariesOnB - 1 == 0 || missionariesOnB - 1 >= cannibalsOnB) && (missionariesOnA + 1 >= cannibalsOnA)]
+    return_one_missionary{missionariesOnB = missionariesOnB - 1; missionariesOnA = missionariesOnA + 1; boatLocation = BANK_A_ID;} -> Cross()
+    []
+    [boatLocation == BANK_B_ID && missionariesOnB >= 2 && (missionariesOnB - 2 == 0 || missionariesOnB - 2 >= cannibalsOnB) && (missionariesOnA + 2 >= cannibalsOnA)]
+    return_two_missionaries{missionariesOnB = missionariesOnB - 2; missionariesOnA = missionariesOnA + 2; boatLocation = BANK_A_ID;} -> Cross()
+    []
+    [boatLocation == BANK_B_ID && cannibalsOnB >= 1 && (missionariesOnB == 0 || missionariesOnB >= cannibalsOnB - 1) && (missionariesOnA == 0 || missionariesOnA >= cannibalsOnA + 1)]
+    return_one_cannibal{cannibalsOnB = cannibalsOnB - 1; cannibalsOnA = cannibalsOnA + 1; boatLocation = BANK_A_ID;} -> Cross()
+    []
+    [boatLocation == BANK_B_ID && cannibalsOnB >= 2 && (missionariesOnB == 0 || missionariesOnB >= cannibalsOnB - 2) && (missionariesOnA == 0 || missionariesOnA >= cannibalsOnA + 2)]
+    return_two_cannibals{cannibalsOnB = cannibalsOnB - 2; cannibalsOnA = cannibalsOnA + 2; boatLocation = BANK_A_ID;} -> Cross()
+    []
+    [boatLocation == BANK_B_ID && missionariesOnB >= 1 && cannibalsOnB >= 1 && (missionariesOnB - 1 == 0 || missionariesOnB - 1 >= cannibalsOnB - 1) && (missionariesOnA + 1 >= cannibalsOnA + 1)]
+    return_missionary_and_cannibal{missionariesOnB = missionariesOnB - 1; cannibalsOnB = cannibalsOnB - 1; missionariesOnA = missionariesOnA + 1; cannibalsOnA = cannibalsOnA + 1; boatLocation = BANK_A_ID;} -> Cross();
+
+system_name = Cross();
+
+#define outnumbered (missionariesOnA == 1 && cannibalsOnA == 2);
+#assert system_name |= <>outnumbered;

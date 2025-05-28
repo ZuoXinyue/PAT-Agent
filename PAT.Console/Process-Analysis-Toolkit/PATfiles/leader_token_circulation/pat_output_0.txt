@@ -1,0 +1,17 @@
+=======================================================
+Assertion: leader_token_circulation() |= []<> oneToken
+********Verification Result********
+The Assertion (leader_token_circulation() |= []<> oneToken) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:8
+Total Transitions:7
+Time Used:0.0078542s
+Estimated Memory Used:41209.28KB
+
+

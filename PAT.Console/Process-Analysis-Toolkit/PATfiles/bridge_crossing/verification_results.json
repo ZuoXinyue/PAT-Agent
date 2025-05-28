@@ -1,0 +1,50 @@
+[
+  {
+    "assertion": "#assert keyless_car deadlockfree;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= [](eventually <> drive.0);",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= eventually keylockinside;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car |= eventually runwithoutowner;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= eventually ownerdrivetogether;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= eventually drivewithoutengineon;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= eventually drivewithoutfuel;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= eventually drivewithoutkeyholdbyother;",
+    "patResult": "",
+    "actualResult": "",
+    "desiredOutcome": "Valid"
+  }
+]

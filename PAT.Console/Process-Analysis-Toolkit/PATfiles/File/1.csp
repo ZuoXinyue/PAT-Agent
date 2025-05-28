@@ -1,0 +1,69 @@
+#define STATE_0 0;
+#define STATE_1 1;
+#define NOT_CRASHED 0;
+#define CRASHED 1;
+#define MAX_CRASHES 2;
+
+var nodeStates[3] = [STATE_0, STATE_1, STATE_0];
+var nodeCrashStatuses[3] = [NOT_CRASHED, NOT_CRASHED, NOT_CRASHED];
+var crashCount = 0;
+
+Interaction_0_1() = 
+    [nodeCrashStatuses[0] == NOT_CRASHED && nodeCrashStatuses[1] == NOT_CRASHED 
+    && nodeStates[0] == STATE_0 && nodeStates[1] == STATE_1] 
+    update_state{nodeStates[1] = STATE_0;} -> Interaction_0_1()
+    []
+    [nodeCrashStatuses[0] == NOT_CRASHED && (crashCount == 0 || crashCount == 1)]
+    crash_node{nodeCrashStatuses[0] = CRASHED; crashCount = crashCount + 1;} -> Interaction_0_1();
+
+Interaction_0_2() = 
+    [nodeCrashStatuses[0] == NOT_CRASHED && nodeCrashStatuses[2] == NOT_CRASHED 
+    && nodeStates[0] == STATE_0 && nodeStates[2] == STATE_1] 
+    update_state{nodeStates[2] = STATE_0;} -> Interaction_0_2()
+    []
+    [nodeCrashStatuses[0] == NOT_CRASHED && (crashCount == 0 || crashCount == 1)]
+    crash_node{nodeCrashStatuses[0] = CRASHED; crashCount = crashCount + 1;} -> Interaction_0_2();
+
+Interaction_1_0() = 
+    [nodeCrashStatuses[1] == NOT_CRASHED && nodeCrashStatuses[0] == NOT_CRASHED 
+    && nodeStates[1] == STATE_0 && nodeStates[0] == STATE_1] 
+    update_state{nodeStates[0] = STATE_0;} -> Interaction_1_0()
+    []
+    [nodeCrashStatuses[1] == NOT_CRASHED && (crashCount == 0 || crashCount == 1)]
+    crash_node{nodeCrashStatuses[1] = CRASHED; crashCount = crashCount + 1;} -> Interaction_1_0();
+
+Interaction_1_2() = 
+    [nodeCrashStatuses[1] == NOT_CRASHED && nodeCrashStatuses[2] == NOT_CRASHED 
+    && nodeStates[1] == STATE_0 && nodeStates[2] == STATE_1] 
+    update_state{nodeStates[2] = STATE_0;} -> Interaction_1_2()
+    []
+    [nodeCrashStatuses[1] == NOT_CRASHED && (crashCount == 0 || crashCount == 1)]
+    crash_node{nodeCrashStatuses[1] = CRASHED; crashCount = crashCount + 1;} -> Interaction_1_2();
+
+Interaction_2_0() = 
+    [nodeCrashStatuses[2] == NOT_CRASHED && nodeCrashStatuses[0] == NOT_CRASHED 
+    && nodeStates[2] == STATE_0 && nodeStates[0] == STATE_1] 
+    update_state{nodeStates[0] = STATE_0;} -> Interaction_2_0()
+    []
+    [nodeCrashStatuses[2] == NOT_CRASHED && (crashCount == 0 || crashCount == 1)]
+    crash_node{nodeCrashStatuses[2] = CRASHED; crashCount = crashCount + 1;} -> Interaction_2_0();
+
+Interaction_2_1() = 
+    [nodeCrashStatuses[2] == NOT_CRASHED && nodeCrashStatuses[1] == NOT_CRASHED 
+    && nodeStates[2] == STATE_0 && nodeStates[1] == STATE_1] 
+    update_state{nodeStates[1] = STATE_0;} -> Interaction_2_1()
+    []
+    [nodeCrashStatuses[2] == NOT_CRASHED && (crashCount == 0 || crashCount == 1)]
+    crash_node{nodeCrashStatuses[2] = CRASHED; crashCount = crashCount + 1;} -> Interaction_2_1();
+
+leader_consensus() = 
+    Interaction_0_1() ||| Interaction_0_2() ||| 
+    Interaction_1_0() ||| Interaction_1_2() ||| 
+    Interaction_2_0() ||| Interaction_2_1();
+
+#define consensus_0_1 (nodeCrashStatuses[0] == NOT_CRASHED && nodeCrashStatuses[1] == NOT_CRASHED && nodeStates[0] == nodeStates[1]);
+#define consensus_0_2 (nodeCrashStatuses[0] == NOT_CRASHED && nodeCrashStatuses[2] == NOT_CRASHED && nodeStates[0] == nodeStates[2]);
+#define consensus_1_2 (nodeCrashStatuses[1] == NOT_CRASHED && nodeCrashStatuses[2] == NOT_CRASHED && nodeStates[1] == nodeStates[2]);
+#define all_consensus (consensus_0_1 && consensus_0_2 && consensus_1_2);
+
+#assert leader_consensus() |= []<>consensus_0_2;

@@ -1,0 +1,17 @@
+=======================================================
+Assertion: System() |= <>[] POSSET
+********Verification Result********
+The Assertion (System() |= <>[] POSSET) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:2885
+Total Transitions:3816
+Time Used:0.1204735s
+Estimated Memory Used:44488.824KB
+
+

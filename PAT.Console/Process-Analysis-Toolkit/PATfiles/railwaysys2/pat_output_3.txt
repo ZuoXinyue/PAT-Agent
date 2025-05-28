@@ -1,0 +1,18 @@
+=======================================================
+Assertion: railwaysys2() |= []( trackB_green-> A_connect_to_B)
+********Verification Result********
+The Assertion (railwaysys2() |= []( trackB_green-> A_connect_to_B)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:3
+Total Transitions:4
+Time Used:0.0075579s
+Estimated Memory Used:8508.888KB
+
+

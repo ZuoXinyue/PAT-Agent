@@ -1,0 +1,18 @@
+=======================================================
+Assertion: telecom() |= []( user0_connected_to_user1->(! user2_in_call&&! user3_in_call))
+********Verification Result********
+The Assertion (telecom() |= []( user0_connected_to_user1->(! user2_in_call&&! user3_in_call))) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:21447
+Total Transitions:101124
+Time Used:9.8825172s
+Estimated Memory Used:28678.096KB
+
+

@@ -1,0 +1,18 @@
+=======================================================
+Assertion: lift_system() deadlockfree
+********Verification Result********
+The Assertion (lift_system() deadlockfree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:5144
+Total Transitions:17584
+Time Used:0.2897203s
+Estimated Memory Used:12234.936KB
+
+

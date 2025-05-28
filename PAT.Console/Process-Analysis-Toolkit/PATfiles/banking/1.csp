@@ -1,0 +1,58 @@
+#define BANK_OPEN 1;
+#define BANK_CLOSED 0;
+#define ACCOUNT_OPEN 1;
+#define ACCOUNT_CLOSED 0;
+#define MAX_BALANCE 20;
+
+var bankState = BANK_CLOSED;
+var account1State = ACCOUNT_CLOSED;
+var N1 = 0;
+var account2State = ACCOUNT_CLOSED;
+var N2 = 0;
+
+Bank() = [bankState == BANK_CLOSED] bank_open{bankState = BANK_OPEN;} -> Bank()
+         []
+         [bankState == BANK_OPEN] bank_close{bankState = BANK_CLOSED;} -> Bank();
+
+Account1() = [bankState == BANK_OPEN && account1State == ACCOUNT_CLOSED] account1_open{account1State = ACCOUNT_OPEN; N1 = 0;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 == 0] account1_close{account1State = ACCOUNT_CLOSED;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 + 1 <= MAX_BALANCE] account1_deposit.1{N1 = N1 + 1;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 + 5 <= MAX_BALANCE] account1_deposit.5{N1 = N1 + 5;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 + 10 <= MAX_BALANCE] account1_deposit.10{N1 = N1 + 10;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 >= 1] account1_withdraw.1{N1 = N1 - 1;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 >= 5] account1_withdraw.5{N1 = N1 - 5;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN && N1 >= 10] account1_withdraw.10{N1 = N1 - 10;} -> Account1()
+             []
+             [bankState == BANK_OPEN && account1State == ACCOUNT_OPEN] account1_balance -> Account1();
+
+Account2() = [bankState == BANK_OPEN && account2State == ACCOUNT_CLOSED] account2_open{account2State = ACCOUNT_OPEN; N2 = 0;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 == 0] account2_close{account2State = ACCOUNT_CLOSED;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 + 1 <= MAX_BALANCE] account2_deposit.1{N2 = N2 + 1;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 + 5 <= MAX_BALANCE] account2_deposit.5{N2 = N2 + 5;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 + 10 <= MAX_BALANCE] account2_deposit.10{N2 = N2 + 10;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 >= 1] account2_withdraw.1{N2 = N2 - 1;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 >= 5] account2_withdraw.5{N2 = N2 - 5;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN && N2 >= 10] account2_withdraw.10{N2 = N2 - 10;} -> Account2()
+             []
+             [bankState == BANK_OPEN && account2State == ACCOUNT_OPEN] account2_balance -> Account2();
+
+banking = Bank() ||| Account1() ||| Account2();
+
+#define balance_nonnegative (N1 >= 0 && N2 >= 0);
+#define accounts_closed (account1State == ACCOUNT_CLOSED && account2State == ACCOUNT_CLOSED);
+#define bank_is_open (bankState == BANK_OPEN);
+#assert banking |= []<>(accounts_closed);

@@ -1,0 +1,44 @@
+////number of processes
+#define N 2;
+//stack size
+#define SIZE 12;
+
+//shared head pointer for the concrete implementation
+var H = 0;
+//local variable to store the temporary head value
+var HL[N];
+//shared head pointer for the abstract implementation
+var HA = 0;
+
+////////////////The Concrete Implementation Model//////////////////
+Push(i) = 
+	    tau{HL[i]=H;} -> 
+	    ifa (HL[i] == H) {
+		    push.i.(H+1){if(H < SIZE) {H = H+1;}} -> Skip
+	    } else {
+		    tau -> Push(i)
+	 	};
+
+Pop(i) =
+		    tau{HL[i]=H;} -> 
+		    ifa(H == 0) {
+			    pop.i.0 -> Skip 
+		    } else {
+			    tau-> ifa(HL[i] != H) {tau -> Pop(i) } else {pop.i.H{if(H > 0) {H = H -1;}} -> Skip
+			    }
+		    };
+
+Process(i) = (Push(i)[]Pop(i));Process(i);
+Stack() = (|||x:{0..N-1}@Process(x));
+
+////////////////The Abstract Specification Model//////////////////
+PushAbs(i) = push.i.(HA + 1) {if(HA < SIZE) {HA = HA+1;}} -> Skip;
+PopAbs(i) = pop.i.HA{if(HA > 0) {HA = HA -1;}} -> Skip;
+
+ProcessAbs(i) = (PushAbs(i)[]PopAbs(i));ProcessAbs(i);
+
+StackAbs() = (|||x:{0..N-1}@ProcessAbs(x));
+
+////////////////The Properties//////////////////
+
+#assert Stack() refines StackAbs();

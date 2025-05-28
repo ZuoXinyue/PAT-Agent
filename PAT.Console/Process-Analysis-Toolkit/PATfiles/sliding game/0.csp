@@ -1,0 +1,92 @@
+#define BOARD_DIMENSION 5;
+#define TOTAL_SQUARES 25;
+#define VISITED 1;
+#define UNVISITED 0;
+
+var knight_i = 0;
+var knight_j = 0;
+var steps = 0;
+var board[TOTAL_SQUARES] = [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+Knight() = 
+    ([knight_i >= 0 && knight_i <= 2 && knight_j >= 0 && knight_j <= 3 && 
+      board[(knight_i + 2) * BOARD_DIMENSION + (knight_j + 1)] == UNVISITED] 
+     move_2_down_1_right{
+        knight_i = knight_i + 2; 
+        knight_j = knight_j + 1; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 0 && knight_i <= 2 && knight_j >= 1 && knight_j <= 4 && 
+      board[(knight_i + 2) * BOARD_DIMENSION + (knight_j - 1)] == UNVISITED] 
+     move_2_down_1_left{
+        knight_i = knight_i + 2; 
+        knight_j = knight_j - 1; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 2 && knight_i <= 4 && knight_j >= 0 && knight_j <= 3 && 
+      board[(knight_i - 2) * BOARD_DIMENSION + (knight_j + 1)] == UNVISITED] 
+     move_2_up_1_right{
+        knight_i = knight_i - 2; 
+        knight_j = knight_j + 1; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 2 && knight_i <= 4 && knight_j >= 1 && knight_j <= 4 && 
+      board[(knight_i - 2) * BOARD_DIMENSION + (knight_j - 1)] == UNVISITED] 
+     move_2_up_1_left{
+        knight_i = knight_i - 2; 
+        knight_j = knight_j - 1; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 0 && knight_i <= 3 && knight_j >= 0 && knight_j <= 2 && 
+      board[(knight_i + 1) * BOARD_DIMENSION + (knight_j + 2)] == UNVISITED] 
+     move_1_down_2_right{
+        knight_i = knight_i + 1; 
+        knight_j = knight_j + 2; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 0 && knight_i <= 3 && knight_j >= 2 && knight_j <= 4 && 
+      board[(knight_i + 1) * BOARD_DIMENSION + (knight_j - 2)] == UNVISITED] 
+     move_1_down_2_left{
+        knight_i = knight_i + 1; 
+        knight_j = knight_j - 2; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 1 && knight_i <= 4 && knight_j >= 0 && knight_j <= 2 && 
+      board[(knight_i - 1) * BOARD_DIMENSION + (knight_j + 2)] == UNVISITED] 
+     move_1_up_2_right{
+        knight_i = knight_i - 1; 
+        knight_j = knight_j + 2; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight())
+    []
+    ([knight_i >= 1 && knight_i <= 4 && knight_j >= 2 && knight_j <= 4 && 
+      board[(knight_i - 1) * BOARD_DIMENSION + (knight_j - 2)] == UNVISITED] 
+     move_1_up_2_left{
+        knight_i = knight_i - 1; 
+        knight_j = knight_j - 2; 
+        steps = steps + 1; 
+        board[knight_i * BOARD_DIMENSION + knight_j] = VISITED;
+     } -> Knight());
+
+#define goal (board[0] == 1 && board[1] == 1 && board[2] == 1 && board[3] == 1 && board[4] == 1 && 
+             board[5] == 1 && board[6] == 1 && board[7] == 1 && board[8] == 1 && board[9] == 1 && 
+             board[10] == 1 && board[11] == 1 && board[12] == 1 && board[13] == 1 && board[14] == 1 && 
+             board[15] == 1 && board[16] == 1 && board[17] == 1 && board[18] == 1 && board[19] == 1 && 
+             board[20] == 1 && board[21] == 1 && board[22] == 1 && board[23] == 1 && board[24] == 1);
+
+#define altergoal (steps == 24);
+
+#assert Knight() reaches goal;

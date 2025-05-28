@@ -1,0 +1,116 @@
+//@@Minesweeper Game@@
+//The following are constants of the Minesweeper game
+#define Ro 4; // Number of Rows
+#define Co 4; // Number of Columns
+
+#define b -1; // Indicates a Mine
+#define s 0; // Indicates a blank Space
+
+#define close 9; // Square is closed
+#define open 8; // Square is open
+#define flag -9; // Square is flagged
+
+var NumOfClick = 0; // The number of useful left-clicks.
+var recursiveOrnot = false;
+//Click[Row][Column] records the state of the square.
+//   col number     :0 1 2 3 
+var click[Ro][Co] = [close,close,close,close, //Row 0
+				     close,close,close,close, //Row 1
+				     close,close,close,close, //Row 2
+				     close,close,close,close];//Row 3
+
+//board[Row][Column] indicates the cell is either a mine, a number or a blank square
+//   col number    :0 1 2 3 
+var board[Ro][Co] = [1,b,2,1,
+                     1,1,2,b,
+                     1,1,1,1,
+                     b,1,s,s];
+					 
+//Game Initialization
+Game() = ([!goal_win && !goal_lose]([]x:{0..(Ro - 1)}@[]y:{0..(Co - 1)}@ Choice(x,y)))[]([goal_win || goal_lose]Skip);
+Choice(x,y)= [click[x][y]==close||click[x][y]==flag](([click[x][y]==close](IncreaseTurn(x,y)))[](RightClick(x,y);Game()));
+IncreaseTurn(x,y) = increase{NumOfClick++}->LeftClick(x,y); //Note: We only count the number of useful left-click (See Section 3.1.4).
+
+//If the square contains a mine or a number, leftclick just open this square. If the square is a blank square, leftclick will open this square and its neighbour squares recursively
+LeftClick(x,y) = if(board[x][y]==s && click[x][y]!=open && click[x][y]!=flag)
+{
+	if(x == 0 && y == 0)
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x + 1,y) ;
+			LeftClick(x + 1,y + 1) ; LeftClick(x,y + 1);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(x == 0 && y == (Co - 1)) 
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x,y - 1) ; LeftClick(x + 1,y - 1) ; LeftClick(x + 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(x == (Ro - 1) && y == 0)
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x,y + 1) ; LeftClick(x - 1,y + 1) ; LeftClick(x - 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(x == (Ro - 1) && y == (Co - 1))
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x - 1,y - 1) ; LeftClick(x,y - 1) ;
+			LeftClick(x - 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(x == 0)
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x,y - 1) ; LeftClick(x + 1,y - 1) ; LeftClick(x + 1,y) ;
+			LeftClick(x + 1,y + 1) ; LeftClick(x,y + 1);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(y == 0)
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x + 1,y) ;
+			LeftClick(x + 1,y + 1) ; LeftClick(x,y + 1) ; LeftClick(x - 1,y + 1) ; LeftClick(x - 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(x == (Ro - 1))
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x - 1,y - 1) ; LeftClick(x,y - 1) ;
+			LeftClick(x,y + 1) ; LeftClick(x - 1,y + 1) ; LeftClick(x - 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+	else if(y == (Co - 1))
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x - 1,y - 1) ; LeftClick(x,y - 1) ; LeftClick(x + 1,y - 1) ; LeftClick(x + 1,y) ;
+			LeftClick(x - 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+	else
+	{
+		bubble{click[x][y]=open;recursiveOrnot = true}
+		->LeftClick(x - 1,y - 1) ; LeftClick(x,y - 1) ; LeftClick(x + 1,y - 1) ; LeftClick(x + 1,y) ;
+			LeftClick(x + 1,y + 1) ; LeftClick(x,y + 1) ; LeftClick(x - 1,y + 1) ; LeftClick(x - 1,y);changeVar{recursiveOrnot = false}->Game()
+	}
+}
+else if (click[x][y]!=open && click[x][y]!=flag)
+{
+	if (recursiveOrnot == false){penacell{click[x][y]=open}->Game()}
+	else {penacell{click[x][y]=open}->Skip}
+}
+else{
+	Skip
+};
+
+//RightClick is used to either flag a square or unflag a square which has been flaged before 
+RightClick(x,y) = [click[x][y]!=open && ( (x==0&&y==1) || (x==1&&y==3) || (x==3&&y==0)) ]flagacell{click[x][y]=click[x][y]*(-1)}->Skip;
+
+//(Winning)Game ends when all the squares that do not contain the mine are opened, 
+//and squares with mine are either closed or flagged.
+#define goal_win (click[0][0] == open && (click[0][1] == close || click[0][1] == flag) && click[0][2] == open && click[0][3] == open && click[1][0] == open && click[1][1] == open && click[1][2] == open && (click[1][3] == close||click[1][3] == flag) && click[2][0] == open && click[2][1] == open && click[2][2] == open && click[2][3] == open && (click[3][0] == close||click[3][0] == flag)&& click[3][1] == open && click[3][2] == open && click[3][3] == open);
+
+//(Losing)Game ends when any of the squares containing mines is opened.
+#define goal_lose (click[0][1]==open || click[1][3]==open || click[3][0]==open);
+
+
+
+
+
+
+//Checking properties of Minesweeper.
+
+#assert Game() reaches goal_win;

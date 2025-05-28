@@ -1,0 +1,95 @@
+#define OWNER_COUNT 2;
+#define CAR_LOC_IN 3;
+#define CAR_LOC_NEAR 4;
+#define CAR_LOC_FAR 5;
+#define KEY_LOC_WITH_OWNER 6;
+#define DOOR_OPEN 7;
+#define DOOR_UNLOCKED 8;
+#define DOOR_LOCKED 9;
+#define ENGINE_OFF 10;
+#define ENGINE_ON 11;
+#define CAR_NOT_DRIVING 12;
+#define CAR_DRIVING 13;
+#define FUEL_EMPTY 14;
+#define FUEL_FULL 15;
+
+var ownerPositions[OWNER_COUNT] = [CAR_LOC_FAR, CAR_LOC_FAR];
+var keyPosition = CAR_LOC_FAR;
+var doorStatus = DOOR_LOCKED;
+var engineState = ENGINE_OFF;
+var drivingStatus = CAR_NOT_DRIVING;
+var fuelLevel = FUEL_FULL;
+
+owner_pos(i) = 
+    [ownerPositions[i] == CAR_LOC_FAR && i == 0] owner1_move_far_to_near{ownerPositions[i] = CAR_LOC_NEAR;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_FAR && i == 1] owner2_move_far_to_near{ownerPositions[i] = CAR_LOC_NEAR;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && doorStatus == DOOR_OPEN && i == 0] owner1_enter_car{ownerPositions[i] = CAR_LOC_IN;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && doorStatus == DOOR_OPEN && i == 1] owner2_enter_car{ownerPositions[i] = CAR_LOC_IN;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && doorStatus == DOOR_OPEN && i == 0] owner1_exit_car{ownerPositions[i] = CAR_LOC_NEAR;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && doorStatus == DOOR_OPEN && i == 1] owner2_exit_car{ownerPositions[i] = CAR_LOC_NEAR;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && i == 0 && drivingStatus != CAR_DRIVING] owner1_move_near_to_far{ownerPositions[i] = CAR_LOC_FAR;} -> owner_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && i == 1 && drivingStatus != CAR_DRIVING] owner2_move_near_to_far{ownerPositions[i] = CAR_LOC_FAR;} -> owner_pos(i);
+
+key_pos(i) = 
+    [ownerPositions[i] == CAR_LOC_NEAR && keyPosition == CAR_LOC_FAR && i == 0] owner1_pickup_key{keyPosition = KEY_LOC_WITH_OWNER;} -> key_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && keyPosition == CAR_LOC_FAR && i == 1] owner2_pickup_key{keyPosition = KEY_LOC_WITH_OWNER;} -> key_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && keyPosition == KEY_LOC_WITH_OWNER && i == 0] owner1_deposit_key{keyPosition = CAR_LOC_IN;} -> key_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && keyPosition == KEY_LOC_WITH_OWNER && i == 1] owner2_deposit_key{keyPosition = CAR_LOC_IN;} -> key_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && keyPosition == KEY_LOC_WITH_OWNER && i == 0] owner1_drop_key{keyPosition = CAR_LOC_FAR;} -> key_pos(i)
+    []
+    [ownerPositions[i] == CAR_LOC_NEAR && keyPosition == KEY_LOC_WITH_OWNER && i == 1] owner2_drop_key{keyPosition = CAR_LOC_FAR;} -> key_pos(i);
+
+door_op(i) = 
+    [doorStatus == DOOR_LOCKED && ownerPositions[i] == CAR_LOC_NEAR && keyPosition == KEY_LOC_WITH_OWNER && i == 0] owner1_unlock_door{doorStatus = DOOR_UNLOCKED;} -> door_op(i)
+    []
+    [doorStatus == DOOR_LOCKED && ownerPositions[i] == CAR_LOC_NEAR && keyPosition == KEY_LOC_WITH_OWNER && i == 1] owner2_unlock_door{doorStatus = DOOR_UNLOCKED;} -> door_op(i)
+    []
+    [doorStatus == DOOR_UNLOCKED] open_door{doorStatus = DOOR_OPEN;} -> door_op(i)
+    []
+    [doorStatus == DOOR_OPEN] close_door{doorStatus = DOOR_UNLOCKED;} -> door_op(i)
+    []
+    [doorStatus == DOOR_UNLOCKED && ownerPositions[i] == CAR_LOC_NEAR && keyPosition == KEY_LOC_WITH_OWNER && i == 0] owner1_lock_door{doorStatus = DOOR_LOCKED;} -> door_op(i)
+    []
+    [doorStatus == DOOR_UNLOCKED && ownerPositions[i] == CAR_LOC_NEAR && keyPosition == KEY_LOC_WITH_OWNER && i == 1] owner2_lock_door{doorStatus = DOOR_LOCKED;} -> door_op(i);
+
+motor(i) = 
+    [ownerPositions[i] == CAR_LOC_IN && engineState == ENGINE_OFF && fuelLevel == FUEL_FULL && i == 0] owner1_start_engine{engineState = ENGINE_ON;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && engineState == ENGINE_OFF && fuelLevel == FUEL_FULL && i == 1] owner2_start_engine{engineState = ENGINE_ON;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && engineState == ENGINE_ON && drivingStatus == CAR_NOT_DRIVING && i == 0] owner1_stop_engine{engineState = ENGINE_OFF;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && engineState == ENGINE_ON && drivingStatus == CAR_NOT_DRIVING && i == 1] owner2_stop_engine{engineState = ENGINE_OFF;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && engineState == ENGINE_ON && drivingStatus == CAR_NOT_DRIVING && fuelLevel == FUEL_FULL && doorStatus == DOOR_LOCKED && i == 0] owner1_start_driving{drivingStatus = CAR_DRIVING;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && engineState == ENGINE_ON && drivingStatus == CAR_NOT_DRIVING && fuelLevel == FUEL_FULL && doorStatus == DOOR_LOCKED && i == 1] owner2_start_driving{drivingStatus = CAR_DRIVING;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && drivingStatus == CAR_DRIVING && i == 0] owner1_stop_driving{drivingStatus = CAR_NOT_DRIVING;} -> motor(i)
+    []
+    [ownerPositions[i] == CAR_LOC_IN && drivingStatus == CAR_DRIVING && i == 1] owner2_stop_driving{drivingStatus = CAR_NOT_DRIVING;} -> motor(i)
+    []
+    [drivingStatus == CAR_NOT_DRIVING && fuelLevel == FUEL_FULL && (ownerPositions[0] == CAR_LOC_IN || ownerPositions[1] == CAR_LOC_IN)] consume_fuel{fuelLevel = FUEL_EMPTY;} -> motor(i)
+    []
+    [engineState == ENGINE_OFF && drivingStatus == CAR_NOT_DRIVING && fuelLevel == FUEL_EMPTY] refuel_car{fuelLevel = FUEL_FULL;} -> motor(i);
+
+keyless_car = (|||i:{0..OWNER_COUNT-1} @ (owner_pos(i) ||| key_pos(i) ||| door_op(i) ||| motor(i)));
+
+#define keylockinside (keyPosition == CAR_LOC_IN && doorStatus == DOOR_LOCKED && ownerPositions[0] != CAR_LOC_IN && ownerPositions[1] != CAR_LOC_IN);
+#define runwithoutowner (drivingStatus == CAR_DRIVING && ownerPositions[0] == CAR_LOC_FAR && ownerPositions[1] == CAR_LOC_FAR);
+#define ownerdrivetogether (drivingStatus == CAR_DRIVING && ownerPositions[0] == CAR_LOC_IN && ownerPositions[1] == CAR_LOC_IN);
+#define drivewithoutengineon (drivingStatus == CAR_DRIVING && engineState == ENGINE_OFF);
+#define drivewithoutfuel (drivingStatus == CAR_DRIVING && fuelLevel == FUEL_EMPTY);
+#define drivewithoutkeyholdbyother (drivingStatus == CAR_DRIVING && ownerPositions[1] == CAR_LOC_IN && ownerPositions[0] == CAR_LOC_FAR && keyPosition == KEY_LOC_WITH_OWNER);
+#assert keyless_car reaches drivewithoutkeyholdbyother;

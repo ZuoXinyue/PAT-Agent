@@ -1,0 +1,18 @@
+=======================================================
+Assertion: railwaysys2() |= [] at_most_one_green
+********Verification Result********
+The Assertion (railwaysys2() |= [] at_most_one_green) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:3
+Total Transitions:4
+Time Used:0.0078909s
+Estimated Memory Used:8514.256KB
+
+

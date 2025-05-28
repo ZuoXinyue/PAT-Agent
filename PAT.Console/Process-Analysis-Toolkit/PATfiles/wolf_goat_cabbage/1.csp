@@ -1,0 +1,70 @@
+#define BANK_A 0;
+#define BANK_B 1;
+#define BOAT_CAPACITY 1;
+#define NUM_OBJECTS 4;
+
+var objectPositions[NUM_OBJECTS] = [BANK_A, BANK_A, BANK_A, BANK_A];
+
+Cross() = 
+    [objectPositions[0] == BANK_A && objectPositions[2] == BANK_B]
+    cross_alone_no_goat{objectPositions[0] = BANK_B;} -> Return() 
+    [] 
+    [objectPositions[0] == BANK_A && objectPositions[2] == BANK_A && 
+     objectPositions[1] == BANK_B && objectPositions[3] == BANK_B]
+    cross_alone_with_goat{objectPositions[0] = BANK_B;} -> Return() 
+    [] 
+    [objectPositions[0] == BANK_A && objectPositions[1] == BANK_A && 
+     objectPositions[2] == BANK_B]
+    cross_with_wolf_no_goat{objectPositions[0] = BANK_B; objectPositions[1] = BANK_B;} -> Return() 
+    []
+    [objectPositions[0] == BANK_A && objectPositions[1] == BANK_A && 
+     objectPositions[2] == BANK_A && objectPositions[3] == BANK_B]
+    cross_with_wolf_with_goat{objectPositions[0] = BANK_B; objectPositions[1] = BANK_B;} -> Return() 
+    []
+    [objectPositions[0] == BANK_A && objectPositions[2] == BANK_A]
+    cross_with_goat{objectPositions[0] = BANK_B; objectPositions[2] = BANK_B;} -> Return() 
+    []
+    [objectPositions[0] == BANK_A && objectPositions[3] == BANK_A && 
+     objectPositions[1] == BANK_B]
+    cross_with_cabbage_no_wolf{objectPositions[0] = BANK_B; objectPositions[3] = BANK_B;} -> Return() 
+    []
+    [objectPositions[0] == BANK_A && objectPositions[3] == BANK_A && 
+     objectPositions[1] == BANK_A && objectPositions[2] == BANK_B]
+    cross_with_cabbage_no_goat{objectPositions[0] = BANK_B; objectPositions[3] = BANK_B;} -> Return();
+
+Return() = 
+    [objectPositions[0] == BANK_B && objectPositions[2] == BANK_A]
+    return_alone_no_goat{objectPositions[0] = BANK_A;} -> Cross() 
+    [] 
+    [objectPositions[0] == BANK_B && objectPositions[2] == BANK_B && 
+     objectPositions[1] == BANK_A && objectPositions[3] == BANK_A]
+    return_alone_with_goat{objectPositions[0] = BANK_A;} -> Cross() 
+    [] 
+    [objectPositions[0] == BANK_B && objectPositions[1] == BANK_B && 
+     objectPositions[2] == BANK_A]
+    return_with_wolf_no_goat{objectPositions[0] = BANK_A; objectPositions[1] = BANK_A;} -> Cross() 
+    []
+    [objectPositions[0] == BANK_B && objectPositions[1] == BANK_B && 
+     objectPositions[2] == BANK_B && objectPositions[3] == BANK_A]
+    return_with_wolf_with_goat{objectPositions[0] = BANK_A; objectPositions[1] = BANK_A;} -> Cross() 
+    []
+    [objectPositions[0] == BANK_B && objectPositions[2] == BANK_B]
+    return_with_goat{objectPositions[0] = BANK_A; objectPositions[2] = BANK_A;} -> Cross() 
+    []
+    [objectPositions[0] == BANK_B && objectPositions[3] == BANK_B && 
+     objectPositions[1] == BANK_A]
+    return_with_cabbage_no_wolf{objectPositions[0] = BANK_A; objectPositions[3] = BANK_A;} -> Cross() 
+    []
+    [objectPositions[0] == BANK_B && objectPositions[3] == BANK_B && 
+     objectPositions[1] == BANK_B && objectPositions[2] == BANK_A]
+    return_with_cabbage_no_goat{objectPositions[0] = BANK_A; objectPositions[3] = BANK_A;} -> Cross();
+
+#define goal (objectPositions[0] == BANK_B && objectPositions[1] == BANK_B && 
+              objectPositions[2] == BANK_B && objectPositions[3] == BANK_B);
+
+
+
+#define wolf_goat_A (objectPositions[1] == BANK_A && objectPositions[2] == BANK_A && 
+                   objectPositions[0] == BANK_B && objectPositions[3] == BANK_B);
+
+#assert Cross() reaches wolf_goat_A;

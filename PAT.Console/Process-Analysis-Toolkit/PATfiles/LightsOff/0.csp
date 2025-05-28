@@ -1,0 +1,141 @@
+// Constants for light states
+#define LIGHT_OFF 0;
+#define LIGHT_ON 1;
+#define GRID_COLUMNS 4;
+#define TOTAL_LIGHTS 16;
+
+// Light states initialization
+var a00 = LIGHT_OFF;
+var a01 = LIGHT_OFF;
+var a02 = LIGHT_ON;
+var a03 = LIGHT_ON;
+var a04 = LIGHT_OFF;
+var a05 = LIGHT_ON;
+var a06 = LIGHT_OFF;
+var a07 = LIGHT_ON;
+var a08 = LIGHT_ON;
+var a09 = LIGHT_ON;
+var a10 = LIGHT_ON;
+var a11 = LIGHT_OFF;
+var a12 = LIGHT_OFF;
+var a13 = LIGHT_ON;
+var a14 = LIGHT_OFF;
+var a15 = LIGHT_OFF;
+
+// LightsOff game process definition
+LightsOff() = 
+    click_0{
+        a00 = 1 - a00; 
+        a01 = 1 - a01; 
+        a04 = 1 - a04;
+    } -> LightsOff()
+    [] 
+    click_1{
+        a01 = 1 - a01; 
+        a00 = 1 - a00; 
+        a02 = 1 - a02; 
+        a05 = 1 - a05;
+    } -> LightsOff()
+    [] 
+    click_2{
+        a02 = 1 - a02; 
+        a01 = 1 - a01; 
+        a03 = 1 - a03; 
+        a06 = 1 - a06;
+    } -> LightsOff()
+    [] 
+    click_3{
+        a03 = 1 - a03; 
+        a02 = 1 - a02; 
+        a07 = 1 - a07;
+    } -> LightsOff()
+    [] 
+    click_4{
+        a04 = 1 - a04; 
+        a05 = 1 - a05; 
+        a00 = 1 - a00; 
+        a08 = 1 - a08;
+    } -> LightsOff()
+    [] 
+    click_5{
+        a05 = 1 - a05; 
+        a04 = 1 - a04; 
+        a06 = 1 - a06; 
+        a01 = 1 - a01; 
+        a09 = 1 - a09;
+    } -> LightsOff()
+    [] 
+    click_6{
+        a06 = 1 - a06; 
+        a05 = 1 - a05; 
+        a07 = 1 - a07; 
+        a02 = 1 - a02; 
+        a10 = 1 - a10;
+    } -> LightsOff()
+    [] 
+    click_7{
+        a07 = 1 - a07; 
+        a06 = 1 - a06; 
+        a03 = 1 - a03; 
+        a11 = 1 - a11;
+    } -> LightsOff()
+    [] 
+    click_8{
+        a08 = 1 - a08; 
+        a09 = 1 - a09; 
+        a04 = 1 - a04; 
+        a12 = 1 - a12;
+    } -> LightsOff()
+    [] 
+    click_9{
+        a09 = 1 - a09; 
+        a08 = 1 - a08; 
+        a10 = 1 - a10; 
+        a05 = 1 - a05; 
+        a13 = 1 - a13;
+    } -> LightsOff()
+    [] 
+    click_10{
+        a10 = 1 - a10; 
+        a09 = 1 - a09; 
+        a11 = 1 - a11; 
+        a06 = 1 - a06; 
+        a14 = 1 - a14;
+    } -> LightsOff()
+    [] 
+    click_11{
+        a11 = 1 - a11; 
+        a10 = 1 - a10; 
+        a07 = 1 - a07; 
+        a15 = 1 - a15;
+    } -> LightsOff()
+    [] 
+    click_12{
+        a12 = 1 - a12; 
+        a13 = 1 - a13; 
+        a08 = 1 - a08;
+    } -> LightsOff()
+    [] 
+    click_13{
+        a13 = 1 - a13; 
+        a12 = 1 - a12; 
+        a14 = 1 - a14; 
+        a09 = 1 - a09;
+    } -> LightsOff()
+    [] 
+    click_14{
+        a14 = 1 - a14; 
+        a13 = 1 - a13; 
+        a15 = 1 - a15; 
+        a10 = 1 - a10;
+    } -> LightsOff()
+    [] 
+    click_15{
+        a15 = 1 - a15; 
+        a14 = 1 - a14; 
+        a11 = 1 - a11;
+    } -> LightsOff();
+
+#define all_off (a00 == 0 && a01 == 0 && a02 == 0 && a03 == 0 && a04 == 0 && a05 == 0 && a06 == 0 && a07 == 0 && a08 == 0 && a09 == 0 && a10 == 0 && a11 == 0 && a12 == 0 && a13 == 0 && a14 == 0 && a15 == 0);
+
+#assert LightsOff reaches all_off;

@@ -1,0 +1,982 @@
+[
+    {
+      "index": 27,
+      "modelName": "files",
+      "modelDesc": "This project models a file system consisting of 3 files. ",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "File1",
+          "description": "File1 can be created, trashed, protected. It can be linked to File2 or File3. It can be linked to at most one other file, the linkage can't be modified once made. A protected file can't be trashed. A file can only be created once."
+        },
+        {
+          "name": "File2",
+          "description": "File2 can be created, trashed, protected. It can be linked to File1 or File3."
+        },
+        {
+          "name": "File3",
+          "description": "File3 can be created, trashed, protected. It can be linked to File1 or File2."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"some_file_trashed\", where File1, File2, or File3 is trashed. Assert that it is always the case that eventually some_file_trashed.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"File1_trashed\", representing that File1 is trashed. Assert it is always the case that whenever File1_trashed, it will always remain in trash.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"some_file_protected\", where File1, File2, or File3 is protected. Assert it is always the case that eventually some_file_protected.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"File1_protected\", representing that File1 is protected. Assert it is always the case that if File1_protected, it is always the case that not File1_trashed.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if File1_protected, it will always be protected.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "modelName": "railwaysys",
+      "modelDesc": "The project models a train station system. There are 1 entry, 1 exit, 2 tracks and 2 trains. There are no cycles.",
+      "interactionMode": "interleaving",
+      "subsystemCount": 6,
+      "subsystems": [
+        {
+          "name": "Entry",
+          "description": "Entry doesn't have predecessor. It has two successors Track1 and Track2."
+        },
+        {
+          "name": "Track1",
+          "description": "Track1 has one predecessor Entry and one successor Exit. It has a signal which turns green when there is no train at its successor station, otherwise the signal is red."
+        },
+        {
+          "name": "Track2",
+          "description": "Track2 has one predecessor Entry and one successor Exit. It has a signal which turns green when there is no train at its successor station, otherwise the signal is red."
+        },
+        {
+          "name": "Exit",
+          "description": "Exit doesn't have successor. It has two predecessors Track1 and Track2."
+        },
+        {
+          "name": "Train1",
+          "description": "The position of Train1 can be Entry, Track1, Track2, or Exit. A train enters the system through the entry station, passes either track 1 or track 2, and leaves through the exit station. A train can be at one position at a time, it is allowed to pass to the next station if the signal is green."
+        },
+        {
+          "name": "Train2",
+          "description": "The position of Train2 can be Entry, Track1, Track2, or Exit."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"Track1_green\", where the signal at Track1 is green. Assert that eventually Track1_green.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"Track2_green\", where the signal at Track2 is green. Assert that eventually Track2_green.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"Collision\", where Train1 and Train2 are at the same position. Assert that it is always the case that not Collision.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define states \"Train1_at_Track1\" and \"Train1_at_Exit\", representing the position of Train1 is at Track1 and Exit. Assert it is always the case that if Train1_at_Track1, then if not Track1_green then always not Train1_at_Exit.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define a state called \"At_most_one_green\", where \"Track1_green\" and \"Track2_green\" cannot be true at the same time. Assert it is always the case that At_most_one_green.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "modelName": "graph",
+      "modelDesc": "The project models a directed graph. Each node as a set of outgoing edges, each edge has a direction. There should be at most one edge between any two nodes.",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "Node1",
+          "description": "Node1 can be connected to Node2 and Node3 if there doesn't exist an edge between the target node and Node1. Note that the edge is directed, namely an edge from Node1 to Node2 will be different from the edge from Node2 to Node1."
+        },
+        {
+          "name": "Node2",
+          "description": "Node2 can be connected to Node1 and Node3 if there doesn't exist an edge between the target node and Node2."
+        },
+        {
+          "name": "Node3",
+          "description": "Node3 can be connected to Node1 and Node2 if there doesn't exist an edge between the target node and Node3."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state \"Edge_1_2\" to represent that there is a directed edge from Node1 to Node2. Define state \"Edge_2_1\" to represent that there is a directed edge from Node2 to Node1. Assert it is always the case that if Edge_1_2, then eventually Edge_2_1.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state \"Edge_1_3\" to represent that there is a directed edge from Node1 to Node3. Define state \"Edge_3_1\" to represent that there is a directed edge from Node3 to Node1. Assert it is always the case that if Edge_1_3, then eventually Edge_3_1.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state \"Edge_2_3\" to represent that there is a directed edge from Node2 to Node3. Define state \"Edge_3_2\" to represent that there is a directed edge from Node3 to Node2. Assert it is always the case that if Edge_2_3, then eventually Edge_3_2.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if Edge_1_2, then always not Edge_2_1.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if Edge_1_3, then always not Edge_3_1.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if Edge_2_3, then always not Edge_3_2.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "modelName": "cv",
+      "modelDesc": "The project models an online CV platform that allows a profile to be updated not only by its owner but also by external institutions, to certify that the user indeed has produced certain works. ",
+      "interactionMode": "interleaving",
+      "subsystemCount": 5,
+      "subsystems": [
+        {
+          "name": "User1",
+          "description": "User1 can be linked to Institution1 and Institution2 if the link hasn't been added yet. User1 can make some links publically visible. Use individual variables to represent whether there is a link between a user and an institution."
+        },
+        {
+          "name": "User2",
+          "description": "User2 can be linked to Institution1 and Institution2 if the link hasn't been added yet. User2 can make some links publically visible."
+        },
+        {
+          "name": "User3",
+          "description": "User3 can be linked to Institution1 and Institution2 if the link hasn't been added yet. User3 can make some links publically visible."
+        },
+        {
+          "name": "Institution1",
+          "description": "Institution1 can be linked to User1, User2, User3 if the link hasn't been added yet."
+        },
+        {
+          "name": "Institution2",
+          "description": "Institution2 can be linked to User1, User2, User3 if the link hasn't been added yet."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state u1_i1 to represent that link exists between User1 and Institution1. Define state u1_i1_visible to represent that the link is visible. Assert it is always the case that if u1_i1_visible, then u1_i1.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state u2_i2 to represent that link exists between User2 and Institution2. Define state u2_i2_visible to represent that the link is visible. Assert it is always the case that if u2_i2_visible, then u2_i2.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that u1_i1 implies that next it is always the case that the action of Institution1 linking User1 cannot happen.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that u1_i1 implies that next it is always the case that the action of User1 linking Institution1 cannot happen.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that u2_i2 implies that next it is always the case that the action of Institution2 linking User2 cannot happen.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that u2_i2 implies that next it is always the case that the action of User2 linking Institution2 cannot happen.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "modelName": "production_line",
+      "modelDesc": "The project models an automated production line. ",
+      "interactionMode": "interleaving",
+      "subsystemCount": 5,
+      "subsystems": [
+        {
+          "name": "Component1",
+          "description": "Two components are assembled before a product is assembled, this product consists of the 2 components. Component1 has a variable to record the position at which it is assembled."
+        },
+        {
+          "name": "Component2",
+          "description": "Component2 has a variable to record the position at which it is assembled."
+        },
+        {
+          "name": "Product",
+          "description": "Product has a variable to record the position at which it is assembled. The Product can be made after the two components are made."
+        },
+        {
+          "name": "Robot1",
+          "description": "Each robot can work at one position at the same time, and they can change positions later. Robot1 has a variable to show the position it works at, and another variable to show the component or product that it is assembling."
+        },
+        {
+          "name": "Robot2",
+          "description": "Robot2 has a variable to show the position it works at, and another variable to show the component or product that it is assembling."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Component1_ismade to represent that Component1 is made. Define state Component1_madeby_robot to represent that there was at least one robot at the position when Component1 was made at that position. Assert it is always the case that if Component1_ismade, then Component1_madeby_robot.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Component2_ismade to represent that Component2 is made. Define state Component2_madeby_robot to represent that there was at least one robot at the position when Component2 was made at that position. Assert it is always the case that if Component2_ismade, then Component2_madeby_robot.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Product_ismade to represent that Product is made. Define state Product_madeby_robot to represent that there was at least one robot at the position when Product was made at that position. Assert it is always the case that if Product_ismade, then Product_madeby_robot.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define states Component1_before_Product and Component2_before_Product, representing whether Component1 and Component2 are made before Product. Assert it is always the case that if Product_ismade, then Component1_before_Product and Component2_before_Product.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "modelName": "files2",
+      "modelDesc": "This project models a file system.",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "File1",
+          "description": "A file can be created, trashed, protected. A file can only be created once. After being created, it can be protected or linked to another file if not trashed. A file can be linked to at most one other file, the linkage can't be modified once made. If a file is protected, the file it links to is also protected. If a file is trashed, the file it links to is also trashed. A protected file can't be trashed. File1 can complete any of the actions as described."
+        },
+        {
+          "name": "File2",
+          "description": "File2 shares the same set of actions as File1."
+        },
+        {
+          "name": "File3",
+          "description": "File3 shares the same set of actions as File1."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define states File1_protected and File1_trashed to represent that File1 is protected or trashed. Assert it is always the case that if File1_protected, then it is always the case that not File1_trashed.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define states File1_link_File2 and File1_link_File3 to represent that File1 is linked to File2 or File3. Assert that it is always the case that not both File1_link_File2 and File1_link_File3.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state File2_trashed to represent that File2 is trashed. Assert it is always the case that if File1_link_File2 and File1_trashed, then always eventually File2_trashed.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state File2_protected to represent that File2 is protected. Assert it is always the case that if File1_link_File2 and File1_protected, then always eventually File2_protected.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if File1_protected and File1_link_File2, then always not File2_trashed.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "modelName": "classroom",
+      "modelDesc": "The project models a classroom management system. ",
+      "interactionMode": "interleaving",
+      "subsystemCount": 5,
+      "subsystems": [
+        {
+          "name": "Student1",
+          "description": "Student1 has a variable to record whether he attends class 1, and another variable to record class 2."
+        },
+        {
+          "name": "Student2",
+          "description": "Student2 has a variable to record whether he attends class 1, and another variable to record class 2."
+        },
+        {
+          "name": "Student3",
+          "description": "Student3 has a variable to record whether he attends class 1, and another variable to record class 2."
+        },
+        {
+          "name": "Teacher1",
+          "description": "A teacher could teach some classes. A class can have at most one teacher. A teacher tutors a student if the student is in his classes. Teacher1 has a variable to record whether he teaches class 1, and another variable to record class 2."
+        },
+        {
+          "name": "Teacher2",
+          "description": "Teacher2 has a variable to record whether he teaches class 1, and another variable to record class 2."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Teacher1_assigned to represent whether Teacher1 is assigned with some classes. Assert that it is always the case that eventually Teacher1_assigned.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Student1_assigned to represent whether Student1 attends some classes. Assert that it is always the case that eventually Student1_assigned.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Class1_assigned to represent whether Class1 is assigned to some teacher. Define state Student1_attend_Class1 to represent that Student1 attends Class1. Assert it is always the case that if Student1_attend_Class1, then Class1_assigned.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 34,
+      "modelName": "lts",
+      "modelDesc": "The project models a labeled transition system (LTS).",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "InitialState",
+          "description": "States transit to other states through events. Each state has at least one transition. InitialState can transit to InitialState, State1 and State2."
+        },
+        {
+          "name": "State1",
+          "description": "State1 can transit to InitialState, State1 and State2."
+        },
+        {
+          "name": "State2",
+          "description": "State2 can transit to InitialState, State1 and State2."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "deadlock-free",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": false,
+          "assertionTruth": "",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if the action of InitialState transiting to State1 occurs, then it is always the case that the action of InitialState transiting to State2 will not occur.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Current_State1 to represent that the current state is State1. Assert that always eventually Current_State1.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Current_State2 to represent that the current state is State2. Assert that always eventually Current_State2.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Define state Current_InitialState to represent that the current state is InitialState. Assert it is always the case that if Current_State1, next eventually Current_InitialState.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "Assert it is always the case that if Current_State2, next eventually Current_InitialState.",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    }
+]

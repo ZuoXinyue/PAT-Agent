@@ -1,0 +1,29 @@
+#define N_NODES 2;
+
+var nodeLeaderFlag[N_NODES] = [0, 0];
+var globalLeaderCount = 0;
+var detector = 0;
+var detectorcorrect = 0;
+
+Node(i) = 
+    [nodeLeaderFlag[i] == 1 && globalLeaderCount == 2] node_step_down{nodeLeaderFlag[i] = 0; globalLeaderCount = globalLeaderCount - 1;} -> Node(i)
+    []
+    [nodeLeaderFlag[i] == 0 && (globalLeaderCount == 0 || globalLeaderCount == 1) && detector == 0] node_promote_no_det_success_case1{nodeLeaderFlag[i] = 1; globalLeaderCount = globalLeaderCount + 1;} -> Node(i)
+    []
+    [nodeLeaderFlag[i] == 0 && globalLeaderCount == 0 && detector == 0 && detectorcorrect == 1] node_promote_no_det_success_case2{nodeLeaderFlag[i] = 1; globalLeaderCount = globalLeaderCount + 1;} -> Node(i)
+    []
+    [nodeLeaderFlag[i] == 0 && globalLeaderCount == 0 && detector == 1 && detectorcorrect == 1] node_promote_no_det_success_case3{nodeLeaderFlag[i] = 1; globalLeaderCount = globalLeaderCount + 1;} -> Node(i);
+
+Detector() = 
+    [detector == 0] detector_flip_true{detector = 1;} -> Detector()
+    []
+    [detector == 1] detector_flip_false{detector = 0;} -> Detector();
+
+Oracle() = 
+    [detectorcorrect == 0] oracle_confirm{detectorcorrect = 1;} -> Oracle();
+
+leader_para_complete = (||| i:{0..N_NODES-1} @ Node(i)) ||| Detector() ||| Oracle();
+
+#define oneLeader (globalLeaderCount == 1);
+
+#assert leader_para_complete |= <>[](oneLeader);

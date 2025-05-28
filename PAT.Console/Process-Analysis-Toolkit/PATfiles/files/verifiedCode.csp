@@ -1,0 +1,62 @@
+#define STATE_UNCREATED 0;
+#define STATE_CREATED 1;
+#define STATE_PROTECTED 2;
+#define STATE_TRASHED 3;
+
+#define LINK_NONE 0;
+#define LINK_FILE1 1;
+#define LINK_FILE2 2;
+#define LINK_FILE3 3;
+
+var file1State = STATE_UNCREATED;
+var file1Link = LINK_NONE;
+var file2State = STATE_UNCREATED;
+var file2Link = LINK_NONE;
+var file3State = STATE_UNCREATED;
+var file3Link = LINK_NONE;
+
+File1() = 
+    [file1State == STATE_UNCREATED] create_file1{file1State = STATE_CREATED;} -> File1()
+    []
+    [file1State == STATE_CREATED] protect_file1{file1State = STATE_PROTECTED;} -> File1()
+    []
+    [file1State == STATE_CREATED] trash_file1{file1State = STATE_TRASHED;} -> File1()
+    []
+    [file1State == STATE_CREATED || file1State == STATE_PROTECTED && file1Link == LINK_NONE && (file2State == STATE_CREATED || file2State == STATE_PROTECTED)] link_file1_to_file2{file1Link = LINK_FILE2;} -> File1()
+    []
+    [file1State == STATE_CREATED || file1State == STATE_PROTECTED && file1Link == LINK_NONE && (file3State == STATE_CREATED || file3State == STATE_PROTECTED)] link_file1_to_file3{file1Link = LINK_FILE3;} -> File1();
+
+File2() = 
+    [file2State == STATE_UNCREATED] create_file2{file2State = STATE_CREATED;} -> File2()
+    []
+    [file2State == STATE_CREATED] protect_file2{file2State = STATE_PROTECTED;} -> File2()
+    []
+    [file2State == STATE_CREATED] trash_file2{file2State = STATE_TRASHED;} -> File2()
+    []
+    [file2State == STATE_CREATED || file2State == STATE_PROTECTED && file2Link == LINK_NONE && (file1State == STATE_CREATED || file1State == STATE_PROTECTED)] link_file2_to_file1{file2Link = LINK_FILE1;} -> File2()
+    []
+    [file2State == STATE_CREATED || file2State == STATE_PROTECTED && file2Link == LINK_NONE && (file3State == STATE_CREATED || file3State == STATE_PROTECTED)] link_file2_to_file3{file2Link = LINK_FILE3;} -> File2();
+
+File3() = 
+    [file3State == STATE_UNCREATED] create_file3{file3State = STATE_CREATED;} -> File3()
+    []
+    [file3State == STATE_CREATED] protect_file3{file3State = STATE_PROTECTED;} -> File3()
+    []
+    [file3State == STATE_CREATED] trash_file3{file3State = STATE_TRASHED;} -> File3()
+    []
+    [file3State == STATE_CREATED || file3State == STATE_PROTECTED && file3Link == LINK_NONE && (file1State == STATE_CREATED || file1State == STATE_PROTECTED)] link_file3_to_file1{file3Link = LINK_FILE1;} -> File3()
+    []
+    [file3State == STATE_CREATED || file3State == STATE_PROTECTED && file3Link == LINK_NONE && (file2State == STATE_CREATED || file2State == STATE_PROTECTED)] link_file3_to_file2{file3Link = LINK_FILE2;} -> File3();
+
+files = File1() ||| File2() ||| File3();
+
+#define some_file_trashed (file1State == STATE_TRASHED || file2State == STATE_TRASHED || file3State == STATE_TRASHED);
+#define File1_trashed (file1State == STATE_TRASHED);
+#define some_file_protected (file1State == STATE_PROTECTED || file2State == STATE_PROTECTED || file3State == STATE_PROTECTED);
+#define File1_protected (file1State == STATE_PROTECTED);
+
+#assert files |= <>some_file_trashed;
+#assert files |= [](File1_trashed -> []File1_trashed);
+#assert files |= <>some_file_protected;
+#assert files |= [](File1_protected -> !File1_trashed);
+#assert files |= [](File1_protected -> []File1_protected);

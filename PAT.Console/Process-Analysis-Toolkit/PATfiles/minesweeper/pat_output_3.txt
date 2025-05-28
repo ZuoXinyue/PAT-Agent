@@ -1,0 +1,20 @@
+=======================================================
+Assertion: Game() reaches goal_lose with min(NumOfClick)
+********Verification Result********
+The Assertion (Game() reaches goal_lose with min(NumOfClick)) is VALID and min(NumOfClick) = 1 among 132972 reachable states.
+The following trace leads to a state where the condition is satisfied with the above value.
+<init -> increase -> [if!((((board[(1 + (4 * 0))] == s) && (click[(1 + (4 * 0))] != open)) && (click[(1 + (4 * 0))] != flag)))] -> [if(((click[(1 + (4 * 0))] != open) && (click[(1 + (4 * 0))] != flag)))] -> [if((recursiveOrnot == false))] -> penacell>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:1662708
+Total Transitions:1882096
+Time Used:24.0509602s
+Estimated Memory Used:60930.928KB
+
+

@@ -1,0 +1,1990 @@
+[
+    {
+        "index": 1,
+        "modelName": "keyless_car",
+        "modelDesc": "We would like to model a car in this system, which involves the interaction between owners, car door, the key, and the engine.",
+        "interactionMode": "interleaving",
+        "subsystemCount": 4,
+        "subsystems": [
+            {
+                "name": "owner_pos",
+                "description": "This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car."
+            },
+            {
+                "name": "key_pos",
+                "description": "This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners."
+            },
+            {
+                "name": "door_op",
+                "description": "This process models the car door's status. The door can be open, unlocked, or locked."
+            },
+            {
+                "name": "motor",
+                "description": "This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled."
+            }
+        ],
+        "assertions": [
+            {
+                "assertionType": "deadlock-free",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "",
+                "conditions": [
+                    {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                    }
+                ],
+                "editingFinished": false,
+                "assertionTruth": "",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "assert that the car always eventually perform the action that owner 0 is driving (e.g., drive.0)",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "keylockinside",
+                "reachabilityType": "customize",
+                "customDescription": "key position is in the car, door is locked, owner 0 and owner 1's positions are not in the car",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": ""
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "runwithoutowner",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving, and owner 0 and owner 1 are far away from the car",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": ""
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "ownerdrivetogether",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving and owner 0 and 1 are in the car",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": ""
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "drivewithoutengineon",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving but the engine is off",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": ""
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "drivewithoutfuel",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving but the fuel is empty",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": ""
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "drivewithoutkeyholdbyother",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving, owner 1 is in the car, owner 0 is far away from the car, and key is with owner 0",
+                "conditions": [
+                {
+                    "variable": "",
+                    "value": ""
+                }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            }
+        ]
+    },
+    {
+        "index": 2,
+        "modelName": "lift",
+        "modelDesc": "We would like to model a lift in this system, which involves the interaction between persons and a lift.",
+        "interactionMode": "interleaving",
+        "subsystemCount": 2,
+        "subsystems": [
+            {
+                "name": "person",
+                "description": "This process models the person who is taking a lift. There are 2 persons in the system, we keep track of which floor each person is on, and whether they are in the lift. Both persons are initally on the first floor and not in the lift."
+            },
+            {
+                "name": "lift",
+                "description": "This process models the lift. The lift can be at any of the 3 floors, initially at the first floor. Its door can be open or closed. It also keeps track of whether there are external requests going up or down at each of the 3 floors, and whether there are internal requests for each floor. The request arrays are all initialized with the state no request."
+            }
+        ],
+        "assertions": [
+            {
+                "assertionType": "deadlock-free",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": false,
+                "assertionTruth": "",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state validfloor where the lift floor is between the first floor and the third floor, assert that the system always have validfloor.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state buttondesign where there are no external up request for the thrid floor and no external down request for the first floor, assert that the system always satisfy buttondesign.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state inside where at least one person is in the lift, define a state dooropen where the lift door is open, assert that the system always have inside then eventually dooropen, which means no one will be trapped in the lift.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state off where there is no external up request for the first floor, assert that the system always eventually reach off.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state on where there is an external up request for the first floor, assert that the system always have: on then eventually off.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            }
+        ]
+    },
+    {
+        "index": 3,
+        "modelName": "kitchen",
+        "modelDesc": "We would like to model a kitchen in this system, which involves the interaction between ",
+        "interactionMode": "interleaving",
+        "subsystemCount": 5,
+        "subsystems": [
+            {
+                "name": "order",
+                "description": "This process models the order in the kitchen. The order status can be not taken, taken, delivered to headchef, assigned to cook, and ready to serve."
+            },
+            {
+                "name": "headchef",
+                "description": "The kitchen can be open or closed by the headchef and orders can be assigned by headchef to cook."
+            },
+            {
+                "name": "cook",
+                "description": "This process models the cook in the kitchen, who can be cooking a dish or resting."
+            },
+            {
+                "name": "prepstation",
+                "description": "This process models the preparation station of the kitchen, where the ingredients can be ready or not ready."
+            },
+            {
+                "name": "waiter",
+                "description": "This process models the waiter in the kitchen, who can take order, deliver order to headchef, and serve dish. After a dish is served, the waiter can take order again."
+            }
+        ],
+        "assertions": [
+            {
+                "assertionType": "deadlock-free",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": false,
+                "assertionTruth": "",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "cookingwhenclosed",
+                "reachabilityType": "customize",
+                "customDescription": "the cook is cooking but the kitchen is closed.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state ordertaken, where the waiter has taken an order; define another state orderdelivered, where the order has been delivered to headchef; assert that the system always have ordertaken then eventually orderdelivered.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state ingredientsready, where the ingredients are prepared; define another state orderassigned, where the order has been assigned from headchef to cook; assert that the system always have ingredientsready then orderassigned, which means ingredients won't be prepared for unassigned order.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "assert that the system always eventually perform the action cooking.",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            }
+        ]
+    },
+    {
+        "index": 4,
+        "modelName": "tesla",
+        "modelDesc": "the tesla car design which tries to guarantee exit opportunities for owners when submerged in water",
+        "interactionMode": "processes motor, door_op, key_pos, owner_pos, and window interleave each other and interrupted by a process: (water_sensor_high -> submerge -> Stop)",
+        "subsystemCount": 5,
+        "subsystems": [
+            {
+                "name": "owner_pos",
+                "description": "This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car."
+            },
+            {
+                "name": "key_pos",
+                "description": "This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners."
+            },
+            {
+                "name": "door_op",
+                "description": "This process models the car door's status. The door can be open, unlocked, or locked."
+            },
+            {
+                "name": "motor",
+                "description": "This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled."
+            },
+            {
+                "name": "window",
+                "description": "This process models the window in the car. The window (as a whole) can be open, half-opened, or closed."
+            }
+        ],
+        "assertions": [
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define a state called openAll where the door is unlocked and window is open. assert that the system will always have water_sensor_high -> X openAll, which means once submerged in water there's still chance to escape",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "assert that the car always eventually perform the action that owner 0 is driving (e.g., drive.0)",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "keylockinside",
+                "reachabilityType": "customize",
+                "customDescription": "key position is in the car, door is locked, owner 0 and owner 1's positions are not in the car",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "runwithoutowner",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving, and owner 0 and owner 1 are far away from the car",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "ownerdrivetogether",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving and owner 0 and 1 are in the car",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "drivewithoutengineon",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving but the engine is off",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "drivewithoutfuel",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving but the fuel is empty",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "",
+                "stateName": "drivewithoutkeyholdbyother",
+                "reachabilityType": "customize",
+                "customDescription": "the car is moving, owner 1 is in the car, owner 0 is far away from the car, and key is with owner 0",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            }
+        ]
+    },
+    {
+        "index": 5,
+        "modelName": "bridge_crossing",
+        "modelDesc": "4 people cross the bridge",
+        "interactionMode": "none",
+        "subsystemCount": 2,
+        "subsystems": [
+            {
+                "name": "South",
+                "description": "To cross the bridge, the maximum crossing time allowed is 17 units, and knight, lady, king, and queen takes 1, 2, 5, 10 units to cross respectively. Knight, Lady, King, Queen each have two possible positions (South or North); initially all at South and time = 0. From South, one or two people may cross to North; crossing time is the maximum of their individual times. After crossing, hand over control to North."
+            },
+            {
+                "name": "North",
+                "description": "From North, in each action one or two people currently on North may cross back to South; crossing time is again the maximum of their individual times. After crossing, hand over control back to South."
+            }
+        ],
+        "assertions": [
+            {
+                "assertionType": "reachability",
+                "component": "South",
+                "stateName": "goal",
+                "reachabilityType": "customize",
+                "customDescription": "all 4 persons on the north side",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "South",
+                "stateName": "goal",
+                "reachabilityType": "customize",
+                "customDescription": "the same state as above, assert that it reaches goal with min(time)",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "South",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define alter state where: all 4 persons on the north side and time exceeds maximum allowed, or, not all 4 persons on the north side; assert that the component south always alter",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            }
+        ]
+    },
+    {
+      "index": 6,
+      "modelName": "wolf_goat_cabbage",
+      "modelDesc": "farmer cross the river with wolf, goat, and cabbage",
+      "interactionMode": "none",
+      "subsystemCount": 2,
+      "subsystems": [
+        {
+          "name": "Cross",
+          "description": "There are two river banks A and B. Four objects: farmer, wolf, goat, cabbage, all initially at bank A, want to cross the river. Only the farmer may row the boat, which can carry the farmer alone or the farmer plus one other (one of wolf/goat/cabbage) to bank B. The crossing can only be made provided that after departure, bank A is NOT left with wolf and goat alone nor goat and cabbage alone. After crossing, hand over control to Return."
+        },
+        {
+          "name": "Return",
+          "description": "From bank B, the farmer (and optionally one other) can go back to bank A provided that after departure, bank B is NOT left with wolf and goat alone nor goat and cabbage alone. After crossing, hand over control to Cross."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all 4 objects on bank B",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "wolf_goat_A",
+          "reachabilityType": "customize",
+          "customDescription": "wolf and goat are on bank A, and farmer and cabbage are on bank B",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "modelName": "missionaries_cannibals",
+      "modelDesc": "missionaries and cannibals cross the river",
+      "interactionMode": "none",
+      "subsystemCount": 2,
+      "subsystems": [
+        {
+          "name": "Cross",
+          "description": "There are two river banks A and B. Three missionaries and three cannibals all start on bank A. A boat that holds at most two people (cannot cross empty) can carry one or two of them to bank B. Allowed crossings are: one missionary, two missionaries, one cannibal, two cannibals, or one missionary with one cannibal - provided that on both banks, whenever missionaries are present they are never outnumbered by cannibals. After crossing, hand over control to Return."
+        },
+        {
+          "name": "Return",
+          "description": "From bank B, the boat (with one or two people) returns to bank A under the same safety rule (missionaries never outnumbered by cannibals on either bank). After crossing, hand over control to Cross."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all missionaries and cannibals on bank B",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "out_numbered",
+          "reachabilityType": "customize",
+          "customDescription": "the number of missionaries on bank A is smaller than the number of cannibals on bank A, and the number of missionaries on bank A is not zero",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "out_numbered2",
+          "reachabilityType": "customize",
+          "customDescription": "the number of missionaries on bank B is smaller than the number of cannibals on bank B, and the number of missionaries on bank B is not zero",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "modelName": "sieve",
+      "modelDesc": "Sieve of Eratosthenes",
+      "interactionMode": "none",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "P",
+          "description": "We want to find all prime numbers up to N = 9. Each number is initially unmarked, it should be an array of 10 elements such that the mth element represent the number m. With i,j,k all starting at 2, as long as i \u2264 SqrtOfN invoke Q(), otherwise terminate (Stop)."
+        },
+        {
+          "name": "Q",
+          "description": "If i is not yet marked, set j = i and k = i + j then proceed to Sieve(); otherwise increment i and loop back to P()."
+        },
+        {
+          "name": "Sieve",
+          "description": "while k \u2264 N set k to be marked and k += j, then recurse Sieve(); once k > N, increment i and return to P()."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "P",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "i is SqrtOfN + 1, number 4, 6, 8, 9 are marked, and number 2, 3, 5, 7 are not marked",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "modelName": "sliding_game",
+      "modelDesc": "A sliding game with 4 possible movements",
+      "interactionMode": "choice",
+      "subsystemCount": 4,
+      "subsystems": [
+        {
+          "name": "Move Left",
+          "description": "The board is a nine\u2011element array initially set to [3,5,6,0,2,7,8,4,1], with the blank (0) in slot\u00a03. If the blank is not in the rightmost column (slots\u00a02,\u00a05,\u00a08), slide the tile immediately to the right of the blank into the blank slot (that tile moves left) and record that the blank has moved one slot to the right."
+        },
+        {
+          "name": "Move Right",
+          "description": "If the blank is not in the leftmost column (slots\u00a00,\u00a03,\u00a06), slide the tile immediately to the left of the blank into the blank slot (that tile moves right) and record that the blank has moved one slot to the left."
+        },
+        {
+          "name": "Move Up",
+          "description": "If the blank is not in the bottom row (slots\u00a06,\u00a07,\u00a08), slide the tile immediately below the blank into the blank slot (that tile moves up) and record that the blank has moved one slot down."
+        },
+        {
+          "name": "Move Down",
+          "description": "If the blank is not in the top row (slots\u00a00,\u00a01,\u00a02), slide the tile immediately above the blank into the blank slot (that tile moves down) and record that the blank has moved one slot up."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "board is [1,2,3,4,5,6,7,8,0]",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "modelName": "lightsOff",
+      "modelDesc": "The game is modeled by 16 separate light variables a00 through a15 (conceptually four per row). Initially lights a02, a03, a05, a07, a08, a09, a10 and a13 are on; all others are off. Each action click_k toggles light a_k and any immediately adjacent lights: the one to its left (if k\u00a0mod\u00a04\u00a0\u2260\u00a00), to its right (if k\u00a0mod\u00a04\u00a0\u2260\u00a03), above (if k\u00a0\u2265\u00a04), and below (if k\u00a0\u2264\u00a011).",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "lightsOff",
+          "description": "The game is modeled by 16 separate light variables a00 through a15 (conceptually four per row). Initially lights a02, a03, a05, a07, a08, a09, a10 and a13 are on; all others are off. Each action click_k toggles light a_k and any immediately adjacent lights: the one to its left (if k\u00a0mod\u00a04\u00a0\u2260\u00a00), to its right (if k\u00a0mod\u00a04\u00a0\u2260\u00a03), above (if k\u00a0\u2265\u00a04), and below (if k\u00a0\u2264\u00a011)."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all lights are off",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "modelName": "hanoi",
+      "modelDesc": "There are two disks (one large and one small) and three pegs (each represented as an array whose size equals the number of disks). Peg\u00a01 initially holds both disks (large on the bottom, small on top), and pegs\u00a02 and\u00a03 are empty (represented by holding empty disk). At each step you may take the top disk from any non\u2011empty peg and place it onto another peg, provided that the destination peg is empty or its top disk is larger than the one being moved. After performing the move, control returns to the same process.",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "hanoi",
+          "description": "There are two disks (one large and one small) and three pegs (each represented as an array whose size equals the number of disks). Peg\u00a01 initially holds both disks (large on the bottom, small on top), and pegs\u00a02 and\u00a03 are empty (represented by holding empty disk). At each step you may take the top disk from any non\u2011empty peg and place it onto another peg, provided that the destination peg is empty or its top disk is larger than the one being moved. After performing the move, control returns to the same process."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "peg\u00a03 holds both disks: the large one on the bottom and the small one on top",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "modelName": "knight",
+      "modelDesc": "The board is a 5\u00a0\u00d7\u00a05 grid of 25 squares, tracked in a 1\u2011D array with only the starting square marked visited, the rest unvisited. The knight\u2019s position, given by coordinates (i,j), starts at (0,0) with steps = 0. From any position it may move two squares in one direction and one square perpendicular (the eight standard \u201c2\u00d71\u201d knight moves), but only onto an unvisited square and provided that the square exists at that position. After each move, that square is marked visited, steps is incremented, and (i,j) is updated, then the process returns to Knight.",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "knight",
+          "description": "The board is a 5\u00a0\u00d7\u00a05 grid of 25 squares, tracked in a 1\u2011D array with only the starting square marked visited, the rest unvisited. The knight\u2019s position, given by coordinates (i,j), starts at (0,0) with steps = 0. From any position it may move two squares in one direction and one square perpendicular (the eight standard \u201c2\u00d71\u201d knight moves), but only onto an unvisited square and provided that the square exists at that position. After each move, that square is marked visited, steps is incremented, and (i,j) is updated, then the process returns to Knight."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all squares are visited",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "altergoal",
+          "reachabilityType": "customize",
+          "customDescription": "steps equals to 24",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "modelName": "shunting",
+      "modelDesc": "The puzzle is played on a 6\u00a0\u00d7\u00a07 grid stored in a two\u2011dimensional array called board. It is initialized so that row\u00a00 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a01 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a02 contains a,\u00a0a,\u00a0a,\u00a0w,\u00a0a,\u00a0a,\u00a0a; row\u00a03 contains a,\u00a0w,\u00a0a,\u00a0a,\u00a0a,\u00a0w,\u00a0a; row\u00a04 contains o,\u00a0o,\u00a0a,\u00a0w,\u00a0o,\u00a0o,\u00a0o; and row\u00a05 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o. Here o marks an obstacle, a marks an empty track space the box can be moved into, and w marks a box that can be pushed. The player starts at row\u00a03, column\u00a00. On each turn the player may move up, down, left, or right into an adjacent a cell, or if an adjacent cell holds a box (w) and the cell beyond it in the same direction is empty (a), the player may push the box into that space and occupy it. After each move or push the board and the player\u2019s coordinates are updated.",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "shunting",
+          "description": "The puzzle is played on a 6\u00a0\u00d7\u00a07 grid stored in a two\u2011dimensional array called board. It is initialized so that row\u00a00 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a01 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a02 contains a,\u00a0a,\u00a0a,\u00a0w,\u00a0a,\u00a0a,\u00a0a; row\u00a03 contains a,\u00a0w,\u00a0a,\u00a0a,\u00a0a,\u00a0w,\u00a0a; row\u00a04 contains o,\u00a0o,\u00a0a,\u00a0w,\u00a0o,\u00a0o,\u00a0o; and row\u00a05 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o. Here o marks an obstacle, a marks an empty track space the box can be moved into, and w marks a box that can be pushed. The player starts at row\u00a03, column\u00a00. On each turn the player may move up, down, left, or right into an adjacent a cell, or if an adjacent cell holds a box (w) and the cell beyond it in the same direction is empty (a), the player may push the box into that space and occupy it. After each move or push the board and the player\u2019s coordinates are updated."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "trouble",
+          "reachabilityType": "customize",
+          "customDescription": "box is in row 0, column 3",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "outside",
+          "reachabilityType": "customize",
+          "customDescription": "box is in row 4, column 1",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "boxes are in row 2 column 2, row 2 column 3, row 3 column 2, and row 3 column 3",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "assert that the system always have trouble then not eventually goal",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "assert that the system always have trouble then eventually goal",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "modelName": "leader_complete",
+      "modelDesc": "the leader election protocols - complete graph",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "DetectorCorrect",
+          "description": "The system maintains a count detectorcorrect, initially zero. As long as detectorcorrect remains zero, this process may set detectorcorrect to one."
+        },
+        {
+          "name": "RandomDetector",
+          "description": "The system has a flag detector, indicating its state. While detectorcorrect is still zero, this process can either sets the flag to false or to true."
+        },
+        {
+          "name": "Rules",
+          "description": "The system tracks three potential leaders in an array. Initially, each person is randomly set to either a leader or not a leader. The persons can go through demotion or promotion. Demotion rules: Whenever any two distinct persons are both marked as leaders, one of those two can be demoted (set their entry to non\u2011leader). Promotion rules: Whenever any two distinct persons are both non\u2011leaders and no leader has yet been confirmed - either because the variable\u00a0detectorcorrect is still zero while the detector flag remains false, or because detectorcorrect has been set to one but none of the three leader slots has been filled, one of those two can be promoted (set their entry to leader)."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "modelName": "leader_directed",
+      "modelDesc": "the leader election protocols - directed rooted trees",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "DetectorCorrect",
+          "description": "The system maintains a counter\u00a0detectorcorrect, which starts at zero. As long as this counter remains zero, this process may change it to one."
+        },
+        {
+          "name": "RandomDetector",
+          "description": "The system holds a boolean flag\u00a0detector. While\u00a0detectorcorrect is still zero, this process can set\u00a0detector\u00a0to either false or true."
+        },
+        {
+          "name": "Rules",
+          "description": "The system models a rooted tree of three nodes (node\u00a00 is the root, nodes\u00a01 and\u00a02 are its children). Each node has a leadership flag, initially the leadership status for each node is randomly determined. The nodes can go through demotion, promotion, or transfer. Demotion rules: if the root and one of its children are both marked as leaders, that child can be demoted to not be a leader. Promotion rules: if the root and one of its children are non\u2011leaders, and no leader has yet been confirmed (no leader has been confirmed means either the detector hasn\u2019t set\u00a0detectorcorrect to one while\u00a0detector\u00a0remains false, or,\u00a0detectorcorrect has become one but none of the three nodes is leader), then the root may be promoted to become a leader. Transfer rules: if the root is a non\u2011leader while one of its children is a leader, the root may take over leadership and the child will be demoted."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "modelName": "leader_ring",
+      "modelDesc": "the leader election protocols - ring",
+      "interactionMode": "interleaving",
+      "subsystemCount": 5,
+      "subsystems": [
+        {
+          "name": "DetectorCorrect",
+          "description": "The system maintains a counter\u00a0detectorcorrect, initially zero. When detectorcorrect remains zero, this process may set\u00a0detectorcorrect\u00a0to one."
+        },
+        {
+          "name": "RandomDetector",
+          "description": "The system holds a boolean flag\u00a0detector. When detectorcorrect\u00a0remains zero, this process can set\u00a0detector\u00a0to false or to true."
+        },
+        {
+          "name": "Process_0",
+          "description": "There are three nodes, each has 3 properties: whether have bullet, is leader, and have shield. The intial statuses are all randomly set. When saying a leader is confirmed, we mean either the detector flag is raised when detectorcorrect has not been flagged, or, the detectorcorrect flag is raised and at least one node is a leader. Therefore, no leader is confirmed means either both detectorcorrect and detector are not flagged, or detectorcorrect is flagged but no one is a leader yet. This subsystem can: Arm & Elect: If no leader is yet confirmed, node\u00a00 may arm the bullet and shield, and declare itself leader. Hand Off: If node\u00a00 is non\u00adleader but currently shielded and a leader has already been confirmed, it may unshield itself, unarm the next node\u2019s (node 1) bullet, and arm that node\u2019s shield. Shield Transfer: If node\u00a00 is a shielded leader and a leader is confirmed, it may arm the bullet and unarm the shield, the shield is transferred to the next node and that node's bullet will be unarmed. Simply Arm: If node\u00a00 is a leader without shield, the next node has no bullet, and a leader is confirmed, it may simply arm the bullet. Fallback Demotion: If node\u00a00 has no shield, the next node's bullet is armed, and a leader is confirmed, it may arm its bullet and demote itself (clear its leader and shield), and unarm the next node\u2019s bullet."
+        },
+        {
+          "name": "Process_1",
+          "description": "Identical to Process_0 but controlling node\u00a01 and interacting with node\u00a02."
+        },
+        {
+          "name": "Process_2",
+          "description": "Identical to Process_0 but controlling node\u00a02 and interacting with node\u00a00."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "modelName": "leader_odd_ring",
+      "modelDesc": "the leader election protocols - odd size ring",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "Process_0",
+          "description": "The system tracks for each of three nodes a leader flag, a bullet flag, a label bit, a probe bit and a phase bit. Initially, all the 5 properties for each node is randomly set to one of the 2 states. Process_0 watches positions 0 and 1 on the ring, and depending on whether their labels match or differ, different actions take place. When the labels at 0 and 1 match and the probe at 0 is 1 and phase at 0 is 0, it may set the leader flag at 0 to 1, clear the probe at 0, set phase at 0 to 1 and set the probe at 1. When labels match and probe at 0 is 1 and phase at 0 is 0 and leader at 1 is 1, it may set leader at 0 to 1, clear probe at 0 and set phase at 0 to 1. When labels match and probe at 0 is 1 and phase at 0 is 1 and probe at 1 is 0, it may set leader at 0 to 1, clear probe at 0, clear bullet at 1, flip label at 1 and reset phase at 1. When labels match and probe at 0 is 1 and phase at 0 is 1 and probe at 1 is 1, it may set leader at 0 to 1 and clear probe at 0. When labels match and probe at 0 is 0 and phase at 0 is 0 and leader at 1 is 0, it may set phase at 0 to 1 and set probe at 1. When labels match and probe at 0 is 0 and phase at 0 is 0 and leader at 1 is 1, it may set phase at 0 to 1. When labels match and probe at 0 is 0 and phase at 0 is 1 and probe at 1 is 0, it may clear bullet at 1, flip label at 1 and reset phase at 1. When labels differ and leader at 1 is 1 and bullet at 1 is 1, it may clear leader at 1. When labels differ and leader at 1 is 1 and bullet at 1 is 0, it may set bullet at 0 to 1 and clear probe at 0. When labels differ and leader at 1 is 0 and bullet at 1 is 1 and probe at 0 is 1, it may set bullet at 0 to 1, clear bullet at 1, clear probe at 0 and set probe at 1. When labels differ and leader at 1 is 0 and bullet at 1 is 0 and probe at 0 is 1, it may clear probe at 0 and set probe at 1. When labels differ and leader at 1 is 0 and bullet at 1 is 1 and probe at 0 is 0, it may set bullet at 0 to 1 and clear bullet at 1."
+        },
+        {
+          "name": "Process_1",
+          "description": "Exactly the same behaviour as Process_0 but watches positions 1 and 2."
+        },
+        {
+          "name": "Process_2",
+          "description": "Exactly the same behaviour as Process_0 but watches positions 2 and 0."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "modelName": "leader_token_circulation",
+      "modelDesc": "the leader election protocols - token circulation in rings",
+      "interactionMode": "interleaving",
+      "subsystemCount": 2,
+      "subsystems": [
+        {
+          "name": "Rule1",
+          "description": "There are three positions, each associated with 3 properties: leader, token, label. There are 2 possible values for each properties. Initially, the leader property for position 0, 1, 2 are 1, 0, 0, respectively. The token and label properties are randomly set. The system considers each ordered pair of positions (0 and 1, 1 and 2, 2 and 0). Whenever the first position\u2019s leader bit is 0, the second position\u2019s leader bit is 1, and their label bits are equal, it may clear the token at the first position, set the token at the second position, and update the second position\u2019s label to the inverse of the first position\u2019s label."
+        },
+        {
+          "name": "Rule2",
+          "description": "The system considers each ordered pair of positions (0 and1, 1 and 2, 2 and 0). Whenever the second position\u2019s leader bit is 0 and the two label bits differ, it may clear the token at the first position, set the token at the second position, and change the second position\u2019s label to match the first position\u2019s label."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneToken where the token is only set at one of the three positions, assert that the system eventually always has oneToken",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state token0 where the token is set for position 0, define a state token1 where the token is set for position 1, define a state token2 where the token is set for position 2, assert that the system will []<> (token0 -> (!token2 U token1)) && []<> (token1 -> (!token0 U token2)) && []<> (token2 -> (!token1 U token0))",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "using the defined states token0, token1, token2, assert that the system []<> token0 && []<> token1 && []<> token2",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "modelName": "leader_undirected_ring",
+      "modelDesc": "the leader election protocols - orienting undirected in ring",
+      "interactionMode": "interleaving",
+      "subsystemCount": 6,
+      "subsystems": [
+        {
+          "name": "Interaction_0_1",
+          "description": "We have 3 colors, set to 0, 1, 2 initially. Each color has an associated precolor and succolor, e.g., position 1's precolor would be the color of position 0, and its succolor would be the color of position 2. This process controls the interaction between color at position 0 and position 1. It repeatedly compares the color at position 1 with the predecessor and successor colors of position 0. When the color at 1 equals the predecessor color of 0 but differs from 0\u2019s successor color, it changes position 1\u2019s successor color to match position 0\u2019s color. When the color at 1 equals the successor color of 0 but differs from 0\u2019s predecessor color, it changes position 1\u2019s predecessor color to match position 0\u2019s color. When the color at 1 either matches both or matches neither of position 0\u2019s predecessor and successor colors, it changes position 0\u2019s predecessor color to the color at 1 and simultaneously changes position 1\u2019s successor color to the color at 0."
+        },
+        {
+          "name": "Interaction_0_2",
+          "description": "Exactly the same behavior as Interaction_0_1 but controls the interaction between color at position 0 and position 2."
+        },
+        {
+          "name": "Interaction_1_2",
+          "description": "Exactly the same behavior as Interaction_0_1 but controls the interaction between color at position 1 and position 2."
+        },
+        {
+          "name": "Interaction_1_0",
+          "description": "Exactly the same behavior as Interaction_0_1 but controls the interaction between color at position 1 and position 0."
+        },
+        {
+          "name": "Interaction_2_0",
+          "description": "Exactly the same behavior as Interaction_0_1 but controls the interaction between color at position 2 and position 0."
+        },
+        {
+          "name": "Interaction_2_1",
+          "description": "Exactly the same behavior as Interaction_0_1 but controls the interaction between color at position 2 and position 1."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state presucdistinct where the predecessor and successor colors of a position are different for each one of the three positions, assert that the system eventually always reach presucdistinct",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state adjecent01 where: the color at position 0 is the same as the predecessor color of position 1 and the color at position 1 is the same as the successor color of position 0, or, the color at position 0 is the same as the successor color of position 1 and the color at position 1 is the same as the predecessor color of position 0, define a state adjecent12 which is the same rule as adjecent01 but applies to position 1 and position 2 instead, define a state adjecent20 which is the same rule as adjecent01 but applies to position 2 and position 0 instead, assert that the system eventually always have adjecent01 and adjecent12 and adjecent20",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "modelName": "leader_consensus",
+      "modelDesc": "the leader election protocols - consensus with crashes",
+      "interactionMode": "interleaving",
+      "subsystemCount": 6,
+      "subsystems": [
+        {
+          "name": "Interaction_0_1",
+          "description": "There are three positions, each has a state and crash status, both properties has 2 possible values. The crash status for all positions is set to not crashed initially, and the state is randomly set. Interaction_0_1 watches positions 0 and 1. Whenever neither has crashed and node 0\u2019s state is less than node 1\u2019s, the system may update node 1\u2019s state to match node 0\u2019s. Or, as long as node 0 is not crashed and fewer than two crashes have occurred overall, the system may crash node 0 and then terminate the process without going back."
+        },
+        {
+          "name": "Interaction_0_2",
+          "description": "Exactly the same behaviour as Interaction_0_1 but watches positions 0 and 2."
+        },
+        {
+          "name": "Interaction_1_0",
+          "description": "Exactly the same behaviour as Interaction_0_1 but watches positions 1 and 0."
+        },
+        {
+          "name": "Interaction_1_2",
+          "description": "Exactly the same behaviour as Interaction_0_1 but watches positions 1 and 2."
+        },
+        {
+          "name": "Interaction_2_0",
+          "description": "Exactly the same behaviour as Interaction_0_1 but watches positions 2 and 0."
+        },
+        {
+          "name": "Interaction_2_1",
+          "description": "Exactly the same behaviour as Interaction_0_1 but watches positions 2 and 1."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state stabagree01 where both node 0 and node 1 has not crashed, and node 0\u2019s state is the same as node 1\u2019s state, assert that the system will eventually always reach stabagree01",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state stabagree02 where both node 0 and node 2 has not crashed, and node 0\u2019s state is the same as node 2\u2019s state, assert that the system will eventually always reach stabagree02",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state stabagree12 where both node 1 and node 2 has not crashed, and node 1\u2019s state is the same as node 2\u2019s state, assert that the system will eventually always reach stabagree12",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "using the defined states, assert that the system will eventually always have stabagree01 and stabagree02 and stabagree12",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "modelName": "leader_2hop_deterministic",
+      "modelDesc": "the leader election protocols - two hop coloring in rings (deterministic)",
+      "interactionMode": "interleaving",
+      "subsystemCount": 6,
+      "subsystems": [
+        {
+          "name": "Interaction(0,1)",
+          "description": "This process has 2 parameters u and v, here u = 0 and v = 1. We model a deterministic 2-hop coloring in rings, where there are 3 nodes, each initialized with a different color. There are 3 colors available. We also have an array of binary flags used as rotation direction for color changes, initially all 0. Finally, there's an array with 9 elements (which are binary flags) capturing the relationships between nodes and colors, initially all 0 (element 0 represents the view of node 0 on color 0, element 3 represents the view of node 1 on color 0, etc.). If node 0's view of node 1's color is different from the node 1's view of node 0's color, node 0 updates its color by adding either 0 or 1 (based on its rotation flag) to its current color, taking the result modulo 3, node 0 synchronizes its view of node 1's color with node 1's view of node 0's color, and node 0 flips its rotation flag. If node 0's view of node 1's color is the same as node 1's view of node 0's color, node 0's view of node 1's color is flipped, node 1's view of node 0's color is also flipped, and node 0 flips its rotation flag."
+        },
+        {
+          "name": "Interaction(0,2)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 0 and v = 2."
+        },
+        {
+          "name": "Interaction(1,2)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 1 and v = 2."
+        },
+        {
+          "name": "Interaction(1,0)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 1 and v = 0."
+        },
+        {
+          "name": "Interaction(2,0)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 2 and v = 0."
+        },
+        {
+          "name": "Interaction(2,1)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 2 and v = 1."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state twohopcoloring where colors of any adjacent 2 nodes are different, assert that the system eventually always reach twohopcoloring",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "modelName": "leader_2hop_non_deterministic",
+      "modelDesc": "the leader election protocols - two hop coloring in rings (non deterministic)",
+      "interactionMode": "interleaving",
+      "subsystemCount": 6,
+      "subsystems": [
+        {
+          "name": "Interaction(0,1)",
+          "description": "This process has 2 parameters u and v, representing two interacting nodes, here u = 0 and v = 1. We model a nondeterministic 2-hop coloring in rings, where there are 3 nodes, each initialized with a different color. There are 3 colors available. There's an array with 9 elements (which are binary flags) capturing the relationships between nodes and colors, initially all set to 0 (element 0 represents the view of node 0 on color 0, element 3 represents the view of node 1 on color 0, etc.). If node u's view of node v's color is different from node v's view of node u's color, then node u can nondeterministically perform any of the following actions: change node u's color to 0, and synchronize its view of node v's color with node v's view of node u's color; Or, change node u's color to 1, and synchronize its view of node v's color with node v's view of node u's color; Or, change its color to 2, and synchronize its view of node v's color with node v's view of node u's color. If node u's view of node v's color is the same as node v's view of node u's color, both binary flags (node u's regarding node v's color and node v's regarding node u's color) are flipped."
+        },
+        {
+          "name": "Interaction(0,2)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 0 and v = 2."
+        },
+        {
+          "name": "Interaction(1,2)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 1 and v = 2."
+        },
+        {
+          "name": "Interaction(1,0)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 1 and v = 0."
+        },
+        {
+          "name": "Interaction(2,0)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 2 and v = 0."
+        },
+        {
+          "name": "Interaction(2,1)",
+          "description": "Exactly the same as Interaction(0,1) but now u = 2 and v = 1."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state twohopcoloring where colors of any adjacent 2 nodes are different, assert that the system eventually always reach twohopcoloring",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "modelName": "reader_writer",
+      "modelDesc": "the classical readers/writers example model multiple processes accessing a shared file",
+      "interactionMode": "infinite reader and writer interleave each other",
+      "subsystemCount": 2,
+      "subsystems": [
+          {
+              "name": "Writer",
+              "description": "Whenever there are no readers and no writer is writing, a writer may start writing, then stop writing."
+          },
+          {
+              "name": "Reader",
+              "description": "Whenever the number of readers is below the maximum allowed (in this case, we set to 2) and no writer is writing, a reader may start reading, then later stop reading."
+          }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state exclusive where writing and at least 1 person reading are not happening together, assert that the system is always exclusive",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state someonereading where there is at least 1 person reading, assert that the system always eventually reach someonereading",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state someonewriting where someone is writing, assert that the system always eventually reach someonewriting",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "modelName": "leader_para_complete",
+      "modelDesc": "the leader election protocols - complete network",
+      "interactionMode": "there are 2 Node whose local flag is 0 interleave with Detector and Oracle",
+      "subsystemCount": 3,
+      "subsystems": [
+          {
+              "name": "Node",
+              "description": "The whole system has N nodes, in this case we set N to 2. This process is instantiated for each node with a local flag that indicates whether that node currently holds leadership. When it does and the global leader count exceeds 1, the node may step down and become a non-leader. When itself is not currently a leader, fewer than N nodes have been promoted, and no detection-success has occurred (where detection-success means either the detector flag has gone high but not the detectorcorrect flag, or, the detectorcorrect flag is set and at least one leader exists), the node may become a leader. If it is not a leader and fewer than N leaders exist but a \u201cdetection-success\u201d condition does hold, the node simply remains non-leader."
+          },
+          {
+              "name": "Detector",
+              "description": "This process maintains a Boolean detector flag and as long as the detectorcorrect flag is not set, it may either flip detector to false or to true."
+          },
+          {
+              "name": "Oracle",
+              "description": "This process may confirm detection by setting the detectorcorrect flag to true and then terminate."
+          }
+      ],
+      "assertions": [
+        {
+          "assertionType": "deadlock-free",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": false,
+          "assertionTruth": "",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where the leader count equals to 1, assert that the system eventually always have oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "modelName": "telecom_service",
+      "modelDesc": "We would like to model the telecom service in this system, which involves the interaction between users and telecom lines.",
+      "interactionMode": "interleaving",
+      "subsystemCount": 2,
+      "subsystems": [
+          {
+              "name": "tele_line",
+              "description": "This process models the a single tele line: it tracks whether the line is idle or busy, routes each dial to the appropriate handset, emits ringing or busy tones, and connects or disconnects calls."
+          },
+          {
+              "name": "user",
+              "description": "This porcess models each user\u2019s handset, there are 4 users in this process: each handset can be on-hook idle, dialing, waiting for ring or busy, answering or ignoring calls, engaging in conversation, and hanging up."
+          }
+      ],
+      "assertions": [
+        {
+          "assertionType": "deadlock-free",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": false,
+          "assertionTruth": "",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "user0_connected_to_user1",
+          "reachabilityType": "customize",
+          "customDescription": "User 0 and User 1 are on call with each other",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "all_user_on_call",
+          "reachabilityType": "customize",
+          "customDescription": "all Users on call",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state user2_in_call where User 2 is in a call, define a state user3_in_call where User 3 is in call, assert that the system always have user0_connected_to_user1 then not user2_in_call and not user3_in_call",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "modelName": "memory_device",
+      "modelDesc": "We would like to model a memory device in this system, which involves the interaction between the driver and its users.",
+      "interactionMode": "interleaving",
+      "subsystemCount": 2,
+      "subsystems": [
+        {
+          "name": "driver",
+          "description": "This process models one flash-memory driver engine. It accepts save (write) requests from users, can process up to two save operations in parallel, and rejects any further requests until one of the two slots frees. Once a write completes, it acknowledges the user and frees its slot."
+        },
+        {
+          "name": "user",
+          "description": "This process models a user client. Each user can generate a write command at any time, wait for the driver\u2019s acknowledgment, and then proceed. In the full system there are ten of these user processes sending requests to the driver."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "deadlock-free",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": false,
+          "assertionTruth": "",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state overload0 where drive 0 has more than two write operations at the same time, assert that the system always do not reach overload0",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state overload1 where drive 1 has more than two write operations at the same time, assert that the system always do not reach overload1",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "assert that the system always have: the action - a request is made by user 0 on drive 0 - happens, then eventually the action - corresponding acknowledgement is made - will happen",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    }
+]

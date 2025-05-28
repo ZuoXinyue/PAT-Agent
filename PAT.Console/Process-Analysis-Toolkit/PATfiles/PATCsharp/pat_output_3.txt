@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Queue() deadlockfree
+********Verification Result********
+The Assertion (Queue() deadlockfree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:10
+Total Transitions:10
+Time Used:0.0070808s
+Estimated Memory Used:8512.656KB
+
+

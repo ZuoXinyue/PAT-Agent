@@ -1,0 +1,20 @@
+=======================================================
+Assertion: aSys1() deadlockfree
+********Verification Result********
+The Assertion (aSys1() deadlockfree) is NOT valid.
+The following trace leads to a deadlock situation.
+<init -> c.[0, 0, 0, 0, 0, 0].1 -> τ -> ac!0.1 -> ac?0.1 -> c.[0, 5, 0, 0, 0, 0].[0, 5, 0, 0, 0, 0] -> τ -> ac!5.[0, 5, 0, 0, 0, 0]>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:8
+Total Transitions:7
+Time Used:0.0078907s
+Estimated Memory Used:8522.248KB
+
+

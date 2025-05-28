@@ -1,0 +1,53 @@
+#define MAX_OWNERS 2;
+#define POS_IN_CAR 1;
+#define POS_NEAR_CAR 2;
+#define POS_FAR_AWAY 3;
+
+#define KEY_POS_IN_CAR 1;
+#define KEY_POS_FAR_AWAY 2;
+#define KEY_POS_WITH_OWNER 3;
+
+#define DOOR_OPEN 1;
+#define DOOR_UNLOCKED 2;
+#define DOOR_LOCKED 3;
+
+#define ENGINE_OFF 0;
+#define ENGINE_ON 1;
+#define CAR_STOPPED 0;
+#define CAR_DRIVING 1;
+#define FUEL_EMPTY 0;
+#define FUEL_FULL 100;
+
+var ownerPositions = POS_FAR_AWAY;
+var keyPosition = KEY_POS_IN_CAR;
+var doorStatus = DOOR_LOCKED;
+var engineState = ENGINE_OFF;
+var drivingState = CAR_STOPPED;
+var fuelLevel = FUEL_FULL;
+
+owner_pos() = 
+    [ownerPositions == POS_NEAR_CAR] enter_car{ownerPositions = POS_IN_CAR;} -> owner_pos()
+    [] [ownerPositions == POS_IN_CAR && drivingState == CAR_STOPPED] exit_car{ownerPositions = POS_NEAR_CAR;} -> owner_pos()
+    [] [ownerPositions == POS_FAR_AWAY] approach_car{ownerPositions = POS_NEAR_CAR;} -> owner_pos();
+
+key_pos() = 
+    [keyPosition == KEY_POS_IN_CAR && ownerPositions == POS_IN_CAR] take_key{keyPosition = KEY_POS_WITH_OWNER;} -> key_pos()
+    [] [keyPosition == KEY_POS_WITH_OWNER && ownerPositions == POS_IN_CAR] drop_key{keyPosition = KEY_POS_IN_CAR;} -> key_pos();
+
+door_op() = 
+    [doorStatus == DOOR_LOCKED && ownerPositions == POS_NEAR_CAR] unlock_door{doorStatus = DOOR_UNLOCKED;} -> door_op()
+    [] [doorStatus == DOOR_UNLOCKED && ownerPositions == POS_NEAR_CAR] open_door{doorStatus = DOOR_OPEN;} -> door_op()
+    [] [doorStatus == DOOR_OPEN && ownerPositions == POS_NEAR_CAR] close_door{doorStatus = DOOR_UNLOCKED;} -> door_op()
+    [] [doorStatus == DOOR_UNLOCKED && ownerPositions == POS_NEAR_CAR] lock_door{doorStatus = DOOR_LOCKED;} -> door_op();
+
+motor() = 
+    [engineState == ENGINE_OFF && keyPosition == KEY_POS_WITH_OWNER && ownerPositions == POS_IN_CAR && fuelLevel > FUEL_EMPTY && doorStatus == DOOR_LOCKED] start_engine{engineState = ENGINE_ON;} -> motor()
+    [] [engineState == ENGINE_ON && drivingState == CAR_STOPPED] stop_engine{engineState = ENGINE_OFF;} -> motor()
+    [] [engineState == ENGINE_ON && drivingState == CAR_STOPPED && doorStatus == DOOR_LOCKED && fuelLevel > FUEL_EMPTY && ownerPositions == POS_IN_CAR] accelerate{drivingState = CAR_DRIVING;} -> motor()
+    [] [drivingState == CAR_DRIVING] brake{drivingState = CAR_STOPPED;} -> motor()
+    [] [engineState == ENGINE_OFF && drivingState == CAR_STOPPED && fuelLevel == FUEL_EMPTY] refuel{fuelLevel = FUEL_FULL;} -> motor();
+
+car_system() = owner_pos() ||| key_pos() ||| door_op() ||| motor();
+
+#define owner_driving (ownerPositions == POS_IN_CAR && drivingState == CAR_DRIVING);
+#assert car_system() |= []<> owner_driving;

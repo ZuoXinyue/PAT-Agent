@@ -1,0 +1,32 @@
+#define NUM_NODES 3;
+
+var detectorcorrect = 0;
+var detector = 0;
+var nodeLeadership[NUM_NODES] = [0,1,0];
+
+DetectorCorrect() = 
+    [detectorcorrect == 0] set_detectorcorrect_to_1{detectorcorrect = 1;} -> DetectorCorrect();
+
+RandomDetector() = 
+    [detectorcorrect == 0] set_detector_false{detector = 0;} -> RandomDetector()
+    []
+    [detectorcorrect == 0] set_detector_true{detector = 1;} -> RandomDetector();
+
+Rules() = 
+    [nodeLeadership[0] == 1 && nodeLeadership[1] == 1] demote_child_1{nodeLeadership[1] = 0;} -> Rules()
+    []
+    [nodeLeadership[0] == 1 && nodeLeadership[2] == 1] demote_child_2{nodeLeadership[2] = 0;} -> Rules()
+    []
+    [nodeLeadership[0] == 0 && ((detectorcorrect==0 && detector==0 && (nodeLeadership[1]==0 || nodeLeadership[2]==0)) || (detectorcorrect==1 && nodeLeadership[1]==0 && nodeLeadership[2]==0))] promote_root{nodeLeadership[0] = 1;} -> Rules()
+    []
+    [nodeLeadership[0] == 0 && nodeLeadership[1] == 1] transfer_from_child_1{nodeLeadership[0] = 1; nodeLeadership[1] = 0;} -> Rules()
+    []
+    [nodeLeadership[0] == 0 && nodeLeadership[2] == 1] transfer_from_child_2{nodeLeadership[0] = 1; nodeLeadership[2] = 0;} -> Rules();
+
+leader_directed = (DetectorCorrect() ||| RandomDetector() ||| Rules());
+
+#define oneLeader ((nodeLeadership[0] == 1 && nodeLeadership[1] == 0 && nodeLeadership[2] == 0) || 
+                  (nodeLeadership[0] == 0 && nodeLeadership[1] == 1 && nodeLeadership[2] == 0) || 
+                  (nodeLeadership[0] == 0 && nodeLeadership[1] == 0 && nodeLeadership[2] == 1));
+
+#assert leader_directed |= <>[]oneLeader;

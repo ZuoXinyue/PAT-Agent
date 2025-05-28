@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <!-- JS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <script src="/prompts.js"></script>
+  <title>PAT Agent - Code Generation</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="/request.js"></script>
+  <script src="/timeline.js"></script>
+</head>
+
+<body>
+  <main id="app">
+    <timeline :current-step=6></timeline>
+
+    <!-- <el-header style="height: 50px;">PAT Agent - Code Generation</el-header> -->
+    <div class="container">
+      <!-- <p style="color:#ddd;"> Click the button below to generate the PAT code based on the NL instructions.</p> -->
+      <button v-if="!hasOutput" class="btn" @click="generateCode">Click to generate the PAT Code</button>
+
+      <loading-overlay v-if="loading" text="Generating code... may take around 0.5 minutes."></loading-overlay>
+      <loading-overlay v-if="verifying" text="Verifying"></loading-overlay>
+
+      <div v-if="hasOutput" class="warning-message">
+        <i class="el-icon-warning-outline"></i> If there are multiple code chunks, please only click the 'Verify' button for the main code chunk. Verifying an incomplete code chunk may result in errors.
+      </div>
+      <div v-if="hasOutput" style="margin-top:20px;">
+        <h4>Generated Output:</h4>
+        <div v-for="(segment, index) in segments" :key="index">
+          <!-- For natural language segments, show non-editable content -->
+          <div v-if="segment.type === 'nl' && segment.content.trim() !== ''" class="nl-box"
+            style="background: #1e1e1e; color: #ddd; padding: 10px; border-radius: 4px; border: 1px solid #333; margin-bottom: 10px; white-space: pre-wrap;">
+            <pre>{{ segment.content }}</pre>
+          </div>
+          <!-- For code segments, show an editable textarea with copy & verify buttons -->
+          <div v-else-if="segment.type === 'code' && segment.content.trim() !== ''" class="editor-container"
+            style="position: relative; margin-bottom: 20px;">
+            <textarea v-model="segments[index].content" class="code-box"
+              style="height: 100%; width: 100%; min-height: 400px; background: #1e1e1e; color: #ddd; border: 1px solid #333; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 14px; white-space: pre-wrap; box-sizing: border-box; resize: vertical;"></textarea>
+            <button class="btn copy-btn" style="top: 5px; right: 120px;" @click="copyCodeSegment(index)">Copy</button>
+            <button class="btn verify-btn" style="top: 5px; right: 20px;" @click="verifyCodeSegment(index)">
+              Verify
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    window.vm = new Vue({
+      el: '#app',
+      data() {
+        return {
+          loading: false,
+          verifying: false,
+          generatedCode: '',
+          segments: [], // New property to hold each segment
+          attemptCount: localStorage.getItem("attemptCount") ? parseInt(localStorage.getItem("attemptCount")) : 0, // Retrieve from localStorage
+          maxAttempts: 5
+        }
+      },
+      computed: {
+        hasOutput() {
+          console.log(this.generatedCode)
+          return this.generatedCode.trim().length > 0;
+        }
+      },
+      mounted() {
+        //this.getPrevCode();
+      },
+      methods: {
+        async getPrevCode() {
+          const codeResp = await fetch('/get_prev_code_model_answers_claude', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const responseData = await codeResp.json();
+          this.generatedCode = responseData.data.answerClaude;
+        },
+        // Reset attempt count when the user clicks the button
+        resetAttemptCount() {
+          this.attemptCount = 0;  // Reset counter
+          localStorage.setItem("attemptCount", this.attemptCount);  // Store updated counter in localStorage
+        },
+        async generateCode() {
+          try {
+            // Reset attempt count before generating code
+            this.resetAttemptCount();
+            this.loading = true;
+            const startTime = Date.now(); // Start timing
+
+            // 1. Retrieve the latest NL instructions from nl-instruction-claude.json.
+            //    (Assuming an endpoint that returns an array of entries.)
+            const instrRes = await fetch('/get_last_nl_instruction_claude');
+            const instrData = await instrRes.json();
+            if (!instrData || !instrData.length) {
+              throw new Error("No NL instructions available.");
+            }
+            const lastEntry = instrData[instrData.length - 1];
+            const nlInstruction = lastEntry.fullText;
+
+
+            const modelName = localStorage.getItem('modelName');
+            const getRetrievedExample = await fetch('/get_most_relevant_example', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                instruction: nlInstruction,
+                model_name: modelName
+              })
+            });
+            const retrieved = await getRetrievedExample.json();
+            console.log("getRetrievedExample", retrieved)
+
+            // 2. Integrate the NL instructions into the prompt.
+            // according to nlInstruction, add in retrival of most relevant <NL, Code> example in database-rag
+            // assume NL = nl_desc, code = relevant_code 
+            const syntaxDoc = await fetch('/get_syntax_data', {
+              method: "GET",
+              headers: { "Content-Type": "application/json" }
+            });
+            const syntax_data = await syntaxDoc.json();
+            const general_info = syntax_data.general_info || "";
+            const pitfalls_rules = syntax_data.pitfalls_rules || "";
+
+            const sys_response = await fetch('/get_const_history');
+            const sys_history = await sys_response.json();
+            let latestEntry = ""
+            if (sys_history && sys_history.length > 0) {
+              latestEntry = sys_history[sys_history.length - 1];
+            }
+            console.log("latestEntry", latestEntry)
+            const sys_context = latestEntry.context;
+            let system_description = "";
+            try {
+              const data = sys_context;
+              const {
+                modelName,
+                modelDesc,
+                subsystemCount,
+                subsystems
+              } = data;
+
+              // 1) Base intro
+              let desc = `The user would like to build a system called ${modelName}, where ${modelDesc}. `;
+              desc += `There are ${subsystemCount} processes in the system, the descriptions of the processes are as follows: `;
+
+              // 2) List each subsystem
+              desc += subsystems
+                .map(s => `${s.name}: ${s.description}`)
+                .join('; ');
+              system_description = desc;
+            } catch (e) {
+              throw new Error("Failed to retrieve system description.");
+            }
+
+            const prompt = genCodePrompt(general_info, pitfalls_rules, retrieved, system_description, nlInstruction);
+
+            // 3. Call the code generation model endpoint for Claude.
+            const codeResp = await fetch('/get_code_model_answers_claude', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                question: prompt,
+                context: {},
+                history: './history/claude-code.json'
+              })
+            });
+
+            const responseData = await codeResp.json();
+            this.generatedCode = responseData.data.answerClaude;
+            
+            const now = new Date();
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+
+
+            const endTime = Date.now(); // End timing
+            const runTimeInSeconds = (endTime - startTime) / 1000; // Calculate run time in seconds
+
+            // After success, send the runtime to the server
+            fetch('/save_run_time', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                modelName: localStorage.getItem('modelName'),
+                stage: `codegen-time_${timestamp}`,  // <-- stage with timestamp
+                runTime: runTimeInSeconds
+              })
+            }).then(response => response.json())
+              .then(saveResult => {
+                console.log('Run time saved:', saveResult);
+              })
+              .catch(error => {
+                console.error('Error saving run time:', error);
+              });
+            // Split the output by triple backticks.
+            const parts = this.generatedCode.split(/```/);
+            this.segments = parts.map((text, i) => {
+              return { type: (i % 2 === 0) ? "nl" : "code", content: text.trim() };
+            });
+          } catch (error) {
+            console.error("Error generating code:", error);
+            alert("Code generation failed.");
+          } finally {
+            this.loading = false;
+          }
+        },
+        async goToVerify() {
+
+          const modelName = localStorage.getItem('modelName');
+          const results = await fetch('/verify_pat_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code: this.generatedCode,
+              model_name: modelName
+            })
+          });
+          console.log("results", results)
+
+          // window.location.href = "/verify.html";
+        },
+        copyCodeSegment(index) {
+          const code = this.segments[index].content;
+          const textarea = document.createElement("textarea");
+          textarea.value = code;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+          this.$confirmDialog({
+            title: 'Code Copied',
+            message: 'Code copied to clipboard!',
+            confirmText: 'OK',
+            cancelText: null
+          });
+        },
+        verifyCodeSegment(index) {
+          this.verifying = true
+          const modelName = localStorage.getItem('modelName');
+          const codeToVerify = this.segments[index].content;
+          fetch('/verify_pat_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code: codeToVerify,
+              model_name: modelName
+            })
+          })
+            .then(response => response.json())
+            .then(data => {
+
+              if (data.anyEmpty) {
+                this.verifying = false
+                this.$confirmDialog({
+                  title: 'Verification Failed',
+                  message: 'Verification failed due to syntax error or state explosion. Would you like to regenerate the code?',
+                  confirmText: 'Regenerate Code',
+                  cancelText: 'Cancel',
+                  onConfirm: () => {
+                    this.generateCode();
+                  }
+                });
+              } else {
+                this.verifying = false
+                window.location.href = "/verify.html";
+              }
+              // Optionally, display the verification result to the user in a custom way.
+              //
+            })
+            .catch(error => {
+              console.error("Error verifying code segment:", error);
+              alert("Error verifying code segment.");
+            });
+        }
+      }
+    });
+  </script>
+
+  <style>
+    #app {
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: #171717;
+      color: #ddd;
+      height: calc(100vh);
+    }
+
+    .container {
+      width: 96%;
+      max-width: none;
+      padding: 20px;
+      position: relative;
+    }
+
+    .editor-container {
+      position: relative;
+      border-radius: 4px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      height: calc(100vh - 250px);
+    }
+
+    .floating-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #2b5278;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    .floating-button:hover {
+      background: #3873ab;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .floating-button i {
+      font-size: 18px;
+    }
+
+    .floating-button span {
+      font-weight: 500;
+    }
+
+    .nl-box {
+      width: 100%;
+      background: #1e1e1e;
+      color: #ddd;
+      padding: 10px;
+      border: 1px solid #333;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    .copy-btn,
+    .verify-btn {
+      position: absolute;
+      top: 10px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+
+    /* Place the Copy button a bit more to the left */
+    .copy-btn {
+      right: 120px;
+      /* Adjust spacing to your preference */
+    }
+
+    /* Place the Verify button near the right edge */
+    .verify-btn {
+      right: 10px;
+    }
+
+    .el-header {
+      line-height: 50px;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0);
+      color: #4ab36f;
+    }
+  </style>
+</body>
+
+</html>

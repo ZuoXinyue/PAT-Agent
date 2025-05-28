@@ -1,0 +1,383 @@
+/* ****************** Lifting Truck System ******************
+** The lift system studied in this model consists of 3 lifts. 
+** The system is operated by means of buttons on the lifts.
+** There are four such buttons on each lift: up, down, setref and axis.
+** If the up or down button of a certain lift is pressed, all the lifts of the system should go up, respectively down. 
+** If the up or down button is pressed together with setref, only one lift (the one of whichthe buttons are pressed) should go up or down. 
+**
+** Behavior description:
+**
+** -- STARTUP phase
+** -- A. The SETREF button of a station might be pressed
+** -- 	1. it stores that it has pos 1,
+** -- 	2. it adopts the STARTUP state,
+** -- 	3. it closes its relay,
+** -- 	4. it broadcasts a STARTUP message,
+** -- 	5. it opens its relay,
+** -- 	6. { if it receives an another startup message it stores the pos of the sender of that message as the number of stations in the network,
+**	       { if it receives a standby message it adopts the standby state (if the station has pos 2 it will in addition initiate normal operation by broadcasting its state).
+**
+** -- Normal operation phase
+** -- During normal operation, the \fist station (with pos 1) broadcasts its state
+	 and height, then the next station broadcasts its state and height and so on, until the last station has
+	 broadcast its state and height after which the \fist station starts again.
+**/
+ 
+#import "PAT.Lib.List";
+#define STARTUP 0;                // 5 types of messages of station 
+#define STANDBY 1;
+#define UP 2;
+#define DOWN 3;
+#define SYNC 4;
+#define NIL 0;
+#define ST 3;                    // number of stations in the network
+ 
+/* Global variables */
+var suc[ST+1] = [0, 2, 3, 1]; 	// suc[i]: the id of the next lift of lift i
+var pre[ST+1] = [0, 3, 1, 2];	// pre[i]: the id of the previous lift of lift i
+ 
+var pos[ST+1]=[NIL(ST+1)]; 		// pos[i]: pos obtained by station i
+var num[ST+1] = [NIL(ST+1)];    // num[i]: number of stations in the network known by station i
+var state[ST+1];                // STARTUP, STANDBY, UP, DOWN, SYNC
+var pressed_SETREF[ST+1];        // pressed_SETREF[i] = 1: button SETREF of station i is being pressed
+                                // pressed_SETREF[i] = 0: button SETREF of station i is being released
+var active[ST+1];               // number of active station
+ 
+var<List> R;                    // list of CLOSED relays, initially it is empty
+ 
+var relay_opened;               // the latest opened relay
+var relay_closed;               // the latest closed relay
+ 
+var msg_id;                     // station msg_id sends the msg
+var msg_pos;                    // station with pos msg_pos sends the msg
+var msg_state;                  // msg has state msg_state
+ 
+var is_setref_pressed;         // 0: no lift has pressed button SETREF; 1: there is some lift with button SETREF pressed
+var has_active_station;         // 0: no lift is in active state; 1: there is some lift in active state
+ 
+/*----------------------------Bus process-----------------------------*/
+/* The bus implemented a CAN protocol. 
+** The CAN protocol allows several stations to claim the bus at the same time. 
+** However, in the lift system, the stations are programmed in such a way that (during normal operation) the stations take
+** turns claiming the bus. They claim the bus in a fixed order, specified by pre[] & suc[] in this model.
+*/
+Bus() =	req ->  (stob_init -> Deliver(); open_relay -> update_r_list{R.Remove(relay_opened);} -> rel -> Bus()
+			 [] stob -> Deliver(); rel -> Bus()
+			 [] open_relay -> update_r_list{R.Remove(relay_opened);} -> rel -> Bus()
+			 [] close_relay -> update_r_list{R.Add(relay_closed);} -> rel -> Bus()
+			 [] rel -> Bus());
+ 
+Deliver() =	if (msg_id == 1){//station 1 sending message to bus
+					Deliver1()
+			}else{
+				if (msg_id == 2){//station 2 sending message to bus
+					Deliver2()
+				}else{//station 3 sending message to bus
+					Deliver3()
+				}
+			};
+ 
+//bus broadcasting msg recieved from station 1
+Deliver1() =	if ( (R.Contains(1) == true && R.Contains(2) == true) || (R.Contains(1) == true && R.Contains(3) == true) ){
+					//relays 1 & 2 are closed, or, relays 1 and 3 are closed
+					//bus recieves msg from station 1, and broadcasts the msg to station 2 & 3
+						btos.2 -> done_btos.2 -> btos.3 -> done_btos.3 -> Skip
+					}else{
+						if (R.Contains(2) == true && R.Contains(3) == true){
+						//relays 2 & 3 are closed
+						//bus recieves msg from station 1, and broadcasts the msg to station 2 & 3
+							btos.3 -> done_btos.3 -> btos.2 -> done_btos.2 -> Skip
+						}else{
+							if ( R.Contains(1) == true ){
+								btos.2 -> done_btos.2 -> Skip
+							}else{
+								if (R.Contains(3) == true){
+									btos.3 -> done_btos.3 -> Skip
+								}else{
+									Skip
+								}
+							}
+						}
+					};
+ 
+//bus broadcasting msg recieved from station 2	
+Deliver2() =	if ( (R.Contains(1) == true && R.Contains(2) == true) || (R.Contains(2) == true && R.Contains(3) == true) ){
+					btos.3 -> done_btos.3 -> btos.1 -> done_btos.1 -> Skip
+				}else{
+					if (R.Contains(1) == true && R.Contains(3) == true){
+						btos.1 -> done_btos.1 -> btos.3 -> done_btos.3 -> Skip
+					}else{
+						if ( R.Contains(1) == true ){
+							btos.1 -> done_btos.1 -> Skip
+						}else{
+							if (R.Contains(2) == true){
+								btos.3 -> done_btos.3 -> Skip
+							}else{
+								Skip
+							}
+						}
+					}
+				};
+ 
+//bus broadcasting msg recieved from station 3
+Deliver3() =	if ( (R.Contains(1) == true && R.Contains(3) == true) || (R.Contains(2) == true && R.Contains(3) == true) ){
+					btos.1 -> done_btos.1 -> btos.2 -> done_btos.2 -> Skip 
+				}else{
+					if (R.Contains(1) == true && R.Contains(2) == true){
+						btos.2 -> done_btos.2 -> btos.1 -> done_btos.1 -> Skip
+					}else{
+						if ( R.Contains(2) == true ){
+							btos.2 -> done_btos.2 -> Skip
+						}else{
+							if (R.Contains(3) == true){
+								btos.1 -> done_btos.1 -> Skip
+							}else{
+								Skip
+							}
+						}
+					}
+				};
+ 
+/*---------------------Lift process--------------------------------------*/
+Lift(i) =  [is_setref_pressed == 0]Setref(i) 
+		[] [is_setref_pressed == 1]Wait_init_phase(i);
+ 
+/* Lift i has its SETREF button pressed */
+Setref(i) = setref.i{is_setref_pressed = 1; pressed_SETREF[i] = 1; pos[i] = 1;} -> _STARTUP{state[i] = STARTUP;} 
+				-> req -> set_relay_close{relay_closed = i;} -> close_relay -> rel 
+				-> req -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = STARTUP;} -> stob_init 
+				-> set_relay_open{relay_opened = i;} -> open_relay -> rel
+				-> Wait_For_STARTUP(i); set_num.i{num[i] = pos[msg_id];} -> _STANDBY{state[i] = STANDBY;} -> done_btos.i /*wait for a startup msg*/
+				-> req -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = state[i];} -> stob -> rel -> NORMAL_OPR(i);
+ 
+Wait_For_STARTUP(i) = btos.i -> ( [msg_state == STARTUP] (Skip) [] [msg_state != STARTUP] (done_btos.i -> Wait_For_STARTUP(i)));
+ 
+/* Lift i wait for a STARTUP msg to start */
+Wait_init_phase(i) = Wait_For_STARTUP(i); set_pos.i{pos[i] = msg_pos + 1; num[i] = pos[i];} 
+				 -> _STARTUP{state[i] = STARTUP;} -> done_btos.i
+				 -> req -> set_relay_close{relay_closed = i;} -> close_relay -> rel 
+				 -> req -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = STARTUP;} -> stob -> rel -> Wait_For_STANDBY(i);
+ 
+/*---------------------Wait_For_STANDBY process--------------------------------------*/
+/* After received a STARTUP msg, Lift i continues to receive STARTUP/STANDBY msg, and will go to STANDBY state while recieving a STANDBY msg */
+Wait_For_STANDBY(i) = 	btos.i -> ([msg_state == STARTUP]set_num.i{num[i] = pos[msg_id];} -> done_btos.i -> Wait_For_STANDBY(i) 
+					 [] [msg_state == STANDBY]_STANDBY{state[i] = msg_state;} -> done_btos.i -> NORMAL_OPR(i)
+					 [] [msg_state != STARTUP && msg_state != STANDBY]done_btos.i -> Wait_For_STANDBY(i));
+ 
+/*---------------------NORMAL_OPR process--------------------------------------*/
+/* At STANDBY state, Lift i can initiate an operation or wait for SYNC msg for a operation */
+NORMAL_OPR(i) =  ( [has_active_station == 0] Active(i) )
+			   [] ( [has_active_station == 1]Passive(i) );
+ 
+Active(i) =  req -> startActive.i->	(
+						( 		up.i{has_active_station = 1; active[i] = 1;} -> _UP{state[i] = UP;} -> rel 
+								->  req -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = state[i];} -> stob -> rel
+								-> 	Active_con(i)
+						)
+					[]
+						( 			down.i{has_active_station = 1; active[i] = 1;} -> _DOWN{state[i] = DOWN;} -> rel
+								->  req -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = state[i];} -> stob -> rel
+								->  Active_con(i)
+						)
+					);
+Passive(i) =       btos.i 
+					-> if (msg_state == SYNC){
+					    	_SYNC{state[i] = msg_state;} -> move.i -> done_btos.i -> Passive(i)
+					   }else{
+					    	if (msg_state == STANDBY){
+					    		_STANDBY{state[i] = msg_state;} -> done_btos.i -> NORMAL_OPR(i)
+					    	}else{
+					    		if ( i == suc[msg_id]){
+					    			adopt_state{state[i] = msg_state;} -> done_btos.i
+					    		-> req -> set_message{msg_id = i; msg_pos = suc[msg_pos]; msg_state = state[i];} -> stob -> rel -> Passive(i)
+					    		}else {
+					    			adopt_state{state[i] = msg_state;} -> done_btos.i -> Passive(i)
+					    		}
+					    	}
+					   };
+ 
+/*---------------------Active_con process--------------------------------------*/
+/* After activating an operation, Lift i either releases the press button, or continues the operation by receiving msg or sending SYN */
+ Active_con(i) =	if (state[1] == STANDBY && state[2] == STANDBY && state[3] == STANDBY){
+ 					Release(i)
+ 				}else{
+ 					Receive_or_Sync(i)
+ 				};
+ 
+ Release(i) = req -> release.i{has_active_station = 0; active[i] = 0;} -> rel -> NORMAL_OPR(i);
+ 
+ Receive_or_Sync(i) = 		btos.i
+ 						->  if (msg_state == state[i]){
+ 							if ( i == suc[msg_id]){
+ 								done_btos.i
+								->	req -> _SYNC{state[i] = SYNC;} -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = state[i];} -> stob -> move.i-> rel
+								->  req -> _STANDBY{state[i] = STANDBY;} -> set_message{msg_id = i; msg_pos = pos[i]; msg_state = STANDBY;} -> stob -> rel
+								->  Active_con(i)
+							}else{
+								done_btos.i -> Receive_or_Sync(i)
+							}
+						}else{
+							Skip
+						};
+ 
+/*----------------------------System Process--------------------------------------------*/
+System () = Bus() || ( Lift(1) ||| Lift(2) ||| Lift(3) );
+ 
+///////////////////VERIFICATION///////////////////
+ 
+// Property 1: DeadLock freeness Checking
+
+ 
+// Property 2: all lifts will eventually always knows that the number of stations in the network is 3
+
+ 
+// Property 3: all lifts will eventually always obtains a correct position
+#define POSSET (pos[1] !=  pos[2] && pos[1] !=  pos[3] && pos[3] !=  pos[2] 
+					 && pos[1] >= 1 && pos[1] <= 3 
+					 && pos[2] >= 1 && pos[2] <= 3 
+					 && pos[3] >= 1 && pos[3] <= 3 );
+
+ 
+// Property 4: each station is able to change to active state
+#define Active1 active[1] == 1;
+#define Active2 active[2] == 1;
+
+
+
+ 
+// Property 5: at most 1 station is allowed to initiate an operation at a time
+
+ 
+// Property 6: relays can not be all closed at the same time
+
+ 
+// Property 7: all lifts will move in the same direction
+#define AllMoveUP state[1] == UP && state[2] == UP && state[3] == UP;
+
+
+ 
+// Property 8: one lift can never move in a different direction from other lifts
+#define MoveUpOrDownDifferent 	 ((state[1] == 	 UP && state[2] == 	 UP && state[3] == DOWN)
+						||(state[1] == DOWN && state[2] == DOWN && state[3] == UP)
+						||(state[2] == 	 UP && state[3] == 	 UP && state[1] == DOWN)
+						||(state[2] == DOWN && state[3] == DOWN && state[1] == UP)
+						||(state[1] == 	 UP && state[3] == 	 UP && state[2] == DOWN)
+						||(state[1] == DOWN && state[3] == DOWN && state[2] == UP)
+						);
+
+ 
+// Property 9: at most one lift can press the SETREF button at a time
+
+ 
+// Property 10: only when there is an active lift can any lift moves up/down
+#define MoveUP state[1] == UP || state[2] == UP || state[3] == UP;
+#define MoveDOWN state[1] == DOWN || state[2] == DOWN || state[3] == DOWN;
+
+ 
+// Property 11: lifts can start active infinitely often
+
+ 
+/////Refinement Checking/////
+System_ACTIVE() = 	System() \ {req, rel, 
+							stob,stob_init,
+							_STARTUP,_STANDBY,_SYNC,_UP,_DOWN,
+							set_pos.1,set_pos.2,set_pos.3,
+							set_num.1,set_num.2,set_num.3,
+							open_relay,close_relay,
+							update_r_list,
+							btos.1, btos.2, btos.3,
+							done_btos.1, done_btos.2, done_btos.3,
+							setref.1, setref.2, setref.3,
+							set_relay_close, set_relay_open,
+							set_message,
+							set_stable,
+							endCheckProblem1,
+							adopt_state,
+							stable,
+							up.1, up.2, up.3,
+							down.1, down.2, down.3,
+							move.1, move.2, move.3						
+					};
+
+
+// Property 12: check if one station got active first, the system also allows other stations to activate later
+ACTIVE_ORDERED() = 	(startActive.1 -> release.1 -> startActive.2 -> release.2 -> startActive.3 -> release.3 -> ACTIVE_ORDERED())
+						[]
+						(startActive.1 -> release.1 -> startActive.3 -> release.3 -> startActive.2 -> release.2 -> ACTIVE_ORDERED())
+						[]
+						(startActive.2 -> release.2 -> startActive.1 -> release.1 -> startActive.3 -> release.3 -> ACTIVE_ORDERED())
+						[]
+						(startActive.2 -> release.2 -> startActive.3 -> release.3 -> startActive.1 -> release.1 -> ACTIVE_ORDERED())
+						[]
+						(startActive.3 -> release.3 -> startActive.1 -> release.1 -> startActive.2 -> release.2 -> ACTIVE_ORDERED())
+						[]
+						(startActive.3 -> release.3 -> startActive.2 -> release.2 -> startActive.1 -> release.1 -> ACTIVE_ORDERED())
+						;
+
+
+// Property 13: check whether system allows one station gets active continuously
+ACTIVE_RANDOMLY() = 	(startActive.1 -> release.1 -> ACTIVE_RANDOMLY())
+					[]
+					(startActive.2 -> release.2 -> ACTIVE_RANDOMLY())
+					[]
+					(startActive.3 -> release.3 -> ACTIVE_RANDOMLY())
+					;                
+
+
+
+System_MOVE() = 	System() \ {req, rel, 
+							stob,stob_init,
+							_STARTUP,_STANDBY,_SYNC,_UP,_DOWN,
+							set_pos.1,set_pos.2,set_pos.3,
+							set_num.1,set_num.2,set_num.3,
+							open_relay,close_relay,
+							btos.1, btos.2, btos.3,
+							done_btos.1, done_btos.2, done_btos.3,
+							setref.1, setref.2, setref.3,
+							set_relay_close, set_relay_open,
+							set_message,set_stable,
+							endCheckProblem1,
+							adopt_state,stable,
+							up.1, up.2, up.3,
+							down.1, down.2, down.3,update_r_list						
+					};
+									
+// Property 14: check whether system allows every lift can move after one station gets active state
+MOVE_After_ACTIVE() = 	(startActive.1 -> move.1 -> move.2 -> move.3 -> release.1 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.1 -> move.1 -> move.3 -> move.2 -> release.1 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.1 -> move.2 -> move.1 -> move.3 -> release.1 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.1 -> move.2 -> move.3 -> move.1 -> release.1 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.1 -> move.3 -> move.1 -> move.2 -> release.1 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.1 -> move.3 -> move.2 -> move.1 -> release.1 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.2 -> move.1 -> move.2 -> move.3 -> release.2 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.2 -> move.1 -> move.3 -> move.2 -> release.2 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.2 -> move.2 -> move.1 -> move.3 -> release.2 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.2 -> move.2 -> move.3 -> move.1 -> release.2 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.2 -> move.3 -> move.1 -> move.2 -> release.2 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.2 -> move.3 -> move.2 -> move.1 -> release.2 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.3 -> move.1 -> move.2 -> move.3 -> release.3 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.3 -> move.1 -> move.3 -> move.2 -> release.3 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.3 -> move.2 -> move.1 -> move.3 -> release.3 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.3 -> move.2 -> move.3 -> move.1 -> release.3 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.3 -> move.3 -> move.1 -> move.2 -> release.3 -> MOVE_After_ACTIVE())
+					[]
+					(startActive.3 -> move.3 -> move.2 -> move.1 -> release.3 -> MOVE_After_ACTIVE());
+
+#define ACTIVATED has_active_station == 1;
+#assert System() |= [](MoveUP -> ACTIVATED); // Alternatively, #assert System() |= []((!MoveUP) U ACTIVATED);

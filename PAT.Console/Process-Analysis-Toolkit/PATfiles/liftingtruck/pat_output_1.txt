@@ -1,0 +1,17 @@
+=======================================================
+Assertion: System() |= <>[] NUMSET
+********Verification Result********
+The Assertion (System() |= <>[] NUMSET) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:2947
+Total Transitions:4002
+Time Used:0.1087156s
+Estimated Memory Used:43757.776KB
+
+

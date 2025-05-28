@@ -1,0 +1,19 @@
+=======================================================
+Assertion: Register() |= []<> read_res.4
+********Verification Result********
+The Assertion (Register() |= []<> read_res.4) is NOT valid.
+A counterexample is presented as follows.
+<init -> write_inv.4 -> t -> [if((3 >= 0))] -> read_inv -> [if!((B[0] == 1))] -> [if!((B[1] == 1))] -> [if!((B[2] == 1))] -> [if!((B[3] == 1))] -> [if((B[4] == 1))] -> [if!((B[3] == 1))] -> [if!((B[2] == 1))] -> [if!((B[1] == 1))] -> [if!((B[0] == 1))] -> t -> read_inv -> [if!((B[0] == 1))] -> [if!((B[1] == 1))] -> [if!((B[2] == 1))] -> [if!((B[3] == 1))] -> [if((B[4] == 1))] -> [if!((B[3] == 1))] -> [if!((B[2] == 1))] -> [if!((B[1] == 1))] -> [if!((B[0] == 1))] -> t -> read_inv -> [if!((B[0] == 1))] -> [if!((B[1] == 1))] -> [if!((B[2] == 1))] -> [if!((B[3] == 1))] -> [if((B[4] == 1))] -> [if!((B[3] == 1))] -> [if!((B[2] == 1))] -> [if!((B[1] == 1))] -> [if!((B[0] == 1))] -> t -> t -> ([if((2 >= 0))] -> t -> [if((1 >= 0))] -> t -> [if((0 >= 0))] -> t -> [if!((-1 >= 0))] -> write_res -> write_inv.4 -> t -> [if((3 >= 0))] -> t)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:541
+Total Transitions:658
+Time Used:0.0302002s
+Estimated Memory Used:41681.784KB
+
+

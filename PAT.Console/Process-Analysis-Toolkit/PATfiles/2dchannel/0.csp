@@ -1,0 +1,21 @@
+#define M 2; // row number 
+#define N 4; // column number
+
+// The following are one-dimension synchrnous channle arrays used to simulate the 2-d synchronous channel array
+// channel right[i][j] is represented as c[i*N + j] 
+channel right[M*N] 0;
+channel down[M*N] 0;
+
+//The system is a network of cells, messages transimit from one cell to its adjacent cell horizontally or vertically
+Send(i,j) = right[i*N]!i*N -> Send(i,j)
+         [] down[j]!j -> Send(i,j);
+ 
+Receive(i,j) = right[(i+1)*N-1]?x -> Receive(i,j)
+         [] down[(M-1)*N+j]?x -> Receive(i,j);
+         
+Cell(i,j) = [(j+1)%N != 0]right[i*N+j]?x -> right[(i*N+j+1)]!x -> Cell(i,j)
+         [] [(i+1)%M != 0]down[i*N+j]?x -> down[((i+1)*N+j)]!x -> Cell(i,j);
+         
+System() = ||| i:{0..(M-1)}@(|||j:{0..(N-1)}@(Send(i,j)|||Receive(i,j)|||Cell(i,j)));
+
+#assert System() deadlockfree;

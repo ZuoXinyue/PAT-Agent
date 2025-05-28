@@ -1,0 +1,30 @@
+#import "PAT.Lib.HardwareAPIs";
+
+#define USER_CONNECT 77;
+#define SERVER_READY 78;
+#define DATA 79;
+#define POWER_ON 80;
+
+channel chAdmin 0;
+channel chA 0;
+channel chB 0;
+
+Admin() = chAdmin!POWER_ON -> Skip;
+
+User1() = chA!USER_CONNECT -> chA?SERVER_READY -> SendData1();
+SendData1() = chA!DATA -> send_data_1 -> ReceiveData1();
+ReceiveData1() = chA?x -> receive_data_1 -> SendData1();
+
+User2() = chB!USER_CONNECT -> chB?SERVER_READY -> ReceiveData2();
+ReceiveData2() = chB?x -> receive_data_2 -> SendData2();
+SendData2() = chB!DATA -> send_data_2 -> ReceiveData2();
+
+
+Server() = chAdmin?POWER_ON -> power_up {call(LCD_blink,1)} -> initializatioin -> User1Connected();
+User1Connected() = chA?USER_CONNECT {call(LCD_blink,2)} -> chA!SERVER_READY -> User2Connected();
+User2Connected() = chB?USER_CONNECT {call(LCD_blink,3)} -> chB!SERVER_READY -> transimitData();
+transimitData() = chA?x {call(LCD_blink,4)} -> chB!x {call(LCD_blink,5)} -> transimitData();
+
+System = User1() ||| Server() ||| User2() ||| Admin();
+
+#assert System deadlockfree;

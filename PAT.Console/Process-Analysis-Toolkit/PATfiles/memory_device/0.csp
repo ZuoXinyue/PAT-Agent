@@ -1,0 +1,69 @@
+#define DRIVER_MAX_SAVE_SLOTS 2;
+#define SLOT_FREE 0;
+#define SLOT_BUSY 1;
+#define NUM_USERS 10;
+
+var activeSaves = 0;
+var saveSlots[DRIVER_MAX_SAVE_SLOTS] = [SLOT_FREE, SLOT_FREE];
+var userID = 1;
+
+// Driver process definition - modified to interact with coordinator
+driver() = 
+    // Accept save request on slot 0
+    [(activeSaves == 0 || activeSaves == 1) && saveSlots[0] == SLOT_FREE] 
+    accept_save_request_slot0{activeSaves = activeSaves + 1; saveSlots[0] = SLOT_BUSY;} -> driver()
+    []
+    // Accept save request on slot 1
+    [(activeSaves == 0 || activeSaves == 1) && saveSlots[1] == SLOT_FREE] 
+    accept_save_request_slot1{activeSaves = activeSaves + 1; saveSlots[1] = SLOT_BUSY;} -> driver()
+    []
+    // Complete save on slot 0
+    [(activeSaves == 1 || activeSaves == DRIVER_MAX_SAVE_SLOTS) && saveSlots[0] == SLOT_BUSY] 
+    complete_save_slot0{activeSaves = activeSaves - 1; saveSlots[0] = SLOT_FREE;} -> driver()
+    []
+    // Complete save on slot 1
+    [(activeSaves == 1 || activeSaves == DRIVER_MAX_SAVE_SLOTS) && saveSlots[1] == SLOT_BUSY] 
+    complete_save_slot1{activeSaves = activeSaves - 1; saveSlots[1] = SLOT_FREE;} -> driver()
+    []
+    // Reject save request when slots are full
+    [activeSaves == DRIVER_MAX_SAVE_SLOTS && saveSlots[0] == SLOT_BUSY && saveSlots[1] == SLOT_BUSY] 
+    reject_save_request -> driver();
+
+// User process definition - modified to handle rejection
+user(id) = 
+    send_write_request.id -> (
+        receive_acknowledgement.id -> user(id)
+        []
+        receive_rejection.id -> user(id)
+    );
+
+// Refined coordinator process to ensure deadlock freedom
+coordinator() = 
+    ([] id:{0..NUM_USERS-1} @ 
+        send_write_request.id -> (
+            (
+                [activeSaves < DRIVER_MAX_SAVE_SLOTS && saveSlots[0] == SLOT_FREE] 
+                accept_save_request_slot0 -> complete_save_slot0 -> receive_acknowledgement.id -> coordinator()
+                []
+                [activeSaves < DRIVER_MAX_SAVE_SLOTS && saveSlots[1] == SLOT_FREE] 
+                accept_save_request_slot1 -> complete_save_slot1 -> receive_acknowledgement.id -> coordinator()
+                []
+                [activeSaves == DRIVER_MAX_SAVE_SLOTS || (saveSlots[0] == SLOT_BUSY && saveSlots[1] == SLOT_BUSY)] 
+                reject_save_request -> receive_rejection.id -> coordinator()
+            )
+        )
+    );
+
+// Modified system to properly synchronize components
+memory_device() = 
+    driver() 
+    |||
+    (||| id:{0..NUM_USERS-1} @ user(id))
+    |||
+    coordinator();
+
+// Assertions
+
+#define overload0 activeSaves > DRIVER_MAX_SAVE_SLOTS;
+#define overload1 activeSaves > DRIVER_MAX_SAVE_SLOTS;
+#assert memory_device() deadlockfree;

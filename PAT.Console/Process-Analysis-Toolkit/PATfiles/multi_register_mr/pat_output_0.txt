@@ -1,0 +1,18 @@
+=======================================================
+Assertion: RegisterAbs() refines Register()
+********Verification Result********
+The Assertion (RegisterAbs() refines Register()) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: On-the-fly Trace Refinement Checking using DFS and Antichain
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:1940
+Total Transitions:12990
+Time Used:0.7488421s
+Estimated Memory Used:76548.184KB
+
+

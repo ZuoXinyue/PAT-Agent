@@ -1,0 +1,18 @@
+=======================================================
+Assertion: shunting() reaches outside
+********Verification Result********
+The Assertion (shunting() reaches outside) is NOT valid.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:117833
+Total Transitions:306701
+Time Used:5.6829248s
+Estimated Memory Used:82371.736KB
+
+

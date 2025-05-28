@@ -1,0 +1,19 @@
+=======================================================
+Assertion: Shunting() |= []( trouble-><> goal)
+********Verification Result********
+The Assertion (Shunting() |= []( trouble-><> goal)) is NOT valid.
+A counterexample is presented as follows.
+<init -> push_right -> push_right -> push_right -> push_down -> move_up -> push_up -> push_up -> move_left -> (move_right -> move_left)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:75
+Total Transitions:165
+Time Used:0.0124312s
+Estimated Memory Used:41247.84KB
+
+

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <title>PAT Agent - Code Generation</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="/timeline.js"></script>
+</head>
+
+<body>
+<main id="app">
+  <timeline :current-step=5></timeline>
+  <div class="container">
+    <p v-if="!finalData" style="color: #ccc;">We've finished processing the information, click the button below to start generating detailed coding plan.</p>
+
+    <button v-if="!finalData" @click="generateCode">Start System NL Annotation Generation</button>
+
+    <loading-overlay v-if="loading" text="Processing... The process may take around 2 minutes."></loading-overlay>
+
+    <div v-if="finalData" class="results-container">
+      <h3>Generated Natural Language Annotations:</h3>
+      <div class="code-preview">
+        <pre>{{ finalData }}</pre>
+      </div>
+      
+      <div class="button-container">
+        <button class="btn" @click="goToNextPage">
+          <i class="el-icon-arrow-right"></i> Next
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        loading: false,
+        finalData: ''
+      }
+    },
+    methods: {
+      goToNextPage() {
+        window.location.href = "/codegen.html";
+      },
+      async generateCode() {
+        try {
+          this.loading = true;
+          const startTime = Date.now(); // Start timing
+          // ----- CONST HISTORY -----
+          const constRes = await fetch('/get_const_history');
+          const constHistory = await constRes.json();
+          const constData = JSON.parse(constHistory.at(-1).answerGPT);
+          const prompt1 = `According to the following json data, please generate NL annotation for PAT code generation, for example, to define the number of owners, you should generate such an annotation: // "N": number of owners in the system (set to 2), and to define the constant "far", you should generate this annotation: // "far": represents an owner being out and far away from the car. The annotation for each constant and variable should be generated on a new line. **Note: 1. For variables, there is no need to specify possible values, only specify the initial value for each variable. 2. Generate the annotations for all constants before variables.** The json data is as follows:\n${JSON.stringify(constData)}`;
+
+          const resp1 = await fetch('/get_planning_model_answers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: prompt1,
+              context: constData,
+              history: 'skip'
+            })
+          });
+          const data1 = (await resp1.json()).data.answerGPT;
+
+          // ----- ACTION HISTORY -----
+          const actionRes = await fetch('/get_action_history');
+          const actionHistory = await actionRes.json();
+          const actionData = JSON.parse(actionHistory.at(-1).answerGPT);
+          const prompt2 = `According to the following json data, please generate the NL annotation for PAT code generation. For each process, start the annotation with an annotation line // Definition of the "process_name" subsystem. (if any variable is involved in the process, please also add the description like: for xxx with index i). To annotate the actions that can happen in processes, we specify the conditions, action name, and the changes that the action introduces for the variables. For example, an annotation might be: //if "owner[i]" is "far", the action "towards.i" makes "owner[i]" become "near" (owner approaches the car). Note that, when processing conditions, if "complex_composite_conditions" exists as a key, its value alone forms the condition and should be directly described without mentioning "complex_composite_conditions". For other entries in conditions, the key and value together form the condition. Now please generate the NL annotations for each process in the json data, ensuring that the annotation for each action will span a new row. The json data is as follows:\n${JSON.stringify(actionData)}`;
+
+          const resp2 = await fetch('/get_planning_model_answers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: prompt2,
+              context: actionData,
+              history: 'skip'
+            })
+          });
+          const data2 = (await resp2.json()).data.answerGPT;
+
+          // ----- ASSERTION HISTORY -----
+          const assertRes = await fetch('/get_assertion_history');
+          const assertHistory = await assertRes.json();
+          console.log("assertHistory",assertHistory)
+          // Assuming assertHistory.at(-1).answerGPT is a JSON string that contains both keys.
+          const assertionData = assertHistory.at(-1).answerGPT;
+          console.log("assertionData",assertionData)
+          const assertProcRes = await fetch('/process_assertions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(assertionData)  // Note: Not wrapping it under an extra key.
+          });
+          const data3 = (await assertProcRes.json()).output;
+          // console.log("data3",data3)
+
+          // 4) Save these three parts as one grouped entry
+          //    (so each run of code generation is appended as a single object).
+          await fetch('/save_nl_instruction_parts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              data1,
+              data2,
+              data3
+            })
+          });
+
+          // 5) Combine them for final prompt
+          const fullPrompt = `${data1}\n${data2}\n${data3}`;
+          this.finalData = fullPrompt;
+
+          // 6) Save final prompt as JSON
+          await fetch('/save_nl_instruction_claude', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fullText: fullPrompt
+            })
+          });
+
+          const endTime = Date.now(); // End timing
+          const runTimeInSeconds = (endTime - startTime) / 1000; // Calculate run time in seconds
+
+            // After success, send the runtime to the server
+            fetch('/save_run_time', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                modelName: localStorage.getItem('modelName'),
+                stage: 'nl-annotation-time',
+                runTime: runTimeInSeconds
+              })
+            }).then(response => response.json())
+              .then(saveResult => {
+                console.log('Run time saved:', saveResult);
+              })
+              .catch(error => {
+                console.error('Error saving run time:', error);
+              });
+
+          // Removed automatic redirect to stay on this page
+          
+        } catch (e) {
+          console.error("Error:", e);
+          alert("NL instruction generation failed.");
+        } finally {
+          this.loading = false;
+        }
+      }
+    }
+  });
+</script>
+
+<style>
+  #app {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #171717;
+    color: #ccc;
+    height: calc(100vh);
+  }
+  .container {
+    width: 96%;
+    max-width: none;
+    padding: 20px;
+  }
+  .el-header {
+    line-height: 50px;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .results-container {
+    margin-top: 20px;
+    background: #262626;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  
+  .code-preview {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 15px;
+    max-height: calc(100vh - 300px);
+    overflow: auto;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+  }
+  pre{
+    background: rgba(0, 0, 0, 0);
+    color: #4ab36f;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+</style>
+</body>
+</html>

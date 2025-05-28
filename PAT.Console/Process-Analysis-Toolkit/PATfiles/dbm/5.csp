@@ -1,0 +1,140 @@
+#import "PAT.Lib.DBM";
+#import "PAT.Lib.Set";
+#import "PAT.Math";
+
+//DBM model has two DBMs: dbm1 and dbm2
+#define N 2;//the number of clocks of each DBM
+#define Ceiling 1;//the number of constraints added in each DBM
+#define Bound 2; //the timer bound
+
+var<DBM> dbm1 = new DBM(Ceiling);
+var<Set> timers1 = new Set();
+var timerCount1 = 0;
+var timerID1 = 1;
+var result1 = false;
+var isBounded = true;
+var containsClock1 = false;
+var stopped = false;
+
+
+DBMTest1() = ifa(timerCount1 < N) 
+			 {
+				newTimerID{timerID1 = dbm1.GetNewTimerID();stopped=false} -> AddTimer.timerID1{dbm1.AddTimer(timerID1); timers1.Add(timerID1); timerCount1 = timers1.Count();} -> 
+				(Delay{dbm1.Delay()} -> 			
+				(OneCycle1; 
+					 check{result1 = dbm1.IsConstraintNotSatisfied(); isBounded=dbm1.IsTimersBounded(Bound);} ->
+					 ifa (!result1)
+					 {
+					 	ConstraintSatisfied -> (KeepTProcess1(timerCount1, call(Pow, 2, timerCount1)); (DBMTest1() [] ResetProcess1(timerCount1)))
+					 }
+					 else 
+					 {
+					 	ConstraintNotSatisfied{dbm1 = new DBM(Ceiling); timers1 = new Set(); timerCount1 =0; timerID1 = 1;} -> DBMTest1()
+					 }
+					)
+				)
+			 }
+			 else
+			 {
+				stop{stopped =true;} -> DBMTest1()
+			 };
+
+OneCycle1() = (AddCProcess1(timerCount1); OneCycle1)
+		      [] (Clone{dbm1.Clone()} -> OneCycle1)
+	    	  [] Skip;
+			
+ResetProcess1(size) = ifa(size > 0) { 
+					 	[]t:{0..size-1}@ResetTimer{dbm1.ResetTimer(timers1.Get(t))} -> DBMTest1()
+					  } else {
+					 	 DBMTest1()
+					  };
+			
+KeepTProcess1(size, powset) =  ifa(size > 0) 
+					 		   {
+						 			ifa(powset ==1)
+						 			{
+						 				KeepTimers.1{dbm1 = dbm1.KeepTimers(timers1.GetSubsetByIndex(1)); timerCount1 = timers1.Count(); containsClock1=timers1.Contains(1); } -> Skip
+						 			}
+						 	        else
+						 			{
+					 					[] t:{1..powset-1}@KeepTimers.t{dbm1 = dbm1.KeepTimers(timers1.GetSubsetByIndex(t)); timerCount1 = timers1.Count(); containsClock1=timers1.Contains(1);} -> Skip
+						 			}
+					 		   };					
+
+AddCProcess1(size) = ifa(size > 0) {
+						([] t:{0..size-1}@ ([]op:{0..2}@ ([]value:{0..Ceiling}@ AddConstraint.t.op.value{dbm1.AddConstraint(timers1.Get(t), op, value);} -> Skip )))
+					 };	 
+					
+					
+
+
+
+
+
+
+
+	
+//==============================================================================
+var<DBM> dbm2 = new DBM(Ceiling);
+var<Set> timers2 = new Set();
+var timerCount2 = 0;
+var timerID2 = 1;
+var result2 = false;
+var isBounded2 = true;
+var containsClock2 = false;
+var stopped2 = false;
+
+DBMTest2() = ifa(timerCount2 < N)
+			{
+				newTimerID{timerID2 = dbm2.GetNewTimerID();stopped2=false} -> AddTimer.timerID2{dbm2.AddTimer(timerID2); timers2.Add(timerID2); timerCount2 = timers2.Count();} -> 
+				(Delay{dbm2.Delay()} -> 			
+				(OneCycle2; 
+					 check{result2 = dbm2.IsConstraintNotSatisfied(); isBounded2=dbm2.IsTimersBounded(Bound);} ->
+					 ifa (!result2)
+					 {
+					 	ConstraintSatisfied -> (KeepTProcess2(timerCount2, call(Pow, 2, timerCount2)); (DBMTest2() [] ResetProcess2(timerCount2)))
+					 }
+					 else 
+					 {
+					 	ConstraintNotSatisfied{dbm2 = new DBM(Ceiling); timers2 = new Set(); timerCount2 =0; timerID2 = 1;} -> DBMTest2()
+					 }
+					)
+				)
+			}
+			else
+			{
+				stop{stopped2 =true;} -> DBMTest2()
+			}
+			;
+
+OneCycle2 = (AddCProcess2(timerCount2); OneCycle2)
+		[] (Clone{dbm2.Clone()} -> OneCycle2)
+		[] Skip;
+			
+ResetProcess2(size) = ifa(size > 0) { 
+					 	[]t:{0..size-1}@ResetTimer{dbm2.ResetTimer(timers2.Get(t))} -> DBMTest2()
+					 } else {
+					 	DBMTest2()
+					 };
+			
+KeepTProcess2(size, powset) = ifa(size > 0) 
+					 		  {
+						 			ifa(powset ==1)
+						 			{
+						 				KeepTimers.1{dbm2 = dbm2.KeepTimers(timers2.GetSubsetByIndex(1)); timerCount2 = timers2.Count(); containsClock2=timers2.Contains(1); } -> Skip
+						 			}
+						 	        else
+						 			{
+					 					[] t:{1..powset-1}@KeepTimers.t{dbm2 = dbm2.KeepTimers(timers2.GetSubsetByIndex(t)); timerCount2 = timers2.Count(); containsClock2=timers2.Contains(1);} -> Skip
+						 			}
+					 		  };					
+
+AddCProcess2(size) = ifa(size > 0) {
+						([] t:{0..size-1}@ ([]op:{0..2}@ ([]value:{0..Ceiling}@ AddConstraint.t.op.value{dbm2.AddConstraint(timers2.Get(t), op, value);} -> Skip )))
+					 };	 
+
+//==============================================================================
+aDBMTest = DBMTest1 ||| DBMTest2;
+
+#define goal3 timerID1 == 0;
+#assert aDBMTest reaches goal3;

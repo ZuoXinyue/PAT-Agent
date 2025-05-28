@@ -1,0 +1,496 @@
+[
+  {
+    "index": 35,
+    "modelName": "bargaining",
+    "modelDesc": "The project models a bargaining scenario. There is a merchant and a buyer.",
+    "interactionMode": "interleaving",
+    "subsystemCount": 2,
+    "subsystems": [
+      {
+        "name": "Merchant",
+        "description": "There is an array of size 3, which tracks the availability status of 3 items. The Merchant prepares to sell item1 at price 10, item2 at price 15, item3 at price 20. If the Buyer buys item x with a price y that is higher than the Merchant's expectation, buy.x.y can occur, after which x becomes unavailable and the Buyer's budget decreases by y."
+      },
+      {
+        "name": "Buyer",
+        "description": "The Buyer is willing to buy item1 at price 5, item2 at price 15, item3 at price 25. The Buyer initially has a budget of 25. The Buyer can choose an available item x from the three items and offer a price y that she prepared, y must be lower than the remaining amount of available money."
+      }
+    ],
+    "assertions": [
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"item1_unavailable\" to represent that item1 is unavailable. Assert that it is always the case that if item1_unavailable, then next the action of buying item1 always cannot happen again.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"budget_nonnegative\" to represent that the budget of the Buyer is >= 0. Assert that it is always the case that budget_nonnegative.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"item1_valid_price\" to represent that the expected price of the Buyer is no less than the expected price of the Merchant. Assert it is always the case that if the action of buying item1 happens, then item1_valid_price.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"all_items_unavailable\" to represent that item1, item2, item3 are all unavailable. Assert it is always the case that eventually all_items_unavailable.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Invalid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      }
+    ]
+  },
+  {
+    "index": 36,
+    "modelName": "banking",
+    "modelDesc": "The project models a banking system. There are 2 accounts associated with a bank.",
+    "interactionMode": "interleaving",
+    "subsystemCount": 3,
+    "subsystems": [
+        {
+            "name": "Bank",
+            "description": "A bank can be open or closed."
+        },
+        {
+            "name": "Account1",
+            "description": "Account1 can be opened or closed when the Bank is open. It has a balance N1. When Account1 is opened, N1 is 0. When N1 is 0, Account1 is allowed to be closed. The deposite.n action will add n to N1. The withdraw.n action is allowed when N1 >= n, and it will minus n from N1. The balance action enquires the balance of the account without changing it. The maximum balance is 20."
+        },
+        {
+            "name": "Account2",
+            "description": "Account2 can be opened or closed when the Bank is open. It has a balance N2. When Account2 is opened, N2 is 0. When N2 is 0, Account2 is allowed to be closed. The deposite.n action will add n to N2. The withdraw.n action is allowed when N2 >= n, and it will minus n from N2. The balance action enquires the balance of the account without changing it. The maximum balance is 20."
+        }
+    ],
+    "assertions": [
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"balance_nonnegative\" to represent that the balances of both Account1 and Account2 are >= 0. Assert that it is always the case that balance_nonnegative.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"accounts_closed\" to represent that both Account1 and Account2 are closed. Assert that it is always the case that eventually accounts_closed.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Invalid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state \"bank_is_open\" to represent that the Bank is open. Assert it is always the case that account open action implies bank_is_open.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      }
+    ]
+  },
+  {
+    "index": 37,
+    "modelName": "railwaysys2",
+    "modelDesc": "The project models a railway network.",
+    "interactionMode": "interleaving",
+    "subsystemCount": 5,
+    "subsystems": [
+      {
+        "name": "Train",
+        "description": "The Train enters TrackA if its signal is green. After this, if PointP connects to TrackB, the Train enters TrackB if its signal is green. If PointP connects to TrackC, the Train enters TrackC if its signal is green."
+      },
+      {
+        "name": "PointP",
+        "description": "PointP can connect TrackA to either TrackB or TrackC. PointP can switch when all signals are red and the Train is not on any track."
+      },
+      {
+        "name": "TrackA",
+        "description": "TrackA can switch its signal to red or green. Initially the signal is red. It turns green when the Train arrives, and turns red after the Train leaves."
+      },
+      {
+        "name": "TrackB",
+        "description": "TrackB can switch its signal to red or green. Initially the signal is red. It turns green if PointP is connected to it, the Train arrives, and the signal of TrackA is red. It turns red after the Train leaves."
+      },
+      {
+        "name": "TrackC",
+        "description": "TrackC can switch its signal to red or green. Initially the signal is red. It turns green if PointP is connected to it, the Train arrives, and the signal of TrackA is red. It turns red after the Train leaves."
+      }
+    ],
+    "assertions": [
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state at_most_one_green to represent that at most one signal is green. Assert that it is always the case that at_most_one_green.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state all_red to represent that all the signals are red. Assert it is always the case that switch to TrackB action occurs in PointP implies that all_red.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state trackB_red to represent that the signal at TrackB is red. Define state Train_not_in_B to represent that the Train is not in TrackB. Assert it is always the case that trackB_red implies that Train_not_in_B.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state trackB_green to represent that the signal at TrackB is green. Define state A_connect_to_B to represent that PointP is connected to TrackB. Assert it is always the case that trackB_green implies that A_connect_to_B.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      }
+    ]
+  },
+  {
+    "index": 38,
+    "modelName": "roundabout",
+    "modelDesc": "The project models a roundabout. There is a main road with two lanes, A and B, which merge into a single-lane road C. Lane C leads to a loop D. Cars can enter C from A if loop D is empty, then enter D from C, then enter C from D, then enter B from C.",
+    "interactionMode": "interleaving",
+    "subsystemCount": 3,
+    "subsystems": [
+      {
+        "name": "LaneA",
+        "description": "LaneA can be Full or Empty. If LaneA is Full, LoopD is Empty, LaneC is Empty, then cars in A enter C, LaneA becomes Empty and LaneC becomes Leftwards. If LaneA is Empty, it can become Full."
+      },
+      {
+        "name": "LaneB",
+        "description": "LaneB can be Full or Empty. If LaneC is Rightwards and LaneB is Empty, then cars in C enter B, LaneB becomes Full and LaneC becomes Empty. If LaneB is Full, it can become Empty."
+      },
+      {
+        "name": "LoopD",
+        "description": "LoopD can be Full or Empty. If LoopD is Full and LaneC is Empty, then cars in D enter C, LoopD becomes Empty and LaneC becomes Rightwards. If LoopD is Empty and LaneC is Leftwards, then cars in C enters D, LoopD becomes Full and LaneC becomes Empty."
+      }
+    ],
+    "assertions": [
+      {
+        "assertionType": "deadlock-free",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": false,
+        "assertionTruth": "",
+        "ltlLogic": "",
+        "ltlTarget": "",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state D_empty to represent that LoopD is empty. Define state C_not_Empty to represent that LaneC is Leftwards or Rightwards. Assert it is always the case that if C_not_Empty, then D_empty.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      }
+    ]
+  },
+  {
+    "index": 39,
+    "modelName": "robot",
+    "modelDesc": "The size of the plane is 4x4. The Robot starts at row 0 column 0, and can move in directions {N,S,E,W}. Row 1 column 1 and row 2 column 2 are blocked and the robot cannot move onto these positions. The robot has a fuel capacity of 5, each move will reduce the capacity by 1. It will stop moving if the capacity is 0.",
+    "interactionMode": "skip",
+    "subsystemCount": 1,
+    "subsystems": [
+      {
+        "name": "robot",
+        "description": "The size of the plane is 4x4. The Robot starts at row 0 column 0, and can move in directions {N,S,E,W}. Row 1 column 1 and row 2 column 2 are blocked and the robot cannot move onto these positions. The robot has a fuel capacity of 5, each move will reduce the capacity by 1. It will stop moving if the capacity is 0."
+      }
+    ],
+    "assertions": [
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state reach_3_3 to represent that the Robot is at position (3,3). Assert that it is always the case that reach_3_3 is not true.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state reach_2_2 to represent that the Robot is at position (2,2). Assert that it is always the case that reach_2_2 is not true.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define state reach_0_0 to represent that the Robot is at position (0,0). Assert it is always the case that if reach_0_0, then always not reach_0_0 again.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Invalid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      }
+    ]
+  },
+  {
+    "index": 40,
+    "modelName": "bully",
+    "modelDesc": "The project models the bully algorithm.",
+    "interactionMode": "interleaving",
+    "subsystemCount": 3,
+    "subsystems": [
+      {
+        "name": "Node1",
+        "description": "Each node could be either an coordinator or a processor. Use an array to record the coordinator of each node.\nA processor can send a Test message to the coordinator. The coordinator sends a Status message to the processor, here we use OK for working and FAIL for timeout.\nIf a processor receives FAIL, it can send Election message to the rest of the nodes to announce an election. After the other nodes receive the Election message, they send back an Answer message.\nOnce a node receives 2 Answer messages, it becomes the coordinator. The new coordinator sends a Coordinator message to rest of the nodes.\nIf a node receives an Coordinator message, it should update itself to be a processor and update its coordinator to the one that sent the Coordinator message. Node1 can be an coordinator or a processor."
+      },
+      {
+        "name": "Node2",
+        "description": "Node2 can be an coordinator or a processor."
+      },
+      {
+        "name": "Node3",
+        "description": "Node3 can be an coordinator or a processor."
+      }
+    ],
+    "assertions": [
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define a state called one_coordinator, which represents that either Node1, Node2, or Node3 is the coordinator. Assert that it is always the case that one_coordinator is true.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": ""
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define a state called node1_is_coordinator, which represents that Node1 is the coordinator. Assert that it is always the case that eventually node1_is_coordinator.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Invalid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      },
+      {
+        "assertionType": "ltl",
+        "component": "",
+        "stateName": "",
+        "reachabilityType": "state",
+        "customDescription": "Define states node1_leads_node2 and node1_leads_node3, which represent that the coordinators for Node2 and Node3 are Node1. There is an existing state called node1_is_coordinator. Assert it is always the case that if node1_is_coordinator, then node1_leads_node2 and node1_leads_node3.",
+        "conditions": [
+          {
+            "variable": "",
+            "value": "",
+            "connector": "AND"
+          }
+        ],
+        "editingFinished": true,
+        "assertionTruth": "Valid",
+        "ltlLogic": "",
+        "ltlTarget": "customize",
+        "selectedActions": []
+      }
+    ]
+  }
+]

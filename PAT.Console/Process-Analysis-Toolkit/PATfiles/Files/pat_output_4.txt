@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Files() |= []( File1_protected->[] File1_protected)
+********Verification Result********
+The Assertion (Files() |= []( File1_protected->[] File1_protected)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:225
+Total Transitions:528
+Time Used:0.0131907s
+Estimated Memory Used:8510.448KB
+
+

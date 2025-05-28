@@ -1,0 +1,76 @@
+#define N 4;
+#define RESET 77;
+
+var pin[N];
+var result = 0;
+var dooropen = 0;
+var alarm = 0;
+var symbol = 0;
+
+channel pw 0;
+channel i2ctr 0;
+channel ctr2db 0;
+channel db2ctr 0;
+channel i2d 0;
+channel ctr2a 0;
+channel ctr2alm 0;
+
+channel flag 0;
+
+User() = User2() [] User1(); flag?x -> if(dooropen == 1) { enterdoor -> Skip } else { User() };
+
+User1() = pw!1 -> pw!1 -> pw!1 -> pw!1 -> Skip;
+
+User2() = pw!2 -> pw!RESET -> pw!2 -> pw!2 -> pw!2 -> pw!2 -> Skip;
+
+Input() = pw?x -> check{symbol = x} -> 
+          if(symbol == RESET) { 
+            Input() 
+          }
+          else {
+            input1{ pin[0] = symbol } -> i2d!symbol -> pw?y -> check{ symbol = y } -> 
+            if(symbol == RESET){
+              Input()
+            }
+            else{
+              input2{ pin[1] = symbol } -> i2d!symbol -> pw?z ->check{ symbol = z } ->
+              if(symbol == RESET){
+                Input()
+              }
+              else{
+                input3{ pin[2] = symbol } -> i2d!symbol -> pw?k -> check{symbol = k} ->
+                if(symbol == RESET) 
+                {
+                  Input()
+                }
+                else{
+                  input4{ pin[3] = symbol } -> i2d!symbol -> i2ctr!1 -> Input()
+                }
+              }
+            }
+          };
+
+Display() = i2d?x -> display -> Display();
+
+Controller() = i2ctr?x -> ctr2db!x -> db2ctr?x -> if(result ==1) { ctr2a!1 -> flag!1 -> Controller() } else { ctr2alm!1 -> flag!1 -> Controller() };
+
+DBMS() = ctr2db?x -> 
+         if(pin[0]==1 && pin[1]==1 && pin[2]==1 && pin[3]==1) {
+            checkOK{result = 1;}->  db2ctr!1 -> DBMS()
+         } 
+         else {
+            checkFail{result = 0;} -> db2ctr!1 -> DBMS()
+         };
+
+Alarm() = ctr2alm?x -> alarmon{alarm = 1} -> alarmoff{alarm = 0} -> Alarm();
+
+Actuator() = ctr2a?x -> opendoor{dooropen = 1;} -> closedoor{dooropen = 0} -> Actuator();
+
+System() = User() ||| Input() ||| Controller() ||| DBMS() ||| Display() ||| Actuator() ||| Alarm();
+
+#define pre pin[0]==1 && pin[1]==1 && pin[2]==1 && pin[3]==1;
+#define pos dooropen == 1;
+#define error result == 0 && dooropen == 1;
+#define alert alarm == 1;
+
+#assert System() reaches error;

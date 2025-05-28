@@ -1,0 +1,89 @@
+#define MAX_PERSONS 2;
+#define FLOOR_1 1;
+#define FLOOR_2 2;
+#define FLOOR_3 3;
+#define NOT_IN_LIFT 0;
+#define IN_LIFT 1;
+#define DOOR_CLOSED 0;
+#define DOOR_OPEN 1;
+#define NO_REQUEST 0;
+#define REQUEST 1;
+
+var personFloors[MAX_PERSONS] = [FLOOR_1, FLOOR_1];
+var personInLift[MAX_PERSONS] = [NOT_IN_LIFT, NOT_IN_LIFT];
+var liftFloor = FLOOR_1;
+var doorState = DOOR_CLOSED;
+var externalUpRequests[3] = [NO_REQUEST, NO_REQUEST, NO_REQUEST];
+var externalDownRequests[3] = [NO_REQUEST, NO_REQUEST, NO_REQUEST];
+var internalRequests[3] = [NO_REQUEST, NO_REQUEST, NO_REQUEST];
+
+person(i) = 
+    [personInLift[i] == NOT_IN_LIFT && (personFloors[i] == FLOOR_1 || personFloors[i] == FLOOR_2) && 
+    externalUpRequests[personFloors[i]-1] == NO_REQUEST && 
+    (liftFloor != personFloors[i] || doorState == DOOR_CLOSED)]
+    person_call_lift_up.i{externalUpRequests[personFloors[i]-1] = REQUEST;} -> person(i)
+    []
+    [personInLift[i] == NOT_IN_LIFT && (personFloors[i] == FLOOR_2 || personFloors[i] == FLOOR_3) && 
+    externalDownRequests[personFloors[i]-1] == NO_REQUEST && 
+    (liftFloor != personFloors[i] || doorState == DOOR_CLOSED)]
+    person_call_lift_down.i{externalDownRequests[personFloors[i]-1] = REQUEST;} -> person(i)
+    []
+    [personInLift[i] == NOT_IN_LIFT && doorState == DOOR_OPEN && 
+    personFloors[i] == liftFloor]
+    person_enter_lift.i{personInLift[i] = IN_LIFT;} -> person(i)
+    []
+    [personInLift[i] == IN_LIFT && internalRequests[FLOOR_1-1] == NO_REQUEST && 
+    liftFloor != FLOOR_1]
+    person_select_floor_1.i{internalRequests[FLOOR_1-1] = REQUEST;} -> person(i)
+    []
+    [personInLift[i] == IN_LIFT && internalRequests[FLOOR_2-1] == NO_REQUEST && 
+    liftFloor != FLOOR_2]
+    person_select_floor_2.i{internalRequests[FLOOR_2-1] = REQUEST;} -> person(i)
+    []
+    [personInLift[i] == IN_LIFT && internalRequests[FLOOR_3-1] == NO_REQUEST && 
+    liftFloor != FLOOR_3]
+    person_select_floor_3.i{internalRequests[FLOOR_3-1] = REQUEST;} -> person(i)
+    []
+    [personInLift[i] == IN_LIFT && doorState == DOOR_OPEN]
+    person_exit_lift.i{personInLift[i] = NOT_IN_LIFT; personFloors[i] = liftFloor;} -> person(i);
+
+lift() = 
+    [liftFloor == FLOOR_1 && doorState == DOOR_CLOSED && 
+    ((internalRequests[FLOOR_2-1] == REQUEST || externalUpRequests[FLOOR_2-1] == REQUEST || externalDownRequests[FLOOR_2-1] == REQUEST) || 
+    (internalRequests[FLOOR_3-1] == REQUEST || externalUpRequests[FLOOR_3-1] == REQUEST || externalDownRequests[FLOOR_3-1] == REQUEST))]
+    lift_move_up_from_floor1{liftFloor = FLOOR_2;} -> lift()
+    []
+    [liftFloor == FLOOR_2 && doorState == DOOR_CLOSED && 
+    (internalRequests[FLOOR_3-1] == REQUEST || externalUpRequests[FLOOR_3-1] == REQUEST || externalDownRequests[FLOOR_3-1] == REQUEST)]
+    lift_move_up_from_floor2{liftFloor = FLOOR_3;} -> lift()
+    []
+    [liftFloor == FLOOR_3 && doorState == DOOR_CLOSED && 
+    ((internalRequests[FLOOR_2-1] == REQUEST || externalUpRequests[FLOOR_2-1] == REQUEST || externalDownRequests[FLOOR_2-1] == REQUEST) || 
+    (internalRequests[FLOOR_1-1] == REQUEST || externalUpRequests[FLOOR_1-1] == REQUEST || externalDownRequests[FLOOR_1-1] == REQUEST))]
+    lift_move_down_from_floor3{liftFloor = FLOOR_2;} -> lift()
+    []
+    [liftFloor == FLOOR_2 && doorState == DOOR_CLOSED && 
+    (internalRequests[FLOOR_1-1] == REQUEST || externalUpRequests[FLOOR_1-1] == REQUEST || externalDownRequests[FLOOR_1-1] == REQUEST)]
+    lift_move_down_from_floor2{liftFloor = FLOOR_1;} -> lift()
+    []
+    [doorState == DOOR_CLOSED && 
+    ((liftFloor == FLOOR_1 && (internalRequests[FLOOR_1-1] == REQUEST || externalUpRequests[FLOOR_1-1] == REQUEST || externalDownRequests[FLOOR_1-1] == REQUEST)) || 
+    (liftFloor == FLOOR_2 && (internalRequests[FLOOR_2-1] == REQUEST || externalUpRequests[FLOOR_2-1] == REQUEST || externalDownRequests[FLOOR_2-1] == REQUEST)) || 
+    (liftFloor == FLOOR_3 && (internalRequests[FLOOR_3-1] == REQUEST || externalUpRequests[FLOOR_3-1] == REQUEST || externalDownRequests[FLOOR_3-1] == REQUEST)))]
+    lift_open_door{doorState = DOOR_OPEN;} -> lift()
+    []
+    [doorState == DOOR_OPEN && 
+    ((liftFloor == FLOOR_1 && (internalRequests[FLOOR_1-1] == REQUEST || externalUpRequests[FLOOR_1-1] == REQUEST || externalDownRequests[FLOOR_1-1] == REQUEST)) || 
+    (liftFloor == FLOOR_2 && (internalRequests[FLOOR_2-1] == REQUEST || externalUpRequests[FLOOR_2-1] == REQUEST || externalDownRequests[FLOOR_2-1] == REQUEST)) || 
+    (liftFloor == FLOOR_3 && (internalRequests[FLOOR_3-1] == REQUEST || externalUpRequests[FLOOR_3-1] == REQUEST || externalDownRequests[FLOOR_3-1] == REQUEST)))]
+    lift_clear_requests{internalRequests[liftFloor-1] = NO_REQUEST; externalUpRequests[liftFloor-1] = NO_REQUEST; externalDownRequests[liftFloor-1] = NO_REQUEST;} -> lift()
+    []
+    [doorState == DOOR_OPEN && 
+    ((liftFloor == FLOOR_1 && (internalRequests[FLOOR_1-1] == NO_REQUEST && externalUpRequests[FLOOR_1-1] == NO_REQUEST && externalDownRequests[FLOOR_1-1] == NO_REQUEST)) || 
+    (liftFloor == FLOOR_2 && (internalRequests[FLOOR_2-1] == NO_REQUEST && externalUpRequests[FLOOR_2-1] == NO_REQUEST && externalDownRequests[FLOOR_2-1] == NO_REQUEST)) || 
+    (liftFloor == FLOOR_3 && (internalRequests[FLOOR_3-1] == NO_REQUEST && externalUpRequests[FLOOR_3-1] == NO_REQUEST && externalDownRequests[FLOOR_3-1] == NO_REQUEST)))]
+    lift_close_door{doorState = DOOR_CLOSED;} -> lift();
+
+lift_system = (|||i:{0..MAX_PERSONS-1} @ person(i)) ||| lift();
+
+#assert lift_system deadlockfree;

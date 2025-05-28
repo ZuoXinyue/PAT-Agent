@@ -1,0 +1,17 @@
+=======================================================
+Assertion: leader_2hop_non_deterministic() |= <>[] twohopcoloring
+********Verification Result********
+The Assertion (leader_2hop_non_deterministic() |= <>[] twohopcoloring) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:15
+Total Transitions:90
+Time Used:0.0103916s
+Estimated Memory Used:41209.28KB
+
+

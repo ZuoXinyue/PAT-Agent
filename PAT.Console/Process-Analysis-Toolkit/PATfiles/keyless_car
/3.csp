@@ -1,0 +1,114 @@
+#define MAX_OWNERS 2;
+#define CAR_IN 1;
+#define CAR_NEAR 2;
+#define CAR_FAR 3;
+#define KEY_WITH_OWNER 4;
+#define DOOR_OPEN 5;
+#define DOOR_UNLOCKED 6;
+#define DOOR_LOCKED 7;
+#define ENGINE_OFF 8;
+#define ENGINE_ON 9;
+#define NOT_DRIVING 10;
+#define DRIVING 11;
+#define FUEL_EMPTY 12;
+#define FUEL_HALF 13;
+#define FUEL_FULL 14;
+
+var ownerPositions[2] = [CAR_FAR, CAR_FAR];
+var keyPosition = CAR_FAR;
+var doorStatus = DOOR_LOCKED;
+var engineStatus = ENGINE_OFF;
+var drivingStatus = NOT_DRIVING;
+var fuelLevel = FUEL_FULL;
+
+// Define state labels for property checking
+#define keylockinside (keyPosition == CAR_IN && doorStatus == DOOR_LOCKED);
+#define runwithoutowner (engineStatus == ENGINE_ON && ownerPositions[0] != CAR_IN && ownerPositions[1] != CAR_IN);
+#define drivewithoutengineon (drivingStatus == DRIVING && engineStatus == ENGINE_OFF);
+#define drivewithoutfuel (drivingStatus == DRIVING && fuelLevel == FUEL_EMPTY);
+
+Process_1(i) = 
+    [i == 0 && ownerPositions[0] == CAR_FAR] move_to_near_owner0{ownerPositions[0] = CAR_NEAR;} -> Process_1(i)
+    []
+    [i == 0 && ownerPositions[0] == CAR_NEAR] move_to_far_owner0{ownerPositions[0] = CAR_FAR;} -> Process_1(i)
+    []
+    [i == 0 && ownerPositions[0] == CAR_NEAR && (doorStatus == DOOR_OPEN || doorStatus == DOOR_UNLOCKED)] enter_car_owner0{ownerPositions[0] = CAR_IN;} -> Process_1(i)
+    []
+    [i == 0 && ownerPositions[0] == CAR_IN && (doorStatus == DOOR_OPEN || doorStatus == DOOR_UNLOCKED)] exit_car_owner0{ownerPositions[0] = CAR_NEAR;} -> Process_1(i)
+    []
+    [i == 1 && ownerPositions[1] == CAR_FAR] move_to_near_owner1{ownerPositions[1] = CAR_NEAR;} -> Process_1(i)
+    []
+    [i == 1 && ownerPositions[1] == CAR_NEAR] move_to_far_owner1{ownerPositions[1] = CAR_FAR;} -> Process_1(i)
+    []
+    [i == 1 && ownerPositions[1] == CAR_NEAR && (doorStatus == DOOR_OPEN || doorStatus == DOOR_UNLOCKED)] enter_car_owner1{ownerPositions[1] = CAR_IN;} -> Process_1(i)
+    []
+    [i == 1 && ownerPositions[1] == CAR_IN && (doorStatus == DOOR_OPEN || doorStatus == DOOR_UNLOCKED)] exit_car_owner1{ownerPositions[1] = CAR_NEAR;} -> Process_1(i);
+
+Process_2(i) = 
+    [i == 0 && keyPosition == CAR_FAR && ownerPositions[0] == CAR_NEAR] pickup_key_owner0{keyPosition = KEY_WITH_OWNER;} -> Process_2(i)
+    []
+    [i == 1 && keyPosition == CAR_FAR && ownerPositions[1] == CAR_NEAR] pickup_key_owner1{keyPosition = KEY_WITH_OWNER;} -> Process_2(i)
+    []
+    [i == 0 && keyPosition == KEY_WITH_OWNER && ownerPositions[0] == CAR_IN] insert_key_in_car_owner0{keyPosition = CAR_IN;} -> Process_2(i)
+    []
+    [i == 1 && keyPosition == KEY_WITH_OWNER && ownerPositions[1] == CAR_IN] insert_key_in_car_owner1{keyPosition = CAR_IN;} -> Process_2(i)
+    []
+    [i == 0 && keyPosition == KEY_WITH_OWNER && ownerPositions[0] == CAR_NEAR] drop_key_owner0{keyPosition = CAR_FAR;} -> Process_2(i)
+    []
+    [i == 1 && keyPosition == KEY_WITH_OWNER && ownerPositions[1] == CAR_NEAR] drop_key_owner1{keyPosition = CAR_FAR;} -> Process_2(i)
+    []
+    [i == 0 && keyPosition == CAR_IN && ownerPositions[0] == CAR_IN] remove_key_from_car_owner0{keyPosition = KEY_WITH_OWNER;} -> Process_2(i)
+    []
+    [i == 1 && keyPosition == CAR_IN && ownerPositions[1] == CAR_IN] remove_key_from_car_owner1{keyPosition = KEY_WITH_OWNER;} -> Process_2(i)
+    []
+    // Add special action to allow locking key inside the car
+    [i == 0 && ownerPositions[0] == CAR_NEAR && keyPosition == CAR_IN && doorStatus == DOOR_UNLOCKED] lock_with_key_inside_owner0{doorStatus = DOOR_LOCKED;} -> Process_2(i)
+    []
+    [i == 1 && ownerPositions[1] == CAR_NEAR && keyPosition == CAR_IN && doorStatus == DOOR_UNLOCKED] lock_with_key_inside_owner1{doorStatus = DOOR_LOCKED;} -> Process_2(i);
+
+Process_3(i) = 
+    [i == 0 && doorStatus == DOOR_LOCKED && keyPosition == KEY_WITH_OWNER && ownerPositions[0] == CAR_NEAR] unlock_door_owner0{doorStatus = DOOR_UNLOCKED;} -> Process_3(i)
+    []
+    [i == 1 && doorStatus == DOOR_LOCKED && keyPosition == KEY_WITH_OWNER && ownerPositions[1] == CAR_NEAR] unlock_door_owner1{doorStatus = DOOR_UNLOCKED;} -> Process_3(i)
+    []
+    [i == 0 && doorStatus == DOOR_UNLOCKED && ownerPositions[0] == CAR_NEAR] open_door_owner0{doorStatus = DOOR_OPEN;} -> Process_3(i)
+    []
+    [i == 1 && doorStatus == DOOR_UNLOCKED && ownerPositions[1] == CAR_NEAR] open_door_owner1{doorStatus = DOOR_OPEN;} -> Process_3(i)
+    []
+    [i == 0 && doorStatus == DOOR_OPEN && ownerPositions[0] == CAR_NEAR] close_door_owner0{doorStatus = DOOR_UNLOCKED;} -> Process_3(i)
+    []
+    [i == 1 && doorStatus == DOOR_OPEN && ownerPositions[1] == CAR_NEAR] close_door_owner1{doorStatus = DOOR_UNLOCKED;} -> Process_3(i)
+    []
+    [i == 0 && doorStatus == DOOR_UNLOCKED && ownerPositions[0] == CAR_NEAR && keyPosition != CAR_IN] lock_door_owner0{doorStatus = DOOR_LOCKED;} -> Process_3(i)
+    []
+    [i == 1 && doorStatus == DOOR_UNLOCKED && ownerPositions[1] == CAR_NEAR && keyPosition != CAR_IN] lock_door_owner1{doorStatus = DOOR_LOCKED;} -> Process_3(i);
+
+Process_4(i) = 
+    [i == 0 && engineStatus == ENGINE_OFF && keyPosition == CAR_IN && ownerPositions[0] == CAR_IN && (fuelLevel == FUEL_HALF || fuelLevel == FUEL_FULL)] start_engine_owner0{engineStatus = ENGINE_ON;} -> Process_4(i)
+    []
+    [i == 1 && engineStatus == ENGINE_OFF && keyPosition == CAR_IN && ownerPositions[1] == CAR_IN && (fuelLevel == FUEL_HALF || fuelLevel == FUEL_FULL)] start_engine_owner1{engineStatus = ENGINE_ON;} -> Process_4(i)
+    []
+    [engineStatus == ENGINE_ON && drivingStatus == NOT_DRIVING] stop_engine{engineStatus = ENGINE_OFF;} -> Process_4(i)
+    []
+    [i == 0 && engineStatus == ENGINE_ON && drivingStatus == NOT_DRIVING && ownerPositions[0] == CAR_IN && (fuelLevel == FUEL_HALF || fuelLevel == FUEL_FULL)] start_driving_owner0{drivingStatus = DRIVING;} -> Process_4(i)
+    []
+    [i == 1 && engineStatus == ENGINE_ON && drivingStatus == NOT_DRIVING && ownerPositions[1] == CAR_IN && (fuelLevel == FUEL_HALF || fuelLevel == FUEL_FULL)] start_driving_owner1{drivingStatus = DRIVING;} -> Process_4(i)
+    []
+    [engineStatus == ENGINE_ON && drivingStatus == DRIVING] stop_driving{drivingStatus = NOT_DRIVING;} -> Process_4(i)
+    []
+    [drivingStatus == DRIVING && fuelLevel == FUEL_FULL] consume_fuel_from_full{fuelLevel = FUEL_HALF;} -> Process_4(i)
+    []
+    [drivingStatus == DRIVING && fuelLevel == FUEL_HALF] consume_fuel_from_half{fuelLevel = FUEL_EMPTY;} -> Process_4(i)
+    []
+    [engineStatus == ENGINE_OFF && drivingStatus == NOT_DRIVING && (fuelLevel == FUEL_EMPTY || fuelLevel == FUEL_HALF)] refuel{fuelLevel = FUEL_FULL;} -> Process_4(i)
+    []
+    // Add special actions for edge cases
+    [engineStatus == ENGINE_ON && ownerPositions[0] != CAR_IN && ownerPositions[1] != CAR_IN] engine_running_without_owner -> Process_4(i)
+    []
+    [drivingStatus == DRIVING && engineStatus == ENGINE_OFF] drive_without_engine_on -> Process_4(i)
+    []
+    [drivingStatus == DRIVING && fuelLevel == FUEL_EMPTY] drive_without_fuel -> Process_4(i);
+
+keyless_car = |||i:{0..MAX_OWNERS-1} @ (Process_1(i) ||| Process_2(i) ||| Process_3(i) ||| Process_4(i));
+
+#assert keyless_car reaches drivewithoutengineon;

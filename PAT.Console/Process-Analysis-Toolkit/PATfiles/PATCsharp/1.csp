@@ -1,0 +1,82 @@
+#import "PAT.Lib.List";
+#import "PAT.Lib.SerializableList";
+#import "PAT.Lib.Stack";
+#import "PAT.Lib.Queue";
+#import "PAT.Lib.Set";
+
+//test the list library 
+var<List> list; 
+var<List> list2;
+
+
+List() = field{list$Field = 5; list$Property = list$Field + 3;} -> 
+           ((add1{list.Add(1);list2.Add(4);list2.Add(5);} -> add2{list.Add(2);} -> add3{list.Add(3)} -> remove{list.Remove(2);} -> Skip)
+           []
+           (add1{list.Add(2);list2.Add(2);list2.Add(2);} -> add2{list.Add(2);} -> add3{list.Add(3)} -> remove{list.Remove(2);} -> Skip)
+           );
+           
+           
+			if(!list.Contains(2))
+			{
+				add22{list.Add(3);} -> concatenate{list= list.Concat(list, list2);} -> List2()				
+			};
+
+List2() = add1{list.Add(1);}  -> remove{list.Remove(1);} ->remove{list.Remove(2);} -> Skip;
+
+//test the SerializableList list library 
+var<SerializableList> list3; 
+var<SerializableList> list4;
+
+
+List3() = field{list3$Field = 5; list3$Property = list3$Field + 3;} -> 
+           ((add1{list3.Add(1);list4.Add(4);list4.Add(5);} -> add2{list3.Add(2);} -> add3{list3.Add(3)} -> remove{list3.Remove(2);} -> Skip)
+           []
+           (add1{list3.Add(2);list4.Add(2);list4.Add(2);} -> add2{list3.Add(2);} -> add3{list3.Add(3)} -> remove{list3.Remove(2);} -> Skip)
+           );
+           
+           
+			if(!list3.Contains(2))
+			{
+				add22{list3.Add(3);} -> concatenate{list3= list3.Concat(list3, list4);} -> List4()				
+			};
+
+List4() = add1{list3.Add(1);}  -> remove{list3.Remove(1);} ->remove{list3.Remove(2);} -> Skip;
+
+
+//test the stack library 
+var<Stack> stack1;
+
+Stack() =  push1{stack1.Push(1)}-> clear{stack1.Clear()}-> push2{stack1.Push(2)} -> pop1{stack1.Pop()} -> 
+		   push3{stack1.Push(3)} -> if (3 == stack1.Peek()){if ( (stack1.Contains(3)== true) ) { Stack()} };
+
+StackException() =push1{stack1.Push(1)} -> pop1{stack1.Pop()}-> peek{stack1.Peek()} -> StackException();
+
+//test the queue library 
+var<Queue> queue;
+var<Queue> queue2;
+
+Queue() = enter1{queue.Enqueue(1);queue2.Enqueue(2);queue2.Enqueue(3) } -> enter1{queue.Enqueue(2)} ->
+		  if (1 == queue.First() && 2 == queue.Last())
+		  {
+		  	exit{queue.Dequeue()} -> concat{queue = queue.Concat(queue, queue2)}
+           	-> if (queue.Contains(3)&& 3 == queue.Count()) {Queue() }
+	      };
+
+//test the set library
+var<Set> set1;
+var<Set> set2;
+var<Set> set3;
+
+Set() = initialize{ set1.Add(1);set2.Add(2);set3.Add(3);set3.Add(4)} -> remove3 {set3.Remove(4)} ->
+		if (set1.IsDisjoint(set2)== true)
+		{
+			union12{set3 = set3.Union(set1, set2)} ->
+			
+			if (set1.IsOverlapping(set3)== true)
+			{
+				substract3{set3 = set3.Substract(set3,set1)} -> add3{set3.Add(6)} ->
+				 if (set3.Contains(2) == true){intersect23{set3 = set3.Intersect(set3, set2)}-> remove3{set3.Remove(2)} -> Skip}
+			}
+		};
+
+#assert List3() deadlockfree;

@@ -1,0 +1,46 @@
+#define N 7; /* max num of threads that can wait at waiting state */
+
+/* msg */
+#define put_fast 100;
+#define get_fast 101;
+#define go 102;
+#define request 103;
+#define release 104;
+#define get_slow 105;
+#define put_slow 106;
+
+channel ascChan 0;
+var count =0;
+var access = false;
+
+handoff() = ascChan?release -> ascChan?request -> ascChan!go -> handoff()
+	     [] ascChan?request -> ascChan?release -> ascChan!go -> handoff();
+
+shared_obj() = ascChan?get_fast -> Busy_0();
+
+Busy_0() = ascChan?put_fast -> shared_obj()
+    	[] ascChan?get_slow -> inc{count = count+1;} -> Busy_N();
+
+Busy_N() = ascChan?get_slow -> inc{count = count+1;} -> Busy_N()
+	    [] ascChan?put_slow -> dec{count = count -1;} ->
+        	(
+		      if(count == 0){
+			     Busy_0()
+		      } else {
+			     Busy_N()
+		      }
+	       );
+	       	       
+
+my_thread() = ascChan!get_fast -> enterCritical{access = true;} ->Owner()
+	       [] ascChan!get_slow -> ascChan!request -> ascChan?go -> enterCritical{access = true;} ->Owner();
+
+Owner() = leaveCritical{access = false;} ->
+          (
+		       ascChan!put_fast -> my_thread()
+	    	[] ascChan!put_slow -> ascChan!release -> my_thread()
+	      );
+
+System() = ((|||{N}@my_thread())||| handoff() ||| shared_obj());
+
+#assert System() deadlockfree;

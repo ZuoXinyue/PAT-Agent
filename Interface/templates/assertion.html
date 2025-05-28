@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-python.min.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/timeline.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>PAT Agent - System Verification</title>
+</head>
+
+<body>
+  <main id="app">
+    <timeline :current-step=4></timeline>
+
+    <div class="container">
+      <loading-overlay v-if="loading" text="Analyzing your request"></loading-overlay>
+      <div class="tables-section">
+
+        <div v-for="(row, index) in assertionList" :key="index" class="row" style="color: #ddd;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="color: #ccc; margin: 0;">Assertion {{ index + 1 }}</h4>
+            <i class="el-icon-delete" style="cursor: pointer; font-size: 20px; color: #ff4d4f;" @click="deleteAssertion(index)"></i>
+          </div>
+          
+          <div v-if="interactionMode === 'none'" class="inline-fields">
+            <label style="color:#ccc;">Component:</label>
+            <select v-model="row.component">
+              <option disabled value="">Select a component to specify the assertion on</option>
+              <option v-for="name in subsystems" :key="name" :value="name">
+                {{ name }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="inline-fields">
+            <label style="color:#ccc;">Assertion Type:</label>
+            <select
+              class="small-select"
+              style="width:250px"
+              v-model="row.assertionType"
+              @change="onAssertionTypeChange(row)"
+            >
+              <option value="deadlock-free">Deadlock Free</option>
+              <option value="reachability">Reachability</option>
+              <option value="ltl">LTL: Linear Temporal Logic
+              </option>
+            </select>
+          </div>
+
+          <div v-if="row.assertionType === 'reachability'">
+            <div class="inline-fields">
+              <label style="color: #ccc;">Specification Type:</label>
+              <select v-model="row.reachabilityType" class="small-select" style="width: 250px">
+                <option value="state">Define state using variables</option>
+                <option value="customize">Customize</option>
+              </select>
+            </div>
+
+            <div v-if="row.reachabilityType === 'customize'">
+              <div class="customize-guidance" style="margin: 10px 0; padding: 10px; background: #3a3a3a; border-radius: 6px; font-size:12px;">
+                <p style="color: #ffd700; margin-bottom: 10px;">⚠️ Important: Please be very specific in your state description:</p>
+                <ul style="color: #ccc; margin-left: 20px;">
+                  <li>Clearly mention all variables involved (available variables: {{ Object.keys(assertionsvaloptioins).join(', ') }})</li>
+                  <li>Specify exact values for each variable (check the dropdown options above to see available values)</li>
+                  <li>Clearly describe the relationships between variables (using AND/OR)</li>
+                </ul>
+              </div>
+              <div class="inline-fields">
+                <label style="color: #ccc;">State Name:</label>
+                <input style="width: 400px; height: 40px" class="small-select" type="text" v-model="row.stateName"
+                  placeholder="e.g., car_driving_without_owners" />
+              </div>
+              <div class="inline-fields">
+                <label style="color: #ccc;">State Description:</label>
+                <textarea 
+                  v-model="row.customDescription" 
+                  style="width: 100%; min-height: 80px; background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; border-radius: 6px; padding: 10px;"
+                  placeholder="Example Input: ownerPositions are POS_FAR_AWAY AND drivingState is CAR_DRIVING"></textarea>
+              </div>
+            </div>
+
+            <div v-if="row.reachabilityType === 'state'">
+              <div class="inline-fields">
+                <label style="color: #ccc;">State Name:</label>
+              <input style="width: 400px; height: 40px" class="small-select" type="text" v-model="row.stateName"
+                placeholder="e.g., car_driving_without_owners" />
+            </div>
+
+            <div v-for="(cond, condIndex) in row.conditions" :key="condIndex">
+              <div class="condition-row">
+
+                <div v-if="condIndex > 0" style="margin: 6px 0; font-style: italic; color: #ccc;">
+                  {{ cond.connector }}
+                </div>
+                <div class="inline-fields">
+                  <label style="color: #ccc;">Variable:</label>
+                  <select class="small-select" v-model="cond.variable" @change="updateConditionValues(row, cond)">
+                    <option v-for="(values, variable) in assertionsvaloptioins" :key="variable" :value="variable">
+                      {{ variable }}
+                    </option>
+                  </select>
+
+                  <label style="margin-left: 10px; color:#ccc;">Value:</label>
+                  <select class="small-select" v-model="cond.value" :disabled="!cond.variable">
+                    <option v-for="val in assertionsvaloptioins[cond.variable] || []" :key="val" :value="val">
+                      {{ val }}
+                    </option>
+                  </select>
+                </div>
+
+                </div>
+              </div>
+
+              <!-- <div v-if="!row.editingFinished">
+                <button @click="addConditionRow(row)">and</button>
+                <button @click="finishConditionRow(row)">Finish State Definition</button>
+              </div> -->
+            </div>
+
+            <div v-if="!row.editingFinished">
+              <button v-if="row.reachabilityType === 'state'" @click="addConditionRow(row, 'AND')">AND</button>
+              <button v-if="row.reachabilityType === 'state'" @click="addConditionRow(row, 'OR')">OR</button>
+              <!-- <button @click="finishConditionRow(row)">Finish State Definition</button> -->
+            </div>
+            <div>
+              <label style="color: #ccc;">Is this state reachable?</label>
+              <select v-model="row.assertionTruth">
+                <option value="Valid">Valid</option>
+                <option value="Invalid">Invalid</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="row.assertionType === 'ltl'">
+            <label>Apply to:</label>
+            <select v-model="row.ltlTarget">
+              <option value="action">An action the system may/must perform</option>
+              <option value="state">A system state the model should reach</option>
+              <option value="customize">Customize</option>
+            </select>
+
+            <label v-if="row.ltlTarget !== 'customize' ">LTL Logic:</label>
+            <select v-if="row.ltlTarget !== 'customize' " v-model="row.ltlLogic">
+              <option value="eventually">Eventually</option>
+              <option value="always">Always</option>
+              <option value="always_eventually">Always Eventually</option>
+            </select>
+
+
+
+            
+            <div v-if="row.ltlTarget === 'customize' ">
+              <details class="customize-guidance" style="margin: 10px 0; padding: 10px; background: #3a3a3a; border-radius: 6px; font-size:12px;">
+                <summary style="color: #ffd700; cursor: pointer; list-style: none;">
+                  ⚠️ Important: Please be very specific in your description of the LTL logic
+                </summary>
+                <ul style="color: #ccc; margin-left: 20px; margin-top: 8px;">
+                  <li>If a state is involved (i.e., a combination of variables and their values), it must be specified separately from the LTL logic. Define the state explicitly before using it in any temporal formula.</li>
+                  <li>Clearly mention all variables involved (available variables: {{ Object.keys(assertionsvaloptioins).join(', ') }})</li>
+                  <li>Specify exact values for each variable (check the dropdown options above to see available values)</li>
+                  <li>Clearly describe the relationships between variables (using AND/OR)</li>
+                  <li>Please use the keywords define and assert in your specification, if applicable</li>
+                  <li>Example Input: <em>define a state "allOpen", where door is open and window is open; assert that the system always eventually reaches allOpen</em></li>
+                </ul>
+              </details>
+              <input type="text" style="height: 40px;" v-model="row.customDescription" placeholder="please define your state (if any) and LTL logic here" />
+              <!-- <button @click="finishConditionRow(row)">Finish Specifying Full LTL Logic</button> -->
+            </div>
+
+
+            <div v-if="row.ltlTarget === 'action'">
+              <label>Action Name:</label>
+              <el-select v-model="row.selectedActions" multiple placeholder="Select actions" style="width: 100%;" @change="finishActionSelection(row)">
+                <el-option
+                  v-for="action in availableActions"
+                  :key="action"
+                  :label="action"
+                  :value="action">
+                </el-option>
+              </el-select>
+            </div>
+
+            <div v-if="row.ltlTarget === 'state'">
+              <label>State Name:</label>
+              <input type="text" v-model="row.stateName" placeholder="e.g., door_locked_while_idle" />
+              <div v-if="condIndex > 0" style="color: #fff; font-style: italic; margin: 5px 0;">
+                {{ row.conditions[condIndex].connector }}
+              </div>
+
+              <div v-for="(cond, condIndex) in row.conditions" :key="condIndex">
+                <label>Variable:</label>
+                <select v-model="cond.variable" @change="updateConditionValues(row, cond)">
+                  <option v-for="(values, variable) in assertionsvaloptioins" :key="variable" :value="variable">
+                    {{ variable }}
+                  </option>
+                </select>
+
+                <label>Value:</label>
+                <select v-model="cond.value" :disabled="!cond.variable">
+                  <option v-for="val in assertionsvaloptioins[cond.variable] || []" :key="val" :value="val">
+                    {{ val }}
+                  </option>
+                </select>
+              </div>
+
+              <div v-if="!row.editingFinished">
+                <button @click="addConditionRow(row)">and</button>
+                <!-- <button @click="finishConditionRow(row)">Finish State Definition</button> -->
+              </div>
+            </div>
+
+
+            <div>
+              <label style="color: #ccc;">Is this assertion valid?</label>
+              <select v-model="row.assertionTruth">
+                <option value="Valid">Valid</option>
+                <option value="Invalid">Invalid</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-generate button and Add Assertion button: always visible regardless of assertionList length -->
+
+      </div>
+      <div class="button-container">
+        <div class="left-buttons">
+          <!-- <button v-if="!hasAutoGenerated" @click="generateRecommendedAssertions">
+            Auto-Generate Recommended Assertions
+          </button> -->
+          <button @click="addRow">+ Add Assertion</button>
+        </div>
+        <div class="right-buttons">
+          <button class="btn" @click="confirmSubmit()">
+            <i class="el-icon-check"></i> Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+
+<script>
+  window.vueApp = new Vue({
+    el: '#app',
+    data() {
+      return {
+        interactionMode: null,
+        actionsTables: [],
+        loading: false,
+        assertionList: [],
+        assertionsvaloptioins: [],
+        availableActions: [],
+        infoforrecommendation: '',
+        selectedVariable: null,
+        selectedValue: null,
+        variableValues: [],
+        processes: [],
+        subsystems: [],
+        hasAutoGenerated: false
+      }
+    },
+    mounted() {
+      this.interactionMode = localStorage.getItem('interactionMode');
+      // Load saved assertions from localStorage if they exist
+      const savedAssertions = localStorage.getItem('assertionList');
+    
+      if (savedAssertions) {
+        const assertions = JSON.parse(savedAssertions);
+        // Convert old format to new format
+        this.assertionList = assertions.map(assertion => {
+          if (assertion.ltlTarget === 'action' && assertion.selectedAction) {
+            assertion.selectedActions = [assertion.selectedAction];
+            delete assertion.selectedAction;
+          } else if (assertion.ltlTarget === 'action' && !assertion.selectedActions) {
+            assertion.selectedActions = [];
+          }
+          return assertion;
+        });
+      } else {
+        this.assertionList = [];
+      }
+      
+      this.loadLatestVariableHistory();
+      this.loadLatestActionHistory();
+      this.loadSubsystems();
+    },
+    watch: {
+      assertionList: {
+        handler(newVal) {
+          localStorage.setItem('assertionList', JSON.stringify(newVal));
+        },
+        deep: true
+      },
+    },
+    methods: {
+      async generateRecommendedAssertions() {
+        this.loading = true;
+        try {
+          const constantsSummary = Object.entries(this.assertionsvaloptioins)
+            .map(([variable, values]) => `${variable} (possible values: ${values.join(', ')})`)
+            .join('; ');
+          console.log(constantsSummary);
+          prompt = `You are an expert in PAT (Process Analysis Toolkit). Based on the current system configuration ${this.infoforrecommendation}, please reason based on commonsense to generate three recommended reachability assertions in JSON format. By reachability assertions, it means testing whether a specific state (involving different variables and their values) is reachable.
+Each assertion object should include:
+- assertionType (fixed at "reachability")
+- stateName
+- conditions (an array of objects, each with "variable" and "value", from the second object onwards, it should also involve "connector", which represents how this condition should be logically connected to the previous condition, the value should be **AND**/**OR**.)
+- assertionTruth ("Valid" or "Invalid")
+
+For example, output:
+[
+  {
+    "assertionType": "reachability",
+    "stateName": "car_driving_without_owners",
+    "conditions": [
+      { "variable": "ownerPositions", "value": "POS_FAR_AWAY" },
+      { "variable": "drivingState", "value": "CAR_DRIVING", "connector": "AND" }
+    ],
+    "assertionTruth": "Valid"
+  },
+  ...
+]
+
+**Constraint:** Only use the following variables and their allowed values in the conditions: ${constantsSummary}.
+
+Remember, please output **JSON ONLY**.
+          `
+
+          const response = await fetch('/get_planning_model_answers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: prompt,
+              context: '',
+              history: 'skip'
+            })
+          });
+
+          const raw = (await response.json()).data.answerGPT;
+          let parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          console.log(parsed)
+
+          this.assertionList = parsed.map(a => ({
+            assertionType: a.assertionType || 'reachability',
+            component: a.component || '',
+            stateName: a.stateName || '',
+            conditions: a.conditions.map((cond, idx) => ({
+              variable: cond.variable || '',
+              value: cond.value || '',
+              connector: idx === 0 ? undefined : (cond.connector || 'AND')
+            })),
+            assertionTruth: a.assertionTruth || '',
+            editingFinished: true,
+            ltlLogic: '',
+            ltlTarget: '',
+            selectedActions: []
+          }));
+          // add deadlockfree in the start
+          this.assertionList.unshift({
+            "assertionType": "deadlock-free",
+            "stateName": "",
+            "conditions": [
+              {
+                "variable": "",
+                "value": ""
+              }
+            ],
+            "editingFinished": false,
+            "assertionTruth": "",
+            "ltlLogic": "",
+            "ltlTarget": "",
+            "selectedActions": []
+          })
+
+          // 手动触发响应式更新（可选）
+          this.$set(this, 'assertionList', [...this.assertionList]);
+          this.loading = false;
+          this.hasAutoGenerated = true;
+          // process further!!!
+        } catch (error) {
+          this.loading = false
+          console.error("Error generating recommended assertions:", error);
+          alert("Error generating recommended assertions.");
+        }
+      },
+      addRow() {
+        this.assertionList.push({
+          assertionType: '',
+          component: '',
+          stateName: '',
+          reachabilityType: '',
+          customDescription: '',
+          conditions: [{ variable: '', value: '', connector: 'AND' }],
+          editingFinished: false,
+          assertionTruth: '',
+          ltlLogic: '',
+          ltlTarget: '',
+          selectedActions: []
+        });
+      },
+
+      addConditionRow(row, connector) {
+        row.conditions.push({ variable: '', value: '', connector });
+      },
+
+
+      finishConditionRow(row) {
+        if (row.reachabilityType === 'customize' && (!row.stateName || !row.customDescription)) {
+          this.$message({
+            message: 'Please provide both state name and description for custom state',
+            type: 'warning'
+          });
+          return;
+        }
+        row.editingFinished = true;
+      },
+
+      finishActionSelection(row) {
+        row.editingFinished = true;
+      },
+
+      onAssertionTypeChange(row) {
+        if (row.assertionType === 'reachability') {
+          row.reachabilityType = '';
+          row.customDescription = '';
+          row.conditions = [{ variable: '', value: '' }];
+        } else if (row.assertionType === 'ltl' && row.ltlTarget === 'state') {
+          row.conditions = [{ variable: '', value: '' }];
+        }
+      },
+
+      updateConditionValues(row, cond) {
+        cond.value = '';
+      },
+
+      async loadLatestVariableHistory() {
+        try {
+          const response = await fetch('/get_const_history');
+          const history = await response.json();
+          if (history && history.length > 0) {
+            const latestEntry = history[history.length - 1];
+            const data = JSON.parse(latestEntry.answerGPT);
+            this.processes = data.processes || [];
+
+            const constantsMap = {};
+            this.processes.forEach(process => {
+              process.variables.forEach(variable => {
+                // Check if the variable has an initial value that is a list
+                const initialValue = variable.initialValue;
+                // console.log("round")
+                // console.log(initialValue)
+                // console.log(typeof initialValue)
+                // console.log(Array.isArray(initialValue))
+                let values = initialValue;
+                if (!Array.isArray(values) && typeof values === 'string') {
+                  const inner = values.trim().replace(/^\[|\]$/g, '');
+                  const parts = inner === '' 
+                    ? [] 
+                    : inner.split(',').map(v => v.trim());
+                  // only turn it into an array if there is actually more than one element
+                  if (parts.length > 1) values = parts;
+                }
+                // console.log(typeof values)
+
+                // ——— your original logic, but against `values` instead of `initialValue` ———
+                if (Array.isArray(values)) {
+                  // For list-type variables, create indexed variables
+                  values.forEach((_, index) => {
+                    const indexedVarName = `${variable.name}[${index}]`;
+                    constantsMap[indexedVarName] = variable.possibleValues.split(',').map(v => v.trim());
+                  });
+                } else {
+                  // For non-list variables, keep the original behavior
+                  constantsMap[variable.name] = variable.possibleValues.split(',').map(v => v.trim());
+                }
+              });
+            });
+            console.log("Generated constants map:", constantsMap);
+            this.assertionsvaloptioins = constantsMap;
+          }
+        } catch (error) {
+          console.error('Error loading const-history:', error);
+        }
+      },
+
+      async loadLatestActionHistory() {
+        try {
+          const response = await fetch('/get_action_history');
+          const history = await response.json();
+          if (history && history.length > 0) {
+            const latestEntry = history[history.length - 1];
+            const data = JSON.parse(latestEntry.answerGPT);
+            const actions = new Set();
+            data.processes.forEach(process => {
+              process.actions.forEach(action => {
+                actions.add(action.action_name);
+              });
+            });
+            this.infoforrecommendation = data;
+            this.availableActions = Array.from(actions);
+            // console.log(this.availableActions)
+          }
+        } catch (error) {
+          console.error('Error loading action-history:', error);
+        }
+      },
+
+      async loadSubsystems() {
+        try {
+          const resp = await fetch('/get_const_history');
+          const history = await resp.json();
+          if (history.length) {
+            const ctx = history[history.length-1].context;
+            this.subsystems = ctx.subsystems.map(s => s.name);
+          }
+        } catch (e) {
+          console.error('Could not load subsystems', e);
+        }
+      },
+
+      confirmSubmit() {
+        // Validate custom descriptions
+        const invalidCustomStates = this.assertionList.filter(assertion => 
+          assertion.assertionType === 'reachability' && 
+          assertion.reachabilityType === 'customize' && 
+          (!assertion.stateName || !assertion.customDescription)
+        );
+
+        if (invalidCustomStates.length > 0) {
+          this.$message({
+            message: 'Please complete all custom state definitions with both name and description',
+            type: 'warning'
+          });
+          return;
+        }
+
+        this.loading = true;
+
+        const interaction = {
+          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+          question: 'User-defined assertion and interaction setup',
+          answerGPT: {
+            interactionMode: this.interactionMode,
+            assertions: this.assertionList
+          },
+          PAT: ''
+        };
+
+        fetch('/save_assertion_history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(interaction)
+        })
+          .then(res => {
+            if (!res.ok) throw new Error("Failed to save.");
+            return res.json();
+          })
+          .then(() => {
+            this.loading = false;
+            localStorage.setItem('systemAssertions', JSON.stringify(interaction));
+            window.location.href = '/nl-instruct.html';
+          })
+          .catch(err => {
+            this.loading = false;
+            console.error('Save error:', err);
+            alert('Failed to save assertion.');
+          });
+      },
+      deleteAssertion(index) {
+        this.$confirmDialog({
+          title: 'Delete Assertion',
+          message: 'Are you sure you want to delete this assertion?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            this.assertionList.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: 'Assertion deleted successfully'
+            });
+          }
+        });
+      }
+    }
+  });
+</script>
+
+<style>
+  #app {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #171717;
+    color: #fff;
+    min-height: 100vh;
+  }
+
+
+  select {
+    background: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    border-radius: 6px;
+    color: #fff;
+    padding: 8px 12px;
+    margin: 8px 0;
+    width: 100%;
+    max-width: 400px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  select:hover {
+    border-color: #6b6b6b;
+  }
+
+  select:focus {
+    border-color: #2962ff;
+    box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.2);
+    outline: none;
+  }
+
+  .row {
+    background: #262626;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  h4 {
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
+
+  .inline-fields {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+
+  .inline-fields label {
+    min-width: 100px;
+    color: #ccc;
+    font-size: 14px;
+  }
+
+  input[type="text"] {
+    background: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    border-radius: 6px;
+    color: #fff;
+    padding: 8px 12px;
+    width: 100%;
+    max-width: 400px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  input[type="text"]:focus {
+    border-color: #2962ff;
+    box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.2);
+    outline: none;
+  }
+
+  .condition-row {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 10px 0;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 0 20px;
+  }
+
+  .left-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .right-buttons {
+    margin-left: auto;
+  }
+  
+</style>
+
+</html>

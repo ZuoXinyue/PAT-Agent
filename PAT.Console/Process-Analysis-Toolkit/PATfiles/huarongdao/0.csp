@@ -1,0 +1,279 @@
+//The version of this Hua Rong Dao game is Bi Yi Heng Kong
+
+//The game goal is find a solution which has minimum number of steps .
+
+
+//This game huarongdao contains  4 bing (b1..b4) , 5 jiang (j5..j9) and 1 caocao (cc),2 space(sp)
+//noted that enum data values from 0 such that sp=0,b1=1 etc.That feature is used in this mode.
+//j5:guanyu,j6:zhangfei,j7:zhaoyun,j8:machao,j9:huangzhongb1:bing,b2:ding,b3:zu,b4:yong
+enum {sp,b1,b2,b3,b4,j5,j6,j7,j8,j9,cc};
+
+//this array indicates  jiang[i] is put as either horizontal or vertical
+//1--vertical  0--horizontal 99-not used
+hvar jiang[11] = [99,99,99,99,99,1,1,1,1,1,99];
+
+//board can be modified to check other stages and it is the only structure needed to change
+//one jiang occupys 2 position such that there are two j5.others are similar
+//99 is just a number which indicates the boundary. It can be changed to any number lager than 10
+hvar board[42] = [ 99,99,99,99,99,99,
+                   99,j7,j7,cc,cc,99,
+                   99,j8,j8,cc,cc,99,
+                   99,j6,j6,j5,j5,99,
+                   99,b1,b4,b2,j9,99,
+                   99,b3,sp,sp,j9,99,
+                   99,99,99,99,99,99 ];          
+                   
+
+//all moves happen in it
+var seq[42] = [99(42)];
+
+//the two space position. Setting to 6 only for skip the Simluation(F6) checking 
+hvar space1 = 6;
+hvar space2 = 6;
+
+//max steps which we allow the PAT to try 
+#define MAX_STEP 41;
+
+//standard game steps counter
+var counter=0;
+hvar last_move=0;
+
+#define UP 1;
+#define DOWN 2;
+#define LEFT 3;
+#define RIGHT 4;
+
+hvar last_direction = 0;
+
+//initialize the game
+Initial() = INIT{
+                    counter=0;
+                    last_move=0;
+	                seq = board;
+	                //set 7 to skip the boundary
+	                var i = 7;
+	                //initialize all jiang's placing direction(vertical or horizontal) and space position
+	                while(i<36)
+	                {
+	                	if(seq[i]-seq[i-1]==0 && seq[i]!=cc && seq[i]!=sp && seq[i]!=99) jiang[seq[i]]=0;
+	                	if(seq[i]==sp)
+	                	{
+	                	    if(space1==6) space1 = i;
+	                	    else space2 = i;
+	                	}
+	                    i++;                              	
+	                }
+                }->Skip;
+                
+
+//Bing's move
+Bing(i) = [((seq[space1+6]==i) || (seq[space2+6]==i)) && !(last_move==i && last_direction==DOWN) && counter<=MAX_STEP]
+          bingup.i{
+                     if(seq[space1+6]==i)
+                     {seq[space1]=i;space1=space1+6;seq[space1]=sp}
+                     else
+                     {seq[space2]=i;space2=space2+6;seq[space2]=sp}
+                     if (last_move!=i) counter++;
+                     last_move=i;
+                     last_direction=UP;
+                   }->Bing(i)
+          []
+          [((seq[space1-6]==i) || (seq[space2-6]==i)) && !(last_move==i && last_direction==UP) && counter<=MAX_STEP]
+          bingdown.i{
+	                    if(seq[space1-6]==i)
+	                    {seq[space1]=i;space1=space1-6;seq[space1]=sp}
+	                    else
+	                    {seq[space2]=i;space2=space2-6;seq[space2]=sp}
+	                    if (last_move!=i) counter++;
+                        last_move=i;
+                        last_direction=DOWN;
+	                }->Bing(i)
+	      []
+	      [((seq[space1+1]==i) || (seq[space2+1]==i)) && !(last_move==i && last_direction==RIGHT) && counter<=MAX_STEP]
+	      bingleft.i{
+	                    if(seq[space1+1]==i)
+	                    {seq[space1]=i;space1=space1+1;seq[space1]=sp}
+	                    else
+	                    {seq[space2]=i;space2=space2+1;seq[space2]=sp}
+	                    if (last_move!=i) counter++;
+                        last_move=i;
+                        last_direction=LEFT;
+	                }->Bing(i)
+	      []
+	      [((seq[space1-1]==i) || (seq[space2-1]==i)) && !(last_move==i && last_direction==LEFT) && counter<=MAX_STEP]
+	      bingright.i{
+	                     if(seq[space1-1]==i)
+	                     {seq[space1]=i;space1=space1-1;seq[space1]=sp}
+	                     else
+	                     {seq[space2]=i;space2=space2-1;seq[space2]=sp}
+	                     if (last_move!=i) counter++;
+                         last_move=i;
+                         last_direction=RIGHT;
+	                 }->Bing(i);
+
+//Jiang's move
+Jiang(i) = ifa(jiang[i]==0)
+           {
+           		[seq[space1+6]==i && seq[space2+6]==i  && !(last_move==i && last_direction==DOWN) && counter<=MAX_STEP]
+           		jiangup.i{
+           		             seq[space1]=i;
+           		             seq[space2]=i;
+           		             space1=space1+6;
+           		             space2=space2+6;
+           		             seq[space1]=sp;
+           		             seq[space2]=sp;
+           		             if (last_move!=i) counter++;
+                             last_move=i;
+                             last_direction=UP;
+           		         }->Jiang(i)
+           		[]
+           		[seq[space1-6]==i && seq[space2-6]==i && !(last_move==i && last_direction==UP) && counter<=MAX_STEP]
+           		jiangdown.i{
+           		               seq[space1]=i;
+           		               seq[space2]=i;
+           		               space1=space1-6;
+           		               space2=space2-6;
+           		               seq[space1]=sp;
+           		               seq[space2]=sp;
+           		               if (last_move!=i) counter++;
+                               last_move=i;
+                               last_direction=DOWN;
+           		           }->Jiang(i)	
+           		[]
+           		[((seq[space1+1]==i) || (seq[space2+1]==i)) && !(last_move==i && last_direction==RIGHT) && counter<=MAX_STEP]
+           		jiangleft.i{
+           		               if(seq[space1+1]==i)
+           		               {seq[space1]=i;space1=space1+2;seq[space1]=sp}
+           		               else
+           		               {seq[space2]=i;space2=space2+2;seq[space2]=sp}
+           		               if (last_move!=i) counter++;
+                               last_move=i;
+                               last_direction=LEFT;
+           		           }->Jiang(i)	
+           		[]           
+           		[((seq[space1-1]==i) || (seq[space2-1]==i)) && !(last_move==i && last_direction==LEFT) && counter<=MAX_STEP]
+           		jiangright.i{
+           		                if(seq[space1-1]==i)
+           		                {seq[space1]=i;space1=space1-2;seq[space1]=sp}
+           		                else
+           		                {seq[space2]=i;space2=space2-2;seq[space2]=sp}
+           		                if (last_move!=i) counter++;
+                                last_move=i;
+                                last_direction=RIGHT;
+           		            }->Jiang(i)
+           }
+           else ifa(jiang[i]==1)
+           {
+                [((seq[space1+6]==i) || (seq[space2+6]==i)) && !(last_move==i && last_direction==DOWN) && counter<=MAX_STEP]
+                jiangup.i{
+                             if(seq[space1+6]==i)
+                             {seq[space1]=i;space1=space1+12;seq[space1]=sp}
+                             else
+                             {seq[space2]=i;space2=space2+12;seq[space2]=sp}
+                             if (last_move!=i) counter++;
+                             last_move=i;
+                             last_direction=UP;
+                         }->Jiang(i)
+                []
+                [((seq[space1-6]==i) || (seq[space2-6]==i)) && !(last_move==i && last_direction==UP)&& counter<=MAX_STEP]
+                jiangdown.i{
+                               if(seq[space1-6]==i)
+                               {seq[space1]=i;space1=space1-12;seq[space1]=sp}
+                               else
+                               {seq[space2]=i;space2=space2-12;seq[space2]=sp}
+                               if (last_move!=i) counter++;
+                               last_move=i;
+                               last_direction=DOWN;
+                           }->Jiang(i)
+                []
+                [seq[space1+1]==i && seq[space2+1]==i && !(last_move==i && last_direction==RIGHT) && counter<=MAX_STEP]
+                jiangleft.i{
+                               seq[space1]=i;
+           		               seq[space2]=i;
+           		               space1=space1+1;
+           		               space2=space2+1;
+           		               seq[space1]=sp;
+           		               seq[space2]=sp;
+           		               if (last_move!=i) counter++;
+                               last_move=i;
+                               last_direction=LEFT;
+           		           }->Jiang(i)	
+           		[]
+           		[seq[space1-1]==i && seq[space2-1]==i && !(last_move==i && last_direction==LEFT) && counter<=MAX_STEP]
+                jiangright.i{
+                                seq[space1]=i;
+           		                seq[space2]=i;
+           		                space1=space1-1;
+           		                space2=space2-1;
+           		                seq[space1]=sp;
+           		                seq[space2]=sp;
+           		                if (last_move!=i) counter++;
+                                last_move=i;
+                                last_direction=RIGHT;
+           		            }->Jiang(i)	
+           };
+
+//Caocao's move           
+CaocaoMove() = [seq[space1+6]==cc && seq[space2+6]==cc && !(last_move==cc && last_direction==DOWN) && counter<=MAX_STEP]
+           caocaoup{
+                       seq[space1]=cc;
+                       seq[space2]=cc;
+                       space1=space1+12;
+                       space2=space2+12;
+                       seq[space1]=sp;
+           		       seq[space2]=sp;
+           		       if (last_move!=cc) counter++;
+                       last_move=cc;
+                       last_direction=UP; 
+                   }->CaocaoMove()
+           []
+           [seq[space1-6]==cc && seq[space2-6]==cc && !(last_move==cc && last_direction==UP) && counter<=MAX_STEP]
+           caocaodown{
+                         seq[space1]=cc;
+                         seq[space2]=cc;
+                         space1=space1-12;
+                         space2=space2-12;
+                         seq[space1]=sp;
+           		         seq[space2]=sp;
+           		         if (last_move!=cc) counter++;
+                         last_move=cc;
+                         last_direction=DOWN;
+                     }->CaocaoMove()
+           []
+           [seq[space1+1]==cc && seq[space2+1]==cc && !(last_move==cc && last_direction==RIGHT) && counter<=MAX_STEP]
+           caocaoleft{
+                         seq[space1]=cc;
+                         seq[space2]=cc;
+                         space1=space1+2;
+                         space2=space2+2;
+                         seq[space1]=sp;
+           		         seq[space2]=sp;
+           		         if (last_move!=cc) counter++;
+                         last_move=cc;
+                         last_direction=LEFT;
+                     }->CaocaoMove()
+           []
+           [seq[space1-1]==cc && seq[space2-1]==cc && !(last_move==cc && last_direction==LEFT) && counter<=MAX_STEP]
+           caocaoright{
+                          seq[space1]=cc;
+                          seq[space2]=cc;
+                          space1=space1-2;
+                          space2=space2-2;
+                          seq[space1]=sp;
+           		          seq[space2]=sp;
+           		          if (last_move!=cc) counter++;
+                          last_move=cc;
+                          last_direction=RIGHT;
+                      }->CaocaoMove();
+                                 
+BingMove() = ||x:{b1..b4}@Bing(x);
+JiangMove() = ||x:{j5..j9}@Jiang(x);
+Game() = Initial();(BingMove()||JiangMove()||CaocaoMove());
+
+
+//caocao arrives the exit
+#define goal (seq[26]==cc && seq[27]==cc && seq[32]==cc && seq[33]==cc);
+
+//try to find out the best solution
+
+#assert Game() reaches goal with min(counter);

@@ -1,0 +1,40 @@
+#define DOOR_OPEN 0;
+#define DOOR_CLOSED 1;
+#define OWNER_FAR 0;
+#define OWNER_NEAR 1;
+#define OWNER_INSIDE 2;
+
+var doorStatus = DOOR_CLOSED;
+var ownerPosition = OWNER_FAR;
+
+key() = 
+    [doorStatus == DOOR_CLOSED && (ownerPosition == OWNER_NEAR || ownerPosition == OWNER_INSIDE)]
+    open_door{doorStatus = DOOR_OPEN;} -> key()
+    []
+    [doorStatus == DOOR_OPEN && (ownerPosition == OWNER_FAR || ownerPosition == OWNER_NEAR)]
+    close_door{doorStatus = DOOR_CLOSED;} -> key()
+    []
+    [doorStatus == DOOR_CLOSED && ownerPosition == OWNER_INSIDE]
+    drive -> key();
+
+owner() = 
+    [ownerPosition == OWNER_FAR]
+    move_to_near{ownerPosition = OWNER_NEAR;} -> owner()
+    []
+    [ownerPosition == OWNER_NEAR]
+    move_to_far{ownerPosition = OWNER_FAR;} -> owner()
+    []
+    [ownerPosition == OWNER_NEAR && doorStatus == DOOR_OPEN]
+    enter_car{ownerPosition = OWNER_INSIDE;} -> owner()
+    []
+    [ownerPosition == OWNER_INSIDE && doorStatus == DOOR_OPEN]
+    exit_car{ownerPosition = OWNER_NEAR;} -> owner()
+    []
+    [ownerPosition == OWNER_INSIDE]
+    put_key -> owner();
+
+keyless = (key() ||| owner());
+
+#define a (doorStatus == DOOR_OPEN && ownerPosition == OWNER_INSIDE);
+#define b (doorStatus == DOOR_OPEN && doorStatus == DOOR_CLOSED);
+#assert keyless reaches b;

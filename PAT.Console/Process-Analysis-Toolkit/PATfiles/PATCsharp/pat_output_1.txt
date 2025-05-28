@@ -1,0 +1,18 @@
+=======================================================
+Assertion: List3() deadlockfree
+********Verification Result********
+The Assertion (List3() deadlockfree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:17
+Total Transitions:18
+Time Used:0.0102444s
+Estimated Memory Used:8516.896KB
+
+

@@ -1,0 +1,20 @@
+=======================================================
+Assertion: Shunting() reaches goal
+********Verification Result********
+The Assertion (Shunting() reaches goal) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> move_up -> move_right -> move_right -> move_down -> move_right -> push_up -> move_down -> move_left -> move_down -> move_down -> move_right -> push_up -> push_up -> move_left -> move_up -> move_left -> move_left -> move_down -> push_right -> move_up -> move_right -> push_down -> move_right -> move_right -> move_up -> push_left -> push_left -> move_up -> move_up -> move_right -> push_down -> move_left -> move_down -> move_down -> move_left -> move_left -> move_up -> push_right -> move_down -> move_right -> move_right -> move_down -> move_down -> move_left -> push_up -> move_right -> move_up -> move_right -> move_up -> move_right -> move_right -> move_down -> push_left -> push_left>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:112461
+Total Transitions:291949
+Time Used:5.4713718s
+Estimated Memory Used:73520.688KB
+
+

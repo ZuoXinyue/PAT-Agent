@@ -1,0 +1,19 @@
+=======================================================
+Assertion: College() |= []<> eat.0
+********Verification Result********
+The Assertion (College() |= []<> eat.0) is NOT valid.
+A counterexample is presented as follows.
+<init -> get.1.2 -> get.1.1 -> get.2.0 -> eat.1 -> put.1.2 -> get.2.2 -> put.1.1 -> get.0.1 -> eat.2 -> put.2.0 -> put.2.2 -> get.1.2 -> get.2.0>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:52
+Total Transitions:50
+Time Used:0.0103977s
+Estimated Memory Used:41247.984KB
+
+

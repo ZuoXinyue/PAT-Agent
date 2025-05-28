@@ -1,0 +1,19 @@
+=======================================================
+Assertion: leader_consensus() |= []<> consensus_0_2
+********Verification Result********
+The Assertion (leader_consensus() |= []<> consensus_0_2) is NOT valid.
+A counterexample is presented as follows.
+<init -> crash_node -> crash_node>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:13
+Total Transitions:22
+Time Used:0.018004s
+Estimated Memory Used:41247.928KB
+
+

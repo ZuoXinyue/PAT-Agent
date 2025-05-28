@@ -1,0 +1,71 @@
+#define LINE_IDLE 0;
+#define LINE_BUSY 1;
+#define NUM_HANDSETS 4;
+#define HANDSET_ON_HOOK 0;
+#define HANDSET_DIALING 1;
+#define HANDSET_WAITING 2;
+#define HANDSET_ANSWERING 3;
+#define HANDSET_IGNORING 4;
+#define HANDSET_CONVERSING 5;
+#define HANDSET_HANGING_UP 6;
+
+var lineState = LINE_IDLE;
+var handsetState[NUM_HANDSETS] = [HANDSET_ON_HOOK, HANDSET_ON_HOOK, HANDSET_ON_HOOK, HANDSET_ON_HOOK];
+var caller = -1;
+var callee = -1;
+
+tele_line() = 
+    [lineState == LINE_IDLE && caller != -1 && handsetState[caller] == HANDSET_DIALING && callee != -1 && handsetState[callee] == HANDSET_ON_HOOK] 
+    initiate_ringing{lineState = LINE_BUSY; handsetState[caller] = HANDSET_WAITING; handsetState[callee] = HANDSET_WAITING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && caller != -1 && handsetState[caller] == HANDSET_DIALING && callee != -1 && 
+     (handsetState[callee] == HANDSET_DIALING || handsetState[callee] == HANDSET_WAITING || 
+      handsetState[callee] == HANDSET_ANSWERING || handsetState[callee] == HANDSET_IGNORING || 
+      handsetState[callee] == HANDSET_CONVERSING || handsetState[callee] == HANDSET_HANGING_UP)]
+    initiate_busy_tone{lineState = LINE_BUSY; handsetState[caller] = HANDSET_HANGING_UP;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && caller != -1 && handsetState[caller] == HANDSET_WAITING && callee != -1 && handsetState[callee] == HANDSET_ANSWERING]
+    connect_call{handsetState[caller] = HANDSET_CONVERSING; handsetState[callee] = HANDSET_CONVERSING;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && caller != -1 && handsetState[caller] == HANDSET_HANGING_UP && callee != -1]
+    disconnect_call_by_caller{lineState = LINE_IDLE; handsetState[caller] = HANDSET_ON_HOOK; handsetState[callee] = HANDSET_ON_HOOK; caller = -1; callee = -1;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && caller != -1 && callee != -1 && handsetState[callee] == HANDSET_HANGING_UP]
+    disconnect_call_by_callee{lineState = LINE_IDLE; handsetState[caller] = HANDSET_ON_HOOK; handsetState[callee] = HANDSET_ON_HOOK; caller = -1; callee = -1;} -> tele_line();
+
+user(i) = 
+    [handsetState[i] == HANDSET_ON_HOOK] 
+    start_dialing.i{handsetState[i] = HANDSET_DIALING; 
+                   if (caller == -1) {caller = i;} 
+                   else if (callee == -1 && caller != i) {callee = i;}} -> user(i)
+    []
+    [handsetState[i] == HANDSET_WAITING] 
+    answer_call.i{handsetState[i] = HANDSET_ANSWERING;} -> user(i)
+    []
+    [handsetState[i] == HANDSET_WAITING] 
+    ignore_call.i{handsetState[i] = HANDSET_IGNORING;} -> user(i)
+    []
+    [(handsetState[i] == HANDSET_DIALING || handsetState[i] == HANDSET_WAITING || 
+      handsetState[i] == HANDSET_CONVERSING || handsetState[i] == HANDSET_ANSWERING || 
+      handsetState[i] == HANDSET_IGNORING)] 
+    hangup.i{handsetState[i] = HANDSET_HANGING_UP;} -> user(i)
+    []
+    [handsetState[i] == HANDSET_HANGING_UP] 
+    complete_hangup.i{handsetState[i] = HANDSET_ON_HOOK;} -> user(i);
+
+telecom = (tele_line() ||| (|||i:{0..NUM_HANDSETS-1} @ user(i)));
+
+
+
+
+#define all_user_on_call (handsetState[0] == HANDSET_CONVERSING && handsetState[1] == HANDSET_CONVERSING && 
+                         handsetState[2] == HANDSET_CONVERSING && handsetState[3] == HANDSET_CONVERSING);
+
+
+#define user0_connected_to_user1 (handsetState[0] == HANDSET_CONVERSING && handsetState[1] == HANDSET_CONVERSING && 
+                                 caller == 0 && callee == 1);
+#define user2_in_call (handsetState[2] == HANDSET_CONVERSING);
+#define user3_in_call (handsetState[3] == HANDSET_CONVERSING);
+
+#define user0_reach_1 (handsetState[0] == HANDSET_CONVERSING && handsetState[1] == HANDSET_CONVERSING && caller == 0 && callee == 1);
+#assert telecom reaches all_user_on_call;

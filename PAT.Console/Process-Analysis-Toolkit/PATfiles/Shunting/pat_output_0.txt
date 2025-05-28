@@ -1,0 +1,20 @@
+=======================================================
+Assertion: Shunting() reaches trouble
+********Verification Result********
+The Assertion (Shunting() reaches trouble) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> push_right -> push_right -> push_right -> push_up -> push_up>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:117
+Total Transitions:178
+Time Used:0.0086954s
+Estimated Memory Used:8538.48KB
+
+

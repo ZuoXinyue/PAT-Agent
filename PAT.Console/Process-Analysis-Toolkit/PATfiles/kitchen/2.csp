@@ -1,0 +1,90 @@
+Based on the detailed annotation and system description provided, here's the PAT code for the keyless_car system:
+
+```
+#define OWNER_COUNT 2;
+#define OWNER_POS_IN 0;
+#define OWNER_POS_NEAR 1;
+#define OWNER_POS_FAR 2;
+
+#define KEY_POS_IN 0;
+#define KEY_POS_FAR 1;
+#define KEY_POS_WITH_OWNER 2;
+
+#define DOOR_OPEN 0;
+#define DOOR_UNLOCKED 1;
+#define DOOR_LOCKED 2;
+
+#define ENGINE_OFF 0;
+#define ENGINE_ON 1;
+
+#define FUEL_EMPTY 0;
+#define FUEL_QUARTER 25;
+#define FUEL_HALF 50;
+#define FUEL_THREE_QUARTERS 75;
+#define FUEL_FULL 100;
+
+var owner_positions[2] = [OWNER_POS_FAR, OWNER_POS_FAR];
+var key_position = KEY_POS_WITH_OWNER;
+var door_status = DOOR_LOCKED;
+var engine_state = ENGINE_OFF;
+var fuel_level = FUEL_FULL;
+
+Owner(i) = 
+    [owner_positions[i] == OWNER_POS_FAR] approach_car{owner_positions[i] = OWNER_POS_NEAR} -> Owner(i)
+    [] [owner_positions[i] == OWNER_POS_NEAR && door_status == DOOR_OPEN] enter_car{owner_positions[i] = OWNER_POS_IN} -> Owner(i)
+    [] [owner_positions[i] == OWNER_POS_IN && door_status == DOOR_OPEN] exit_car{owner_positions[i] = OWNER_POS_NEAR} -> Owner(i)
+    [] [owner_positions[i] == OWNER_POS_NEAR] depart{owner_positions[i] = OWNER_POS_FAR} -> Owner(i);
+
+KeyPos(i) = 
+    [key_position == KEY_POS_WITH_OWNER && owner_positions[i] == OWNER_POS_IN && door_status == DOOR_OPEN] place_key_in_car{key_position = KEY_POS_IN} -> KeyPos(i)
+    [] [key_position == KEY_POS_IN && owner_positions[i] == OWNER_POS_NEAR && door_status == DOOR_OPEN] take_key_from_car{key_position = KEY_POS_WITH_OWNER} -> KeyPos(i)
+    [] [key_position == KEY_POS_FAR && owner_positions[i] == OWNER_POS_NEAR] pickup_key_from_far{key_position = KEY_POS_WITH_OWNER} -> KeyPos(i)
+    [] [key_position == KEY_POS_WITH_OWNER && owner_positions[i] == OWNER_POS_NEAR] drop_key{key_position = KEY_POS_FAR} -> KeyPos(i);
+
+DoorOp = 
+    [door_status == DOOR_LOCKED && key_position == KEY_POS_WITH_OWNER && owner_positions[0] == OWNER_POS_NEAR] unlock_door_owner0{door_status = DOOR_UNLOCKED} -> DoorOp
+    [] [door_status == DOOR_LOCKED && key_position == KEY_POS_WITH_OWNER && owner_positions[1] == OWNER_POS_NEAR] unlock_door_owner1{door_status = DOOR_UNLOCKED} -> DoorOp
+    [] [door_status == DOOR_UNLOCKED && owner_positions[0] == OWNER_POS_NEAR] open_door_owner0{door_status = DOOR_OPEN} -> DoorOp
+    [] [door_status == DOOR_UNLOCKED && owner_positions[1] == OWNER_POS_NEAR] open_door_owner1{door_status = DOOR_OPEN} -> DoorOp
+    [] [door_status == DOOR_OPEN && owner_positions[0] == OWNER_POS_NEAR] close_door_owner0{door_status = DOOR_UNLOCKED} -> DoorOp
+    [] [door_status == DOOR_OPEN && owner_positions[1] == OWNER_POS_NEAR] close_door_owner1{door_status = DOOR_UNLOCKED} -> DoorOp
+    [] [door_status == DOOR_UNLOCKED && owner_positions[0] == OWNER_POS_FAR && owner_positions[1] == OWNER_POS_FAR] lock_door{door_status = DOOR_LOCKED} -> DoorOp;
+
+Motor = 
+    [engine_state == ENGINE_OFF && (fuel_level == FUEL_QUARTER || fuel_level == FUEL_HALF || fuel_level == FUEL_THREE_QUARTERS || fuel_level == FUEL_FULL) && owner_positions[0] == OWNER_POS_IN] turn_engine_on_owner0{engine_state = ENGINE_ON} -> Motor
+    [] [engine_state == ENGINE_OFF && (fuel_level == FUEL_QUARTER || fuel_level == FUEL_HALF || fuel_level == FUEL_THREE_QUARTERS || fuel_level == FUEL_FULL) && owner_positions[1] == OWNER_POS_IN] turn_engine_on_owner1{engine_state = ENGINE_ON} -> Motor
+    [] [engine_state == ENGINE_ON && owner_positions[0] == OWNER_POS_IN] turn_engine_off_owner0{engine_state = ENGINE_OFF} -> Motor
+    [] [engine_state == ENGINE_ON && owner_positions[1] == OWNER_POS_IN] turn_engine_off_owner1{engine_state = ENGINE_OFF} -> Motor
+    [] [engine_state == ENGINE_ON && fuel_level == FUEL_FULL] consume_fuel_from_full{fuel_level = FUEL_THREE_QUARTERS} -> Motor
+    [] [engine_state == ENGINE_ON && fuel_level == FUEL_THREE_QUARTERS] consume_fuel_from_three_quarters{fuel_level = FUEL_HALF} -> Motor
+    [] [engine_state == ENGINE_ON && fuel_level == FUEL_HALF] consume_fuel_from_half{fuel_level = FUEL_QUARTER} -> Motor
+    [] [engine_state == ENGINE_ON && fuel_level == FUEL_QUARTER] consume_fuel_from_quarter{fuel_level = FUEL_EMPTY} -> Motor
+    [] [engine_state == ENGINE_OFF && (fuel_level == FUEL_EMPTY || fuel_level == FUEL_QUARTER || fuel_level == FUEL_HALF || fuel_level == FUEL_THREE_QUARTERS) && owner_positions[0] == OWNER_POS_NEAR] refuel_owner0{fuel_level = FUEL_FULL} -> Motor
+    [] [engine_state == ENGINE_OFF && (fuel_level == FUEL_EMPTY || fuel_level == FUEL_QUARTER || fuel_level == FUEL_HALF || fuel_level == FUEL_THREE_QUARTERS) && owner_positions[1] == OWNER_POS_NEAR] refuel_owner1{fuel_level = FUEL_FULL} -> Motor
+    [] [engine_state == ENGINE_ON && owner_positions[0] == OWNER_POS_IN] drive.0 -> Motor;
+
+keyless_car = (Owner(0) ||| Owner(1) ||| KeyPos(0) ||| KeyPos(1) ||| DoorOp ||| Motor);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+#define keylockinside (key_position == KEY_POS_IN && door_status == DOOR_LOCKED && owner_positions[0] != OWNER_POS_IN && owner_positions[1] != OWNER_POS_IN);
+#define runwithoutowner (engine_state == ENGINE_ON && owner_positions[0] == OWNER_POS_FAR && owner_positions[1] == OWNER_POS_FAR);
+#define ownerdrivetogether (engine_state == ENGINE_ON && owner_positions[0] == OWNER_POS_IN && owner_positions[1] == OWNER_POS_IN);
+#define drivewithoutengineon (engine_state == ENGINE_OFF);
+#define drivewithoutfuel (engine_state == ENGINE_ON && fuel_level == FUEL_EMPTY);
+#define drivewithoutkeyholdbyother (engine_state == ENGINE_ON && owner_positions[1] == OWNER_POS_IN && owner_positions[0] == OWNER_POS_FAR && key_position == KEY_POS_WITH_OWNER);
+#assert keyless_car |= eventually keylockinside;

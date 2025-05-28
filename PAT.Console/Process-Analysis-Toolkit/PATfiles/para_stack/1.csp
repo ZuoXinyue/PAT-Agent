@@ -1,0 +1,31 @@
+// stack size
+#define SIZE 3;
+
+// shared head pointer for the concrete implementation
+var H = 0;
+
+//////////////// The Concrete Implementation Model //////////////////
+Push() = push_inv -> PushLoop(H);
+
+PushLoop(v) = (
+    ifa (v == H) {
+        t{if(H < SIZE) {H = H+1;}} -> push_res.(v+1) -> Process()
+    } else {
+        Push()
+    });
+
+Pop() = pop_inv -> PopLoop(H);
+
+PopLoop(v) =
+    (if(v == 0) {
+        pop_res.0 -> Process() 
+    } else {
+        (ifa(v != H) { Pop() } else {
+            t{H = H-1;} -> pop_res.(v-1) -> Process()
+        })
+    });
+
+Process() = (Push()[]Pop());
+Stack() = (|||{5}@Process());
+
+#assert Stack() |= [](push_inv -> <>(push_res.0 ||push_res.1 ||push_res.2));

@@ -1,0 +1,19 @@
+=======================================================
+Assertion: Bully() |= []<> node1_is_coordinator
+********Verification Result********
+The Assertion (Bully() |= []<> node1_is_coordinator) is NOT valid.
+A counterexample is presented as follows.
+<init -> node2_send_status -> (node2_send_status)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:6
+Total Transitions:12
+Time Used:0.0085391s
+Estimated Memory Used:41247.88KB
+
+

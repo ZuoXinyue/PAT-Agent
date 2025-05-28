@@ -1,0 +1,42 @@
+#define BANK_A 0;
+#define BANK_B 1;
+#define BOAT_CAPACITY 2;
+
+var farmerPosition = BANK_A;
+var wolfPosition = BANK_A;
+var goatPosition = BANK_A;
+var cabbagePosition = BANK_A;
+
+Cross() = 
+    [farmerPosition == BANK_A && !(wolfPosition == BANK_A && goatPosition == BANK_A) && !(goatPosition == BANK_A && cabbagePosition == BANK_A)] 
+    cross_farmer_alone{farmerPosition = BANK_B;} -> Return()
+    []
+    [farmerPosition == BANK_A && wolfPosition == BANK_A && !(goatPosition == BANK_A && cabbagePosition == BANK_A)] 
+    cross_with_wolf{farmerPosition = BANK_B; wolfPosition = BANK_B;} -> Return()
+    []
+    [farmerPosition == BANK_A && goatPosition == BANK_A] 
+    cross_with_goat{farmerPosition = BANK_B; goatPosition = BANK_B;} -> Return()
+    []
+    [farmerPosition == BANK_A && cabbagePosition == BANK_A && !(wolfPosition == BANK_A && goatPosition == BANK_A)] 
+    cross_with_cabbage{farmerPosition = BANK_B; cabbagePosition = BANK_B;} -> Return();
+
+Return() = 
+    [farmerPosition == BANK_B && !(wolfPosition == BANK_B && goatPosition == BANK_B) && !(goatPosition == BANK_B && cabbagePosition == BANK_B)] 
+    return_farmer_alone{farmerPosition = BANK_A;} -> Cross()
+    []
+    [farmerPosition == BANK_B && wolfPosition == BANK_B && !(goatPosition == BANK_B && cabbagePosition == BANK_B)] 
+    return_with_wolf{farmerPosition = BANK_A; wolfPosition = BANK_A;} -> Cross()
+    []
+    [farmerPosition == BANK_B && goatPosition == BANK_B] 
+    return_with_goat{farmerPosition = BANK_A; goatPosition = BANK_A;} -> Cross()
+    []
+    [farmerPosition == BANK_B && cabbagePosition == BANK_B && !(wolfPosition == BANK_B && goatPosition == BANK_B)] 
+    return_with_cabbage{farmerPosition = BANK_A; cabbagePosition = BANK_A;} -> Cross();
+
+system_name = Cross();
+
+#define goal (farmerPosition == BANK_B && wolfPosition == BANK_B && goatPosition == BANK_B && cabbagePosition == BANK_B);
+#assert system_name reaches goal;
+
+#define wolf_goat_A (wolfPosition == BANK_A && goatPosition == BANK_A && farmerPosition == BANK_B && cabbagePosition == BANK_B);
+#assert system_name |= <> wolf_goat_A;

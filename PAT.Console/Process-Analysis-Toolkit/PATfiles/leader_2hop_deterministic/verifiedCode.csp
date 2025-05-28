@@ -1,0 +1,117 @@
+#define u_Interaction_0_1 0;
+#define v_Interaction_0_1 1;
+#define NUM_NODES 3;
+#define NUM_COLORS 3;
+#define VIEW_ARRAY_SIZE 9;
+#define u_Interaction_0_2 0;
+#define v_Interaction_0_2 2;
+#define u_Interaction_1_2 1;
+#define v_Interaction_1_2 2;
+#define u_Interaction_1_0 1;
+#define v_Interaction_1_0 0;
+#define u_Interaction_2_0 2;
+#define v_Interaction_2_0 0;
+#define u_Interaction_2_1 2;
+#define v_Interaction_2_1 1;
+
+var nodeColors[NUM_NODES] = [0, 1, 2];
+var rotationFlags[NUM_NODES] = [0, 0, 0];
+var colorViews[VIEW_ARRAY_SIZE] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+Interaction_0_1() = 
+    [colorViews[0*NUM_COLORS + nodeColors[1]] != colorViews[1*NUM_COLORS + nodeColors[0]]] 
+    update_color_and_sync{
+        nodeColors[0] = (nodeColors[0] + rotationFlags[0]) % NUM_COLORS; 
+        colorViews[0*NUM_COLORS + nodeColors[1]] = colorViews[1*NUM_COLORS + nodeColors[0]]; 
+        rotationFlags[0] = 1 - rotationFlags[0];
+    } -> Interaction_0_1()
+    []
+    [colorViews[0*NUM_COLORS + nodeColors[1]] == colorViews[1*NUM_COLORS + nodeColors[0]]] 
+    flip_views_and_rotation{
+        colorViews[0*NUM_COLORS + nodeColors[1]] = 1 - colorViews[0*NUM_COLORS + nodeColors[1]]; 
+        colorViews[1*NUM_COLORS + nodeColors[0]] = 1 - colorViews[1*NUM_COLORS + nodeColors[0]]; 
+        rotationFlags[0] = 1 - rotationFlags[0];
+    } -> Interaction_0_1();
+
+Interaction_0_2() = 
+    [colorViews[0*NUM_COLORS + nodeColors[2]] != colorViews[2*NUM_COLORS + nodeColors[0]]] 
+    update_color_and_sync{
+        nodeColors[0] = (nodeColors[0] + rotationFlags[0]) % NUM_COLORS; 
+        colorViews[0*NUM_COLORS + nodeColors[2]] = colorViews[2*NUM_COLORS + nodeColors[0]]; 
+        rotationFlags[0] = 1 - rotationFlags[0];
+    } -> Interaction_0_2()
+    []
+    [colorViews[0*NUM_COLORS + nodeColors[2]] == colorViews[2*NUM_COLORS + nodeColors[0]]] 
+    flip_views_and_rotation{
+        colorViews[0*NUM_COLORS + nodeColors[2]] = 1 - colorViews[0*NUM_COLORS + nodeColors[2]]; 
+        colorViews[2*NUM_COLORS + nodeColors[0]] = 1 - colorViews[2*NUM_COLORS + nodeColors[0]]; 
+        rotationFlags[0] = 1 - rotationFlags[0];
+    } -> Interaction_0_2();
+
+Interaction_1_2() = 
+    [colorViews[1*NUM_COLORS + nodeColors[2]] != colorViews[2*NUM_COLORS + nodeColors[1]]] 
+    update_color_and_sync{
+        nodeColors[1] = (nodeColors[1] + rotationFlags[1]) % NUM_COLORS; 
+        colorViews[1*NUM_COLORS + nodeColors[2]] = colorViews[2*NUM_COLORS + nodeColors[1]]; 
+        rotationFlags[1] = 1 - rotationFlags[1];
+    } -> Interaction_1_2()
+    []
+    [colorViews[1*NUM_COLORS + nodeColors[2]] == colorViews[2*NUM_COLORS + nodeColors[1]]] 
+    flip_views_and_rotation{
+        colorViews[1*NUM_COLORS + nodeColors[2]] = 1 - colorViews[1*NUM_COLORS + nodeColors[2]]; 
+        colorViews[2*NUM_COLORS + nodeColors[1]] = 1 - colorViews[2*NUM_COLORS + nodeColors[1]]; 
+        rotationFlags[1] = 1 - rotationFlags[1];
+    } -> Interaction_1_2();
+
+Interaction_1_0() = 
+    [colorViews[1*NUM_COLORS + nodeColors[0]] != colorViews[0*NUM_COLORS + nodeColors[1]]] 
+    update_color_and_sync{
+        nodeColors[1] = (nodeColors[1] + rotationFlags[1]) % NUM_COLORS; 
+        colorViews[1*NUM_COLORS + nodeColors[0]] = colorViews[0*NUM_COLORS + nodeColors[1]]; 
+        rotationFlags[1] = 1 - rotationFlags[1];
+    } -> Interaction_1_0()
+    []
+    [colorViews[1*NUM_COLORS + nodeColors[0]] == colorViews[0*NUM_COLORS + nodeColors[1]]] 
+    flip_views_and_rotation{
+        colorViews[1*NUM_COLORS + nodeColors[0]] = 1 - colorViews[1*NUM_COLORS + nodeColors[0]]; 
+        colorViews[0*NUM_COLORS + nodeColors[1]] = 1 - colorViews[0*NUM_COLORS + nodeColors[1]]; 
+        rotationFlags[1] = 1 - rotationFlags[1];
+    } -> Interaction_1_0();
+
+Interaction_2_0() = 
+    [colorViews[2*NUM_COLORS + nodeColors[0]] != colorViews[0*NUM_COLORS + nodeColors[2]]] 
+    update_color_and_sync{
+        nodeColors[2] = (nodeColors[2] + rotationFlags[2]) % NUM_COLORS; 
+        colorViews[2*NUM_COLORS + nodeColors[0]] = colorViews[0*NUM_COLORS + nodeColors[2]]; 
+        rotationFlags[2] = 1 - rotationFlags[2];
+    } -> Interaction_2_0()
+    []
+    [colorViews[2*NUM_COLORS + nodeColors[0]] == colorViews[0*NUM_COLORS + nodeColors[2]]] 
+    flip_views_and_rotation{
+        colorViews[2*NUM_COLORS + nodeColors[0]] = 1 - colorViews[2*NUM_COLORS + nodeColors[0]]; 
+        colorViews[0*NUM_COLORS + nodeColors[2]] = 1 - colorViews[0*NUM_COLORS + nodeColors[2]]; 
+        rotationFlags[2] = 1 - rotationFlags[2];
+    } -> Interaction_2_0();
+
+Interaction_2_1() = 
+    [colorViews[2*NUM_COLORS + nodeColors[1]] != colorViews[1*NUM_COLORS + nodeColors[2]]] 
+    update_color_and_sync{
+        nodeColors[2] = (nodeColors[2] + rotationFlags[2]) % NUM_COLORS; 
+        colorViews[2*NUM_COLORS + nodeColors[1]] = colorViews[1*NUM_COLORS + nodeColors[2]]; 
+        rotationFlags[2] = 1 - rotationFlags[2];
+    } -> Interaction_2_1()
+    []
+    [colorViews[2*NUM_COLORS + nodeColors[1]] == colorViews[1*NUM_COLORS + nodeColors[2]]] 
+    flip_views_and_rotation{
+        colorViews[2*NUM_COLORS + nodeColors[1]] = 1 - colorViews[2*NUM_COLORS + nodeColors[1]]; 
+        colorViews[1*NUM_COLORS + nodeColors[2]] = 1 - colorViews[1*NUM_COLORS + nodeColors[2]]; 
+        rotationFlags[2] = 1 - rotationFlags[2];
+    } -> Interaction_2_1();
+
+leader_2hop_deterministic() = 
+    Interaction_0_1() ||| Interaction_0_2() ||| Interaction_1_2() ||| 
+    Interaction_1_0() ||| Interaction_2_0() ||| Interaction_2_1();
+
+#define twohopcoloring (nodeColors[0] != nodeColors[1] && nodeColors[1] != nodeColors[2] && nodeColors[2] != nodeColors[0]);
+
+#assert leader_2hop_deterministic() |= <>[]twohopcoloring;

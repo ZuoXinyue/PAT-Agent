@@ -1,0 +1,19 @@
+=======================================================
+Assertion: reader_writer() |= []<> someonereading
+********Verification Result********
+The Assertion (reader_writer() |= []<> someonereading) is NOT valid.
+A counterexample is presented as follows.
+<init -> start_writing -> (stop_writing -> start_writing)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:7
+Total Transitions:10
+Time Used:0.0087468s
+Estimated Memory Used:41247.928KB
+
+

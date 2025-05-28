@@ -1,0 +1,19 @@
+=======================================================
+Assertion: Bargaining() |= []<> all_items_unavailable
+********Verification Result********
+The Assertion (Bargaining() |= []<> all_items_unavailable) is NOT valid.
+A counterexample is presented as follows.
+<init -> buy_item3>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:10
+Total Transitions:28
+Time Used:0.0093028s
+Estimated Memory Used:41234.176KB
+
+

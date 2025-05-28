@@ -1,0 +1,18 @@
+=======================================================
+Assertion: files() |= []( File1_trashed->[] File1_trashed)
+********Verification Result********
+The Assertion (files() |= []( File1_trashed->[] File1_trashed)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:3061
+Total Transitions:13023
+Time Used:0.106833s
+Estimated Memory Used:9255.376KB
+
+

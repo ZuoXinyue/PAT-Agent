@@ -1,0 +1,162 @@
+// Constants for the system
+#define NODE_COUNT 3;
+#define FLAG_OFF 0;
+#define FLAG_ON 1;
+#define POSITION_0 0;
+#define POSITION_1 1; 
+#define POSITION_2 2;
+
+// State variables for each node's properties
+var leader[NODE_COUNT] = [FLAG_OFF, FLAG_OFF, FLAG_OFF];
+var bullet[NODE_COUNT] = [FLAG_OFF, FLAG_OFF, FLAG_OFF];
+var label[NODE_COUNT] = [FLAG_OFF, FLAG_OFF, FLAG_OFF];
+var probe[NODE_COUNT] = [FLAG_OFF, FLAG_OFF, FLAG_OFF];
+var phase[NODE_COUNT] = [FLAG_OFF, FLAG_OFF, FLAG_OFF];
+
+// Process 0 watches positions 0 and 1
+Process_0() = 
+    // Labels match conditions
+    [probe[0] == FLAG_ON && phase[0] == FLAG_OFF && leader[1] == FLAG_OFF && label[0] == label[1]]
+    P0_A{leader[0] = FLAG_ON; probe[0] = FLAG_OFF; phase[0] = FLAG_ON; probe[1] = FLAG_ON;} -> Process_0()
+    []
+    [probe[0] == FLAG_ON && phase[0] == FLAG_OFF && leader[1] == FLAG_ON && label[0] == label[1]]
+    P0_B{leader[0] = FLAG_ON; probe[0] = FLAG_OFF; phase[0] = FLAG_ON;} -> Process_0()
+    []
+    [probe[0] == FLAG_ON && phase[0] == FLAG_ON && probe[1] == FLAG_OFF && label[0] == FLAG_OFF && label[1] == FLAG_OFF]
+    P0_C1{leader[0] = FLAG_ON; probe[0] = FLAG_OFF; bullet[1] = FLAG_OFF; label[1] = FLAG_ON; phase[1] = FLAG_OFF;} -> Process_0()
+    []
+    [probe[0] == FLAG_ON && phase[0] == FLAG_ON && probe[1] == FLAG_OFF && label[0] == FLAG_ON && label[1] == FLAG_ON]
+    P0_C2{leader[0] = FLAG_ON; probe[0] = FLAG_OFF; bullet[1] = FLAG_OFF; label[1] = FLAG_OFF; phase[1] = FLAG_OFF;} -> Process_0()
+    []
+    [probe[0] == FLAG_ON && phase[0] == FLAG_ON && probe[1] == FLAG_ON && label[0] == label[1]]
+    P0_D{leader[0] = FLAG_ON; probe[0] = FLAG_OFF;} -> Process_0()
+    []
+    [probe[0] == FLAG_OFF && phase[0] == FLAG_OFF && leader[1] == FLAG_OFF && label[0] == label[1]]
+    P0_E{phase[0] = FLAG_ON; probe[1] = FLAG_ON;} -> Process_0()
+    []
+    [probe[0] == FLAG_OFF && phase[0] == FLAG_OFF && leader[1] == FLAG_ON && label[0] == label[1]]
+    P0_F{phase[0] = FLAG_ON;} -> Process_0()
+    []
+    [probe[0] == FLAG_OFF && phase[0] == FLAG_ON && probe[1] == FLAG_OFF && label[0] == FLAG_OFF && label[1] == FLAG_OFF]
+    P0_G1{bullet[1] = FLAG_OFF; label[1] = FLAG_ON; phase[1] = FLAG_OFF;} -> Process_0()
+    []
+    [probe[0] == FLAG_OFF && phase[0] == FLAG_ON && probe[1] == FLAG_OFF && label[0] == FLAG_ON && label[1] == FLAG_ON]
+    P0_G2{bullet[1] = FLAG_OFF; label[1] = FLAG_OFF; phase[1] = FLAG_OFF;} -> Process_0()
+    []
+    // Labels differ conditions
+    [leader[1] == FLAG_ON && bullet[1] == FLAG_ON && label[0] != label[1]]
+    P0_H{leader[1] = FLAG_OFF;} -> Process_0()
+    []
+    [leader[1] == FLAG_ON && bullet[1] == FLAG_OFF && label[0] != label[1]]
+    P0_I{bullet[0] = FLAG_ON; probe[0] = FLAG_OFF;} -> Process_0()
+    []
+    [leader[1] == FLAG_OFF && bullet[1] == FLAG_ON && probe[0] == FLAG_ON && label[0] != label[1]]
+    P0_J{bullet[0] = FLAG_ON; bullet[1] = FLAG_OFF; probe[0] = FLAG_OFF; probe[1] = FLAG_ON;} -> Process_0()
+    []
+    [leader[1] == FLAG_OFF && bullet[1] == FLAG_OFF && probe[0] == FLAG_ON && label[0] != label[1]]
+    P0_K{probe[0] = FLAG_OFF; probe[1] = FLAG_ON;} -> Process_0()
+    []
+    [leader[1] == FLAG_OFF && bullet[1] == FLAG_ON && probe[0] == FLAG_OFF && label[0] != label[1]]
+    P0_L{bullet[0] = FLAG_ON; bullet[1] = FLAG_OFF;} -> Process_0();
+
+// Process 1 watches positions 1 and 2
+Process_1() = 
+    // Labels match conditions
+    [probe[1] == FLAG_ON && phase[1] == FLAG_OFF && leader[2] == FLAG_OFF && label[1] == label[2]]
+    P1_A{leader[1] = FLAG_ON; probe[1] = FLAG_OFF; phase[1] = FLAG_ON; probe[2] = FLAG_ON;} -> Process_1()
+    []
+    [probe[1] == FLAG_ON && phase[1] == FLAG_OFF && leader[2] == FLAG_ON && label[1] == label[2]]
+    P1_B{leader[1] = FLAG_ON; probe[1] = FLAG_OFF; phase[1] = FLAG_ON;} -> Process_1()
+    []
+    [probe[1] == FLAG_ON && phase[1] == FLAG_ON && probe[2] == FLAG_OFF && label[1] == FLAG_OFF && label[2] == FLAG_OFF]
+    P1_C1{leader[1] = FLAG_ON; probe[1] = FLAG_OFF; bullet[2] = FLAG_OFF; label[2] = FLAG_ON; phase[2] = FLAG_OFF;} -> Process_1()
+    []
+    [probe[1] == FLAG_ON && phase[1] == FLAG_ON && probe[2] == FLAG_OFF && label[1] == FLAG_ON && label[2] == FLAG_ON]
+    P1_C2{leader[1] = FLAG_ON; probe[1] = FLAG_OFF; bullet[2] = FLAG_OFF; label[2] = FLAG_OFF; phase[2] = FLAG_OFF;} -> Process_1()
+    []
+    [probe[1] == FLAG_ON && phase[1] == FLAG_ON && probe[2] == FLAG_ON && label[1] == label[2]]
+    P1_D{leader[1] = FLAG_ON; probe[1] = FLAG_OFF;} -> Process_1()
+    []
+    [probe[1] == FLAG_OFF && phase[1] == FLAG_OFF && leader[2] == FLAG_OFF && label[1] == label[2]]
+    P1_E{phase[1] = FLAG_ON; probe[2] = FLAG_ON;} -> Process_1()
+    []
+    [probe[1] == FLAG_OFF && phase[1] == FLAG_OFF && leader[2] == FLAG_ON && label[1] == label[2]]
+    P1_F{phase[1] = FLAG_ON;} -> Process_1()
+    []
+    [probe[1] == FLAG_OFF && phase[1] == FLAG_ON && probe[2] == FLAG_OFF && label[1] == FLAG_OFF && label[2] == FLAG_OFF]
+    P1_G1{bullet[2] = FLAG_OFF; label[2] = FLAG_ON; phase[2] = FLAG_OFF;} -> Process_1()
+    []
+    [probe[1] == FLAG_OFF && phase[1] == FLAG_ON && probe[2] == FLAG_OFF && label[1] == FLAG_ON && label[2] == FLAG_ON]
+    P1_G2{bullet[2] = FLAG_OFF; label[2] = FLAG_OFF; phase[2] = FLAG_OFF;} -> Process_1()
+    []
+    // Labels differ conditions
+    [leader[2] == FLAG_ON && bullet[2] == FLAG_ON && label[1] != label[2]]
+    P1_H{leader[2] = FLAG_OFF;} -> Process_1()
+    []
+    [leader[2] == FLAG_ON && bullet[2] == FLAG_OFF && label[1] != label[2]]
+    P1_I{bullet[1] = FLAG_ON; probe[1] = FLAG_OFF;} -> Process_1()
+    []
+    [leader[2] == FLAG_OFF && bullet[2] == FLAG_ON && probe[1] == FLAG_ON && label[1] != label[2]]
+    P1_J{bullet[1] = FLAG_ON; bullet[2] = FLAG_OFF; probe[1] = FLAG_OFF; probe[2] = FLAG_ON;} -> Process_1()
+    []
+    [leader[2] == FLAG_OFF && bullet[2] == FLAG_OFF && probe[1] == FLAG_ON && label[1] != label[2]]
+    P1_K{probe[1] = FLAG_OFF; probe[2] = FLAG_ON;} -> Process_1()
+    []
+    [leader[2] == FLAG_OFF && bullet[2] == FLAG_ON && probe[1] == FLAG_OFF && label[1] != label[2]]
+    P1_L{bullet[1] = FLAG_ON; bullet[2] = FLAG_OFF;} -> Process_1();
+
+// Process 2 watches positions 2 and 0
+Process_2() = 
+    // Labels match conditions
+    [probe[2] == FLAG_ON && phase[2] == FLAG_OFF && leader[0] == FLAG_OFF && label[2] == label[0]]
+    P2_A{leader[2] = FLAG_ON; probe[2] = FLAG_OFF; phase[2] = FLAG_ON; probe[0] = FLAG_ON;} -> Process_2()
+    []
+    [probe[2] == FLAG_ON && phase[2] == FLAG_OFF && leader[0] == FLAG_ON && label[2] == label[0]]
+    P2_B{leader[2] = FLAG_ON; probe[2] = FLAG_OFF; phase[2] = FLAG_ON;} -> Process_2()
+    []
+    [probe[2] == FLAG_ON && phase[2] == FLAG_ON && probe[0] == FLAG_OFF && label[2] == FLAG_OFF && label[0] == FLAG_OFF]
+    P2_C1{leader[2] = FLAG_ON; probe[2] = FLAG_OFF; bullet[0] = FLAG_OFF; label[0] = FLAG_ON; phase[0] = FLAG_OFF;} -> Process_2()
+    []
+    [probe[2] == FLAG_ON && phase[2] == FLAG_ON && probe[0] == FLAG_OFF && label[2] == FLAG_ON && label[0] == FLAG_ON]
+    P2_C2{leader[2] = FLAG_ON; probe[2] = FLAG_OFF; bullet[0] = FLAG_OFF; label[0] = FLAG_OFF; phase[0] = FLAG_OFF;} -> Process_2()
+    []
+    [probe[2] == FLAG_ON && phase[2] == FLAG_ON && probe[0] == FLAG_ON && label[2] == label[0]]
+    P2_D{leader[2] = FLAG_ON; probe[2] = FLAG_OFF;} -> Process_2()
+    []
+    [probe[2] == FLAG_OFF && phase[2] == FLAG_OFF && leader[0] == FLAG_OFF && label[2] == label[0]]
+    P2_E{phase[2] = FLAG_ON; probe[0] = FLAG_ON;} -> Process_2()
+    []
+    [probe[2] == FLAG_OFF && phase[2] == FLAG_OFF && leader[0] == FLAG_ON && label[2] == label[0]]
+    P2_F{phase[2] = FLAG_ON;} -> Process_2()
+    []
+    [probe[2] == FLAG_OFF && phase[2] == FLAG_ON && probe[0] == FLAG_OFF && label[2] == FLAG_OFF && label[0] == FLAG_OFF]
+    P2_G1{bullet[0] = FLAG_OFF; label[0] = FLAG_ON; phase[0] = FLAG_OFF;} -> Process_2()
+    []
+    [probe[2] == FLAG_OFF && phase[2] == FLAG_ON && probe[0] == FLAG_OFF && label[2] == FLAG_ON && label[0] == FLAG_ON]
+    P2_G2{bullet[0] = FLAG_OFF; label[0] = FLAG_OFF; phase[0] = FLAG_OFF;} -> Process_2()
+    []
+    // Labels differ conditions
+    [leader[0] == FLAG_ON && bullet[0] == FLAG_ON && label[2] != label[0]]
+    P2_H{leader[0] = FLAG_OFF;} -> Process_2()
+    []
+    [leader[0] == FLAG_ON && bullet[0] == FLAG_OFF && label[2] != label[0]]
+    P2_I{bullet[2] = FLAG_ON; probe[2] = FLAG_OFF;} -> Process_2()
+    []
+    [leader[0] == FLAG_OFF && bullet[0] == FLAG_ON && probe[2] == FLAG_ON && label[2] != label[0]]
+    P2_J{bullet[2] = FLAG_ON; bullet[0] = FLAG_OFF; probe[2] = FLAG_OFF; probe[0] = FLAG_ON;} -> Process_2()
+    []
+    [leader[0] == FLAG_OFF && bullet[0] == FLAG_OFF && probe[2] == FLAG_ON && label[2] != label[0]]
+    P2_K{probe[2] = FLAG_OFF; probe[0] = FLAG_ON;} -> Process_2()
+    []
+    [leader[0] == FLAG_OFF && bullet[0] == FLAG_ON && probe[2] == FLAG_OFF && label[2] != label[0]]
+    P2_L{bullet[2] = FLAG_ON; bullet[0] = FLAG_OFF;} -> Process_2();
+
+// Main system combining all processes interleavingly
+leader_odd_ring = Process_0() ||| Process_1() ||| Process_2();
+
+// State definitions and assertions
+#define oneLeader ((leader[0] == FLAG_ON && leader[1] == FLAG_OFF && leader[2] == FLAG_OFF) || 
+                  (leader[0] == FLAG_OFF && leader[1] == FLAG_ON && leader[2] == FLAG_OFF) || 
+                  (leader[0] == FLAG_OFF && leader[1] == FLAG_OFF && leader[2] == FLAG_ON));
+
+#assert leader_odd_ring |= <> []oneLeader;

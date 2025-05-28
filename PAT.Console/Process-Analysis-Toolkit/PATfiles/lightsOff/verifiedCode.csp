@@ -1,0 +1,45 @@
+#define TOTAL_LIGHTS 16;
+#define ROW_LENGTH 4;
+#define LIGHT_OFF 0;
+#define LIGHT_ON 1;
+
+var a00 = LIGHT_OFF;
+var a01 = LIGHT_OFF;
+var a02 = LIGHT_ON;
+var a03 = LIGHT_ON;
+var a04 = LIGHT_OFF;
+var a05 = LIGHT_ON;
+var a06 = LIGHT_OFF;
+var a07 = LIGHT_ON;
+var a08 = LIGHT_ON;
+var a09 = LIGHT_ON;
+var a10 = LIGHT_ON;
+var a11 = LIGHT_OFF;
+var a12 = LIGHT_OFF;
+var a13 = LIGHT_ON;
+var a14 = LIGHT_OFF;
+var a15 = LIGHT_OFF;
+
+lightsOff() = click_0{a00 = 1-a00; a01 = 1-a01; a04 = 1-a04;} -> lightsOff()
+            [] click_1{a01 = 1-a01; a00 = 1-a00; a02 = 1-a02; a05 = 1-a05;} -> lightsOff()
+            [] click_2{a02 = 1-a02; a01 = 1-a01; a03 = 1-a03; a06 = 1-a06;} -> lightsOff()
+            [] click_3{a03 = 1-a03; a02 = 1-a02; a07 = 1-a07;} -> lightsOff()
+            [] click_4{a04 = 1-a04; a05 = 1-a05; a00 = 1-a00; a08 = 1-a08;} -> lightsOff()
+            [] click_5{a05 = 1-a05; a04 = 1-a04; a06 = 1-a06; a01 = 1-a01; a09 = 1-a09;} -> lightsOff()
+            [] click_6{a06 = 1-a06; a05 = 1-a05; a07 = 1-a07; a02 = 1-a02; a10 = 1-a10;} -> lightsOff()
+            [] click_7{a07 = 1-a07; a06 = 1-a06; a03 = 1-a03; a11 = 1-a11;} -> lightsOff()
+            [] click_8{a08 = 1-a08; a09 = 1-a09; a04 = 1-a04; a12 = 1-a12;} -> lightsOff()
+            [] click_9{a09 = 1-a09; a08 = 1-a08; a10 = 1-a10; a05 = 1-a05; a13 = 1-a13;} -> lightsOff()
+            [] click_10{a10 = 1-a10; a09 = 1-a09; a11 = 1-a11; a06 = 1-a06; a14 = 1-a14;} -> lightsOff()
+            [] click_11{a11 = 1-a11; a10 = 1-a10; a07 = 1-a07; a15 = 1-a15;} -> lightsOff()
+            [] click_12{a12 = 1-a12; a13 = 1-a13; a08 = 1-a08;} -> lightsOff()
+            [] click_13{a13 = 1-a13; a12 = 1-a12; a14 = 1-a14; a09 = 1-a09;} -> lightsOff()
+            [] click_14{a14 = 1-a14; a13 = 1-a13; a15 = 1-a15; a10 = 1-a10;} -> lightsOff()
+            [] click_15{a15 = 1-a15; a14 = 1-a14; a11 = 1-a11;} -> lightsOff();
+
+#define goal (a00 == LIGHT_OFF && a01 == LIGHT_OFF && a02 == LIGHT_OFF && a03 == LIGHT_OFF && 
+              a04 == LIGHT_OFF && a05 == LIGHT_OFF && a06 == LIGHT_OFF && a07 == LIGHT_OFF && 
+              a08 == LIGHT_OFF && a09 == LIGHT_OFF && a10 == LIGHT_OFF && a11 == LIGHT_OFF && 
+              a12 == LIGHT_OFF && a13 == LIGHT_OFF && a14 == LIGHT_OFF && a15 == LIGHT_OFF);
+
+#assert lightsOff() reaches goal;

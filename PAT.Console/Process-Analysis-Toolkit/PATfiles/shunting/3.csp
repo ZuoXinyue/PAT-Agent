@@ -1,0 +1,61 @@
+#define GRID_ROWS 6;
+#define GRID_COLUMNS 7;
+#define OBSTACLE 0;
+#define EMPTY 1;
+#define BOX 2;
+
+var board[GRID_ROWS][GRID_COLUMNS] = [0,0,1,1,0,0,0,0,0,1,1,0,0,0,1,1,1,2,1,1,1,1,2,1,1,1,2,1,0,0,1,2,0,0,0,0,0,1,1,0,0,0];
+var playerRow = 3;
+var playerColumn = 0;
+
+shunting() = 
+    // Move up
+    ([playerRow > 0 && board[playerRow - 1][playerColumn] == EMPTY] 
+    move_up{playerRow = playerRow - 1;} -> shunting())
+    
+    [] 
+    
+    // Move down
+    ([playerRow < 5 && board[playerRow + 1][playerColumn] == EMPTY] 
+    move_down{playerRow = playerRow + 1;} -> shunting())
+    
+    [] 
+    
+    // Move left
+    ([playerColumn > 0 && board[playerRow][playerColumn - 1] == EMPTY] 
+    move_left{playerColumn = playerColumn - 1;} -> shunting())
+    
+    [] 
+    
+    // Move right
+    ([playerColumn < 6 && board[playerRow][playerColumn + 1] == EMPTY] 
+    move_right{playerColumn = playerColumn + 1;} -> shunting())
+    
+    [] 
+    
+    // Push up
+    ([playerRow > 1 && board[playerRow - 1][playerColumn] == BOX && board[playerRow - 2][playerColumn] == EMPTY] 
+    push_up{board[playerRow - 1][playerColumn] = EMPTY; board[playerRow - 2][playerColumn] = BOX; playerRow = playerRow - 1;} -> shunting())
+    
+    [] 
+    
+    // Push down
+    ([playerRow < 4 && board[playerRow + 1][playerColumn] == BOX && board[playerRow + 2][playerColumn] == EMPTY] 
+    push_down{board[playerRow + 1][playerColumn] = EMPTY; board[playerRow + 2][playerColumn] = BOX; playerRow = playerRow + 1;} -> shunting())
+    
+    [] 
+    
+    // Push left
+    ([playerColumn > 1 && board[playerRow][playerColumn - 1] == BOX && board[playerRow][playerColumn - 2] == EMPTY] 
+    push_left{board[playerRow][playerColumn - 1] = EMPTY; board[playerRow][playerColumn - 2] = BOX; playerColumn = playerColumn - 1;} -> shunting())
+    
+    [] 
+    
+    // Push right
+    ([playerColumn < 5 && board[playerRow][playerColumn + 1] == BOX && board[playerRow][playerColumn + 2] == EMPTY] 
+    push_right{board[playerRow][playerColumn + 1] = EMPTY; board[playerRow][playerColumn + 2] = BOX; playerColumn = playerColumn + 1;} -> shunting());
+
+#define trouble board[0][3] == BOX;
+#define outside board[4][1] == BOX;
+#define goal board[2][2] == BOX && board[2][3] == BOX && board[3][2] == BOX && board[3][3] == BOX;
+#assert shunting() |= [](trouble -> !<>goal);

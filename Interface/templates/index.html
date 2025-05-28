@@ -1,0 +1,1308 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-python.min.js"></script>
+  <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- <meta name="color-scheme" content="light dark" /> -->
+  <!-- <link rel="stylesheet" href="css/pico.min.css"> -->
+  <!-- <script src="https://cdn.bootcss.com/vue/2.5.16/vue.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <title>QA</title>
+  <script src="https://cdn.jsdelivr.net/npm/driver.js/dist/driver.min.js"></script>
+  <script src="/request.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/timeline.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <script src="/prompts.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main id="app">
+    <timeline :current-step=1></timeline>
+
+    <div class="container">
+
+      <loading-overlay v-if="loading" text="Processing... The process may take around 1.5 minutes."></loading-overlay>
+
+
+      <div class="split-layout">
+        <!-- Left side: Chat interface -->
+        <div class="chat-section">
+          <div class="chat-container">
+            <!-- Current question input -->
+            <el-timeline v-if="currentQuestion">
+              <el-timeline-item placement="top">
+                <div class="question">
+                  {{currentQuestion.text}}
+                  <el-tooltip v-if="currentQuestion.tooltip" effect="dark" :content="currentQuestion.tooltip"
+                    placement="right">
+                    <i class="el-icon-question tooltip-icon"></i>
+                  </el-tooltip>
+                </div>
+                <div class="chat-input">
+                  <div v-if="currentQuestion.type === 'number'" class="number-input-wrapper">
+                    <input type="number" v-model.number="userAnswer" min="1" class="number-input"
+                      placeholder="Enter a number...">
+                    <div class="number-controls">
+                      <button class="number-control-btn" @click="incrementNumber">
+                        <i class="el-icon-caret-top"></i>
+                      </button>
+                      <button class="number-control-btn" @click="decrementNumber">
+                        <i class="el-icon-caret-bottom"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else-if="currentQuestion.type === 'select'" class="select-wrapper">
+                    <select v-model="userAnswer" class="select-input" @change="handleSelectChange">
+                      <option value="" disabled selected>Select an option...</option>
+                      <option v-for="option in currentQuestion.options" :key="option.value" :value="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <input v-if="isCustomizing" v-model="customAnswer" @input="handleCustomInput" class="select-input"
+                      style="height:30px; margin-top: 10px;" placeholder="Type your custom answer here...">
+                  </div>
+                  <textarea v-else v-model="userAnswer" placeholder="Type your answer here..."></textarea>
+                  <button class="btn" @click="submitAnswer" :disabled="!isValidAnswer">Next</button>
+                </div>
+              </el-timeline-item>
+            </el-timeline>
+            <div class="chat-history">
+              <div v-for="(qa, index) in answeredQuestions" :key="index" class="qa-pair">
+                <!-- Original message -->
+                <div class="message-content">
+                  <div class="past-question">Q: {{qa.question}}</div>
+                  <div class="past-answer">A: {{qa.answer}}</div>
+                </div>
+
+                <!-- Rewrite button -->
+                <div class="rewrite-section" v-if="!qa.isRewriting">
+                  <button class="rewrite-btn" @click="startRewrite(index)">
+                    <i class="el-icon-edit"></i> Rewrite
+                  </button>
+                </div>
+
+                <!-- Rewrite input area -->
+                <div class="rewrite-input" v-if="qa.isRewriting">
+                  <textarea v-if="!qa.isInteractionMode" v-model="qa.newAnswer"
+                    placeholder="Rewrite your answer..."></textarea>
+
+                  <!-- Special selector for interaction mode question -->
+                  <div v-if="qa.isInteractionMode" class="select-wrapper">
+                    <select v-model="qa.selectorValue" class="select-input"
+                      @change="handleRewriteSelectorChange(index)">
+                      <option value="interleaving">Interleaving: Components take turns to operate, one at a time,
+                        without needing to wait for each other.</option>
+                      <option value="parallel">Parallel Composition: Components operate together and must occasionally
+                        wait for each other at defined sync points.</option>
+                      <option value="choice">Choice: Only one of the components will be selected to operate, while the
+                        others stay idle.</option>
+                      <option value="none">None.</option>
+                      <option value="customize">customize.</option>
+                    </select>
+                    <input v-if="qa.isCustomizing" v-model="qa.customAnswer" class="select-input"
+                      style="height:30px; margin-top: 10px;" placeholder="Type your custom answer here...">
+                  </div>
+
+                  <div class="rewrite-actions">
+                    <button class="bth" @click="saveRewrite(index)">Save</button>
+                    <button class="bth" @click="cancelRewrite(index)" class="cancel-btn">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right side: Form -->
+        <div class="form-section">
+          <div class="form-container">
+            <div v-for="(value, key) in formData" :key="key" class="form-item">
+              <label :title="key">{{key}}</label>
+              <input type="text" v-model="formData[key]" readonly>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn" @click="confirmForm" :disabled="!isFormComplete"> <i class="el-icon-check"></i>
+              Confirm</button>
+            <button class="btn reset-btn" @click="resetForm" v-if="answeredQuestions.length > 0">Reset Form</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>
+<script>
+  window.vueApp = new Vue({
+    el: '#app',
+    data() {
+      return {
+        loading: false,  // 控制 loading 的状态
+        baseQuestions: [
+          { text: "What is the name of the system?", formField: "Name of System" },
+          { text: "What would you like to model in this system?", formField: "System Description" },
+          {
+            text: "How many different components are there to interactively form the system?",
+            tooltip: "For example, to form a car system, we might choose to model 4 components (the owners, key, door, and motor).",
+            formField: "Number of Components",
+            type: "number"
+          }
+        ],
+        subsystemQuestions: [
+          { text: "What would you like to call component {n}?", formField: "Name of Component {n}" },
+          {
+            text: "What are you trying to model in this component, please describe with a focus on the situations that can happen?",
+            tooltip: "For example, to describe the owners component, we can say: This component models the owners' positions relative to the car. The owners can be in the car, near the car, or far away from the car.",
+            formField: "Description of Component {n}"
+          }
+        ],
+        finalQuestions: [
+          {
+            text: "How do our components interact with each other? Please select one of the options below:",
+            formField: "Interaction Mode",
+            type: "select",
+            options: [
+              {
+                value: "interleaving",
+                label: "Interleaving: Components take turns to operate, one at a time, without needing to wait for each other."
+              },
+              {
+                value: "parallel",
+                label: "Parallel Composition: Components operate together and must occasionally wait for each other at defined sync points."
+              },
+              {
+                value: "choice",
+                label: "Choice: Only one of the components will be selected to operate, while the others stay idle."
+              },
+              {
+                value: "none",
+                label: "None."
+              },
+              {
+                value: "customize",
+                label: "customize."
+              }
+            ]
+          }
+        ],
+        currentQuestionIndex: 0,
+        currentSubsystem: 1,
+        totalSubsystems: 0,
+        answeredQuestions: [],
+        userAnswer: '',
+        customAnswer: '',  // 用于存储自定义输入
+        isCustomizing: false,  // 新增：用于跟踪是否在自定义输入模式
+        formData: {},
+        isFormComplete: false
+      }
+    },
+    created() {
+      // Empty created hook
+    },
+    mounted() {
+      // Check if there's existing data using MessageBox
+      const savedState = localStorage.getItem('formState');
+      if (savedState) {
+        this.$confirmDialog({
+          title: 'Continue Previous Session',
+          message: 'Found existing data. Do you want to continue with previous data?',
+          confirmText: 'Continue',
+          cancelText: 'Start New',
+          onConfirm: () => {
+            // User clicked Continue
+            this.restoreFormState();
+            this.syncFormDataWithAnswers();
+          },
+          onCancel: () => {
+            // User clicked Start New
+            localStorage.clear();
+            this.clearFormState();
+          }
+        });
+      }
+    },
+    computed: {
+      currentQuestion() {
+        // Handle base questions
+        if (this.currentQuestionIndex < this.baseQuestions.length) {
+          return this.baseQuestions[this.currentQuestionIndex];
+        }
+
+        // Calculate subsystem question position
+        const subsystemTotalQuestions = this.subsystemQuestions.length * this.totalSubsystems;
+        const afterBaseQuestionsIndex = this.currentQuestionIndex - this.baseQuestions.length;
+
+        // Handle subsystem questions
+        if (afterBaseQuestionsIndex < subsystemTotalQuestions) {
+          const subsystemQuestionIndex = Math.floor(afterBaseQuestionsIndex / this.subsystemQuestions.length);
+          const questionInSubsystem = afterBaseQuestionsIndex % this.subsystemQuestions.length;
+
+          const question = { ...this.subsystemQuestions[questionInSubsystem] };
+          const subsystemNumber = subsystemQuestionIndex + 1;
+
+          question.text = question.text.replace('{n}', subsystemNumber);
+          question.formField = question.formField.replace('{n}', subsystemNumber);
+
+          return question;
+        }
+
+        // Handle final questions
+        const finalQuestionIndex = afterBaseQuestionsIndex - subsystemTotalQuestions;
+        if (finalQuestionIndex < this.finalQuestions.length) {
+          return this.finalQuestions[finalQuestionIndex];
+        }
+
+        return null; // All questions completed
+      },
+      isValidAnswer() {
+        if (!this.currentQuestion) return false;
+        if (this.currentQuestion.type === 'number') {
+          return this.userAnswer && !isNaN(this.userAnswer) && this.userAnswer > 0;
+        }
+        if (this.currentQuestion.type === 'select') {
+          if (this.isCustomizing) {
+            return this.customAnswer.trim() !== '';
+          }
+          return this.userAnswer && this.userAnswer.trim() !== '';
+        }
+        return this.userAnswer.trim() !== '';
+      },
+      isFormComplete() {
+        const totalQuestions = this.baseQuestions.length +
+          (this.totalSubsystems * this.subsystemQuestions.length) +
+          this.finalQuestions.length;
+        return this.currentQuestionIndex >= totalQuestions;
+      }
+    },
+    methods: {
+
+      syncFormDataWithAnswers() {
+        this.answeredQuestions.forEach(qa => {
+          if (qa.formField) {
+            this.formData[qa.formField] = qa.answer;
+          }
+        });
+      },
+      handleSelectChange() {
+        if (this.userAnswer === 'customize') {
+          this.isCustomizing = true;
+          if (!this.customAnswer) {
+            this.customAnswer = '';
+          }
+        } else {
+          this.isCustomizing = false;
+          this.customAnswer = '';
+        }
+      },
+      handleCustomInput() {
+        // Keep the select value as 'customize' while typing custom input
+        this.userAnswer = 'customize';
+        // Format the final answer when submitting
+        if (this.currentQuestion.formField === 'Interaction Mode') {
+          this.formData[this.currentQuestion.formField] = this.customAnswer;
+        }
+      },
+      submitAnswer() {
+        if (!this.isValidAnswer) return;
+
+        let answer = this.userAnswer;
+        if (this.currentQuestion.type === 'number') {
+          answer = parseInt(this.userAnswer);
+        } else if (this.currentQuestion.type === 'select' && this.isCustomizing) {
+          answer = this.customAnswer;
+        }
+
+
+
+        this.answeredQuestions.push({
+          question: this.currentQuestion.text,
+          answer: answer,
+          formField: this.currentQuestion.formField   // ← 加这一行
+        });
+
+        this.formData[this.currentQuestion.formField] = answer;
+
+        if (this.currentQuestion.formField === 'Number of Components') {
+          this.totalSubsystems = parseInt(this.userAnswer);
+
+          if (this.totalSubsystems === 1) {
+            this.formData['Name of Component 1'] = this.formData["Name of System"];
+            this.formData['Description of Component 1'] = this.formData["System Description"];
+            this.formData['Interaction Mode'] = 'skip';
+
+            this.currentQuestionIndex = this.baseQuestions.length +
+              (this.totalSubsystems * this.subsystemQuestions.length) +
+              this.finalQuestions.length;
+
+            this.isFormComplete = true;
+            this.saveFormState(); // Save state after completing
+            return;
+          }
+        }
+
+        this.userAnswer = '';
+        this.customAnswer = '';
+        this.isCustomizing = false;
+        this.currentQuestionIndex++;
+
+        const totalQuestions = this.baseQuestions.length +
+          (this.totalSubsystems * this.subsystemQuestions.length) +
+          this.finalQuestions.length;
+        this.isFormComplete = this.currentQuestionIndex >= totalQuestions;
+
+        // Save state after each answer
+        this.saveFormState();
+      },
+
+      confirmForm() {
+        // First organize the data into a structured format
+        const structuredData = {
+          modelName: this.formData["Name of System"],
+          modelDesc: this.formData["System Description"],
+          interactionMode: this.formData["Interaction Mode"],
+          subsystemCount: parseInt(this.formData["Number of Components"]),
+          subsystems: []
+        };
+
+        localStorage.setItem('modelName', structuredData.modelName);
+        localStorage.setItem('interactionMode', structuredData.interactionMode)
+
+        // Organize subsystem data
+        for (let i = 1; i <= this.totalSubsystems; i++) {
+          structuredData.subsystems.push({
+            name: this.formData[`Name of Component ${i}`],
+            description: this.formData[`Description of Component ${i}`]
+          });
+        }
+        const startTime = Date.now(); // Start timing
+        // Generate the prompt
+        const processesDescription = structuredData.subsystems
+          .map((s, index) => `process ${index + 1}: process name: ${s.name}, process description: ${s.description}`)
+          .join('\n');
+        const prompt = genConstPrompt(structuredData, processesDescription);
+        this.loading = true
+        // Send to backend
+        
+        fetch('/get_planning_model_answers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            question: prompt,
+            context: structuredData,
+            history: 'const'
+          })
+        })
+          .then(response => response.json())
+          .then(data => {
+            const endTime = Date.now(); // End timing
+            const runTimeInSeconds = (endTime - startTime) / 1000; // Calculate run time in seconds
+
+            // After success, send the runtime to the server
+            fetch('/save_run_time', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                modelName: localStorage.getItem('modelName'),
+                stage: 'const-var-time',
+                runTime: runTimeInSeconds
+              })
+            }).then(response => response.json())
+              .then(saveResult => {
+                console.log('Run time saved:', saveResult);
+              })
+              .catch(error => {
+                console.error('Error saving run time:', error);
+              });
+
+
+            this.loading = false;
+            // 清除保存的状态，因为已经成功提交
+            this.clearState();
+            // 存储响应并重定向
+            localStorage.setItem('systemContext', JSON.stringify(structuredData));
+            window.location.href = '/const-and-vars.html';
+          })
+          .catch(error => {
+            this.loading = false;
+            console.error('Error:', error);
+          });
+      },
+      startRewrite(index) {
+        this.$set(this.answeredQuestions[index], 'isRewriting', true);
+        this.$set(this.answeredQuestions[index], 'newAnswer', this.answeredQuestions[index].answer);
+
+        // Check if this is the interaction mode question
+        const questionText = this.answeredQuestions[index].question;
+        const isInteractionMode = questionText.includes("How do our components interact");
+        this.$set(this.answeredQuestions[index], 'isInteractionMode', isInteractionMode);
+
+        // If it's interaction mode, also set customizing state if needed
+        if (isInteractionMode) {
+          this.$set(this.answeredQuestions[index], 'isCustomizing', this.answeredQuestions[index].answer !== 'interleaving' &&
+            this.answeredQuestions[index].answer !== 'parallel' &&
+            this.answeredQuestions[index].answer !== 'choice' &&
+            this.answeredQuestions[index].answer !== 'none');
+          if (this.answeredQuestions[index].isCustomizing) {
+            this.$set(this.answeredQuestions[index], 'customAnswer', this.answeredQuestions[index].answer);
+            this.$set(this.answeredQuestions[index], 'selectorValue', 'customize');
+          } else {
+            this.$set(this.answeredQuestions[index], 'selectorValue', this.answeredQuestions[index].answer);
+            this.$set(this.answeredQuestions[index], 'customAnswer', '');
+          }
+        }
+      },
+
+      saveRewrite(index) {
+        const qa = this.answeredQuestions[index];
+
+        // For interaction mode, handle the selector value
+        if (qa.isInteractionMode) {
+          if (qa.isCustomizing) {
+            qa.answer = qa.customAnswer;
+          } else {
+            qa.answer = qa.selectorValue;
+          }
+        } else {
+          qa.answer = qa.newAnswer;
+        }
+
+        qa.isRewriting = false;
+
+        // Update form data - need to find the correct field name
+        const questionText = qa.question;
+        let formFieldName;
+
+        // For interaction mode question, always use the standard field name
+        if (qa.isInteractionMode) {
+          formFieldName = "Interaction Mode";
+        } else {
+          formFieldName = this.getQuestionField(questionText);
+        }
+
+        // Update the existing form field instead of adding a new one
+        if (formFieldName) {
+          this.formData[formFieldName] = qa.answer;
+          
+          // Special handling for single component mode
+          if (formFieldName === "System Description" && this.formData["Number of Components"] === 1) {
+            // If we're updating system description and there's only 1 component,
+            // also update the component description to keep them in sync
+            this.formData['Description of Component 1'] = qa.answer;
+          }
+        }
+
+        qa.isRewriting = false;
+
+        // Clean up temporary properties
+        this.$delete(qa, 'isInteractionMode');
+        this.$delete(qa, 'isCustomizing');
+        this.$delete(qa, 'customAnswer');
+        this.$delete(qa, 'selectorValue');
+      },
+
+      cancelRewrite(index) {
+        this.answeredQuestions[index].isRewriting = false;
+        // Clean up any temporary properties we added
+        this.$delete(this.answeredQuestions[index], 'isInteractionMode');
+        this.$delete(this.answeredQuestions[index], 'isCustomizing');
+        this.$delete(this.answeredQuestions[index], 'customAnswer');
+        this.$delete(this.answeredQuestions[index], 'selectorValue');
+      },
+
+      getQuestionField(question) {
+        // Find the corresponding form field for the question
+        const allQuestions = [...this.baseQuestions, ...this.generateSubsystemQuestions()];
+        const questionObj = allQuestions.find(q => q.text === question);
+        return questionObj ? questionObj.formField : '';
+      },
+
+      generateSubsystemQuestions() {
+        let questions = [];
+        for (let i = 1; i <= this.totalSubsystems; i++) {
+          this.subsystemQuestions.forEach(q => {
+            questions.push({
+              text: q.text.replace('{n}', i),
+              formField: q.formField.replace('{n}', i)
+            });
+          });
+        }
+        return questions;
+      },
+
+      incrementNumber() {
+        if (!this.userAnswer) {
+          this.userAnswer = 1;
+        } else {
+          this.userAnswer = parseInt(this.userAnswer) + 1;
+        }
+      },
+
+      decrementNumber() {
+        if (this.userAnswer > 1) {
+          this.userAnswer = parseInt(this.userAnswer) - 1;
+        }
+      },
+
+      // 保存当前状态到 localStorage
+      saveState() {
+        const state = {
+          currentQuestionIndex: this.currentQuestionIndex,
+          totalSubsystems: this.totalSubsystems,
+          userAnswer: this.userAnswer,
+          answeredQuestions: this.answeredQuestions,
+          formData: this.formData,
+          isFormComplete: this.isFormComplete
+        };
+        localStorage.setItem('patAgentState', JSON.stringify(state));
+      },
+
+      // 从 localStorage 恢复状态
+      restoreState() {
+        const savedState = localStorage.getItem('patAgentState');
+        if (savedState) {
+          const state = JSON.parse(savedState);
+          this.currentQuestionIndex = state.currentQuestionIndex;
+          this.totalSubsystems = state.totalSubsystems;
+          this.userAnswer = state.userAnswer;
+          this.answeredQuestions = state.answeredQuestions;
+          this.formData = state.formData;
+          this.isFormComplete = state.isFormComplete;
+        }
+      },
+
+      // 清除保存的状态
+      clearState() {
+        localStorage.removeItem('patAgentState');
+      },
+
+      resetForm() {
+        this.$confirmDialog({
+          title: 'Reset Form',
+          message: 'Are you sure you want to reset the form? All progress will be lost.',
+          confirmText: 'Reset',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            this.clearState();
+            this.currentQuestionIndex = 0;
+            this.totalSubsystems = 0;
+            this.userAnswer = '';
+            this.answeredQuestions = [];
+            this.formData = {};
+            this.isFormComplete = false;
+          }
+        });
+      },
+      // Add new methods for form state management
+      saveFormState() {
+        const formState = {
+          currentQuestionIndex: this.currentQuestionIndex,
+          totalSubsystems: this.totalSubsystems,
+          userAnswer: this.userAnswer,
+          answeredQuestions: this.answeredQuestions,
+          formData: this.formData,
+          isFormComplete: this.isFormComplete
+        };
+        localStorage.setItem('formState', JSON.stringify(formState));
+      },
+      restoreFormState() {
+        const savedState = localStorage.getItem('formState');
+        if (savedState) {
+          const formState = JSON.parse(savedState);
+          this.currentQuestionIndex = formState.currentQuestionIndex;
+          this.totalSubsystems = formState.totalSubsystems;
+          this.userAnswer = formState.userAnswer;
+          this.answeredQuestions = formState.answeredQuestions;
+          this.formData = formState.formData;
+          this.isFormComplete = formState.isFormComplete;
+        }
+      },
+      clearFormState() {
+        this.currentQuestionIndex = 0;
+        this.totalSubsystems = 0;
+        this.userAnswer = '';
+        this.answeredQuestions = [];
+        this.formData = {};
+        this.isFormComplete = false;
+      },
+      // Add a method to handle selector change in rewrite mode
+      handleRewriteSelectorChange(index) {
+        const qa = this.answeredQuestions[index];
+        if (qa.selectorValue === 'customize') {
+          qa.isCustomizing = true;
+          if (!qa.customAnswer) {
+            qa.customAnswer = '';
+          }
+        } else {
+          qa.isCustomizing = false;
+          qa.customAnswer = '';
+        }
+      }
+    },
+    watch: {
+      // 监听关键数据变化，自动保存状态
+      currentQuestionIndex() {
+        this.saveState();
+      },
+
+      answeredQuestions: {
+        handler() {
+          // 先把最新的 answeredQuestions 同步到 formData
+          this.syncFormDataWithAnswers()
+          // 再保存状态
+          this.saveState()
+        },
+        deep: true,
+        immediate: true  // （可选）页面加载后也马上同步一次
+      },
+      formData: {
+        handler() {
+          this.saveState();
+        },
+        deep: true
+      },
+      userAnswer() {
+        this.saveState();
+      }
+    }
+  })
+</script>
+<style>
+  /* 卡片样式 */
+  .card {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 表格样式 */
+  table {
+    background: #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  th,
+  td {
+    border-color: #444;
+    padding: 12px 15px;
+  }
+
+  th {
+    background: #222;
+    color: #2962ff;
+  }
+
+  tr:hover {
+    background: #333;
+  }
+
+  /* 链接样式 */
+  a {
+    color: #2962ff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  a:hover {
+    color: #1e4bd8;
+    text-decoration: underline;
+  }
+
+  /* 标签和徽章样式 */
+  .badge,
+  .tag {
+    background: rgba(41, 98, 255, 0.2);
+    color: #2962ff;
+    border-radius: 8px;
+    padding: 4px 8px;
+  }
+
+  /* 分割线样式 */
+  hr {
+    border-color: #444;
+    margin: 20px 0;
+  }
+
+  /* 代码块样式 */
+  pre,
+  code {
+    background: #1e1e1e;
+    border-radius: 8px;
+    color: #fff;
+    padding: 15px;
+    font-family: monospace;
+  }
+
+  /* 警告和错误消息样式 */
+  .alert,
+  .error {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+  }
+
+  .success {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+  }
+
+  /* 加载动画样式 */
+  .loading {
+    color: #2962ff;
+  }
+
+  /* 滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
+  #app {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: calc(100vh);
+    overflow: hidden;
+    background: #171717;
+  }
+
+
+  .question {
+    width: 80%;
+    background-color: #2f2f2f;
+    margin-left: 18%;
+    border-radius: 15px;
+    color: #ccc;
+    padding: 15px;
+    font-size: 15px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .tooltip-icon {
+    margin-left: 8px;
+    color: #928f8f;
+    cursor: help;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .tooltip-icon:hover {
+    color: #2962ff;
+  }
+
+  /* Element UI tooltip override if needed */
+  .el-tooltip__popper {
+    max-width: 300px;
+    line-height: 1.5;
+  }
+
+  .timestamp {
+    color: #928f8f;
+    text-align: center;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .GPT {
+    width: 50%;
+    color: #ccc;
+    padding: 10px;
+    border-right: 1px solid #5b5858;
+  }
+
+  .Z3code {
+    color: #ccc;
+    flex: 1;
+    padding: 10px;
+    overflow: auto;
+  }
+
+  .response {
+    padding: 0px 10px;
+    display: flex;
+    margin-top: 20px;
+    justify-content: space-between;
+    background: #1f1f1f;
+    border-radius: 20px;
+  }
+
+  .chat-container {
+    height: calc(100vh - 80px);
+    width: 98%;
+    padding: 20px;
+    border-radius: 20px;
+    background: #212121;
+  }
+
+  .chat-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    position: relative;
+  }
+
+  .chat-history {
+    height: calc(100vh - 280px);
+    overflow: auto;
+    flex: 1;
+  }
+
+  .responses {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .left {
+    width: 45%;
+    height: calc(100vh - 180px);
+    overflow: auto;
+
+  }
+
+  .right-container {
+    flex: 1;
+    max-width: 55%;
+    height: calc(100vh - 190px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ours {
+    height: 150px;
+  }
+
+  .z3-code {
+
+    height: calc(100vh - 300px);
+    overflow: auto;
+  }
+
+  .el-timeline-item {
+    border-bottom: 1px solid #373535;
+    padding-bottom: 5px;
+    position: relative;
+    color: #d9d7d7;
+    list-style-type: none;
+  }
+
+  .el-timeline-item__content {
+    color: #303133;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #5b5858;
+    height: 150px;
+  }
+
+  .content {
+    color: #d9d7d7;
+    font-size: 16px;
+  }
+
+  pre>code {
+    color: #00ddff;
+
+  }
+
+  input[type="text"] {
+    background: #2f2f2f;
+    border: none;
+    border-radius: 20px;
+    padding: 0 20px;
+  }
+
+  .el-timeline-item__node--normal {
+    display: none;
+    /* 隐藏圆点 */
+  }
+
+  .delete {
+    position: absolute;
+    color: #ccc;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 40px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 20px;
+    line-height: 40px;
+    border: 1px solid #ccc;
+  }
+
+  .split-layout {
+    display: flex;
+    gap: 20px;
+    height: calc(100vh - 80px);
+  }
+
+  .chat-section {
+    flex: 1;
+    background: #212121;
+    border-radius: 20px;
+    overflow: auto;
+  }
+
+  .form-section {
+    flex: 1;
+    background: #212121;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 400px;
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: 90%;
+    overflow: auto;
+    border-bottom: 1px solid #444;
+    padding: 20px;
+  }
+
+  .form-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  .form-item label {
+    width: 120px;
+    color: #928f8f;
+    font-size: 13px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: help;
+  }
+
+  .form-item label:hover::after {
+    content: attr(title);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    white-space: normal;
+    max-width: 200px;
+  }
+
+  .form-item input {
+    flex: 1;
+    height: 32px;
+    padding: 0 12px;
+    background: #2f2f2f;
+    border: none;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 13px;
+    margin: 0;
+  }
+
+  .qa-pair {
+    margin: 10px 0;
+    padding: 8px;
+    background: #2f2f2f;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .past-question {
+    color: #928f8f;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .past-answer {
+    color: #ccc;
+    font-size: 13px;
+    padding-left: 10px;
+  }
+
+  h3 {
+    color: #ccc;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .form-section button {
+    width: 200px;
+    margin: 20px auto;
+    display: block;
+  }
+
+  .chat-input input {
+    height: 40px;
+    font-size: 13px;
+    padding: 0 12px;
+    margin-bottom: 0px;
+  }
+
+  .message-content {
+    background: #2f2f2f;
+    border-radius: 8px;
+    padding: 12px;
+
+  }
+
+  .rewrite-section {
+    /* display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;*/
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .rewrite-btn {
+    background: transparent;
+    color: #928f8f;
+    padding: 4px 8px;
+    font-size: 12px;
+    height: 20px;
+  }
+
+  .rewrite-btn:hover {
+    background: #363636;
+    color: #ccc;
+  }
+
+  .rewrite-input {
+    margin-top: 8px;
+  }
+
+  .rewrite-input textarea {
+    width: 100%;
+    height: 60px;
+    background: #363636;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    color: #ccc;
+    font-size: 13px;
+    resize: vertical;
+    margin-bottom: 8px;
+  }
+
+  .rewrite-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .cancel-btn {
+    background: #363636;
+  }
+
+  .chat-input textarea {
+    flex: 1;
+    height: 40px;
+    background: #2f2f2f;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #ccc;
+    font-size: 13px;
+    resize: none;
+    margin: 0;
+  }
+
+  /* 全屏遮罩 */
+  .fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* 半透明黑色背景 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  /* "Saving..." 文字样式 */
+  .saving-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  /* Vue 过渡动画 */
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .number-input {
+    flex: 1;
+    height: 40px;
+    background: #2f2f2f;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #ccc;
+    font-size: 13px;
+    margin: 0;
+  }
+
+  /* 隐藏默认的上下箭头 */
+  .number-input::-webkit-inner-spin-button,
+  .number-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* 添加自定义的上下箭头容器 */
+  .chat-input {
+    position: relative;
+  }
+
+  /* 添加自定义箭头按钮 */
+  .number-input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+  }
+
+  .number-input {
+    padding-right: 30px;
+    /* 为箭头留出空间 */
+  }
+
+  .number-controls {
+    position: absolute;
+    right: 8px;
+    top: 5px;
+    bottom: 0;
+    width: 24px;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #444;
+    height: 30px;
+  }
+
+  .number-control-btn {
+    height: 50%;
+    background: transparent;
+    border: none;
+    color: #666;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .number-control-btn:hover {
+    color: #2962ff;
+    background: rgba(41, 98, 255, 0.1);
+  }
+
+  .number-control-btn:first-child {
+    border-bottom: 1px solid #444;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .reset-btn {
+    background: #363636;
+  }
+
+  .reset-btn:hover {
+    background: #dc3545;
+  }
+
+  .select-input {
+    flex: 1;
+    height: 40px;
+    background: #2f2f2f;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #ccc;
+    font-size: 13px;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .select-input option {
+    background: #2f2f2f;
+    color: #ccc;
+    padding: 8px;
+  }
+
+  .select-input:focus {
+    outline: none;
+    border: 1px solid #2962ff;
+  }
+</style>

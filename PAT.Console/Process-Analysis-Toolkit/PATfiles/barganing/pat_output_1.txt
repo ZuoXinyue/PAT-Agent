@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Bargaining() |= [] budget_nonnegative
+********Verification Result********
+The Assertion (Bargaining() |= [] budget_nonnegative) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:5
+Total Transitions:16
+Time Used:0.0079325s
+Estimated Memory Used:8522.544KB
+
+

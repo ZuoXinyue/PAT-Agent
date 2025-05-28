@@ -1,0 +1,18 @@
+=======================================================
+Assertion: shunting() |= []( trouble->!<> goal)
+********Verification Result********
+The Assertion (shunting() |= []( trouble->!<> goal)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:306702
+Total Transitions:878531
+Time Used:18.749432s
+Estimated Memory Used:26756.008KB
+
+

@@ -1,0 +1,19 @@
+=======================================================
+Assertion: Peterson() |= []<> cs.0
+********Verification Result********
+The Assertion (Peterson() |= []<> cs.0) is NOT valid.
+A counterexample is presented as follows.
+<init -> update.1.1 -> update.1.2 -> (idle.1 -> τ -> cs.1 -> reset -> update.1.1 -> update.1.2)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:58
+Total Transitions:87
+Time Used:0.0103367s
+Estimated Memory Used:41247.928KB
+
+

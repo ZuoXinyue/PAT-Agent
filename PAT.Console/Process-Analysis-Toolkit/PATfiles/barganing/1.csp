@@ -1,0 +1,51 @@
+// Process: Merchant Constants  
+#define AVAILABLE 1;
+#define UNAVAILABLE 0;
+#define NUM_ITEMS 3;
+#define MERCHANT_ITEM1_PRICE 10;
+#define MERCHANT_ITEM2_PRICE 15;
+#define MERCHANT_ITEM3_PRICE 20;
+
+// Process: Merchant Variables  
+var itemAvailability[NUM_ITEMS] = [AVAILABLE, AVAILABLE, AVAILABLE];
+var buyerBudget = 25;
+
+// Process: Buyer Constants  
+#define BUYER_ITEM1_PRICE 5;
+#define BUYER_ITEM2_PRICE 15;
+#define BUYER_ITEM3_PRICE 25;
+
+// Definition of the "Merchant" subsystem
+Merchant() = 
+    [itemAvailability[0] == AVAILABLE && buyerBudget >= BUYER_ITEM1_PRICE && BUYER_ITEM1_PRICE > MERCHANT_ITEM1_PRICE] 
+    buy_item1{itemAvailability[0] = UNAVAILABLE; buyerBudget = buyerBudget - BUYER_ITEM1_PRICE;} -> Merchant()
+    []
+    [itemAvailability[1] == AVAILABLE && buyerBudget >= BUYER_ITEM2_PRICE && BUYER_ITEM2_PRICE > MERCHANT_ITEM2_PRICE] 
+    buy_item2{itemAvailability[1] = UNAVAILABLE; buyerBudget = buyerBudget - BUYER_ITEM2_PRICE;} -> Merchant()
+    []
+    [itemAvailability[2] == AVAILABLE && buyerBudget >= BUYER_ITEM3_PRICE && BUYER_ITEM3_PRICE > MERCHANT_ITEM3_PRICE] 
+    buy_item3{itemAvailability[2] = UNAVAILABLE; buyerBudget = buyerBudget - BUYER_ITEM3_PRICE;} -> Merchant();
+
+// Definition of the "Buyer" subsystem
+Buyer() = 
+    [itemAvailability[0] == AVAILABLE && buyerBudget >= BUYER_ITEM1_PRICE] 
+    offer_item1 -> Buyer()
+    []
+    [itemAvailability[1] == AVAILABLE && buyerBudget >= BUYER_ITEM2_PRICE] 
+    offer_item2 -> Buyer()
+    []
+    [itemAvailability[2] == AVAILABLE && buyerBudget >= BUYER_ITEM3_PRICE] 
+    offer_item3 -> Buyer();
+
+// Define the bargaining system
+Bargaining() = Merchant() ||| Buyer();
+
+// Define states for assertions
+#define item1_unavailable (itemAvailability[0] == UNAVAILABLE);
+#define budget_nonnegative (buyerBudget >= 0);
+#define item1_valid_price (BUYER_ITEM1_PRICE >= MERCHANT_ITEM1_PRICE);
+#define all_items_unavailable (itemAvailability[0] == UNAVAILABLE && itemAvailability[1] == UNAVAILABLE && itemAvailability[2] == UNAVAILABLE);
+
+// Assertions
+
+#assert Bargaining() |= []budget_nonnegative;

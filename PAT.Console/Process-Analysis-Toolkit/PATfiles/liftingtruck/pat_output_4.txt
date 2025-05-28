@@ -1,0 +1,20 @@
+=======================================================
+Assertion: System() reaches Active2
+********Verification Result********
+The Assertion (System() reaches Active2) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> setref.3 -> _STARTUP -> req -> set_relay_close -> close_relay -> update_r_list -> rel -> req -> set_message -> stob_init -> set_relay_open -> [if!((msg_id == 1))] -> [if!((msg_id == 2))] -> [if!((((R.Contains(1) == true) && (R.Contains(3) == true)) || ((R.Contains(2) == true) && (R.Contains(3) == true))))] -> [if!(((R.Contains(1) == true) && (R.Contains(2) == true)))] -> [if!((R.Contains(2) == true))] -> [if((R.Contains(3) == true))] -> btos.1 -> τ -> set_pos.1 -> _STARTUP -> done_btos.1 -> open_relay -> update_r_list -> rel -> req -> set_relay_close -> close_relay -> update_r_list -> rel -> req -> set_message -> stob -> [if((msg_id == 1))] -> [if!((((R.Contains(1) == true) && (R.Contains(2) == true)) || ((R.Contains(1) == true) && (R.Contains(3) == true))))] -> [if!(((R.Contains(2) == true) && (R.Contains(3) == true)))] -> [if((R.Contains(1) == true))] -> btos.2 -> τ -> set_pos.2 -> _STARTUP -> done_btos.2 -> rel -> req -> set_relay_close -> close_relay -> update_r_list -> rel -> req -> set_message -> stob -> [if!((msg_id == 1))] -> [if((msg_id == 2))] -> [if((((R.Contains(1) == true) && (R.Contains(2) == true)) || ((R.Contains(2) == true) && (R.Contains(3) == true))))] -> btos.3 -> τ -> set_num.3 -> _STANDBY -> done_btos.3 -> btos.1 -> set_num.1 -> done_btos.1 -> rel -> req -> set_message -> stob -> [if!((msg_id == 1))] -> [if!((msg_id == 2))] -> [if!((((R.Contains(1) == true) && (R.Contains(3) == true)) || ((R.Contains(2) == true) && (R.Contains(3) == true))))] -> [if(((R.Contains(1) == true) && (R.Contains(2) == true)))] -> btos.2 -> _STANDBY -> done_btos.2 -> btos.1 -> _STANDBY -> done_btos.1 -> rel -> req -> startActive.2 -> down.2>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:307
+Total Transitions:356
+Time Used:0.0186725s
+Estimated Memory Used:8530.704KB
+
+

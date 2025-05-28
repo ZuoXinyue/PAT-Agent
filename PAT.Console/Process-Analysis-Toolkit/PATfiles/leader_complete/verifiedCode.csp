@@ -1,0 +1,63 @@
+#define DETECTORCORRECT_NOT_SET 0;
+#define DETECTORCORRECT_SET 1;
+#define FLAG_FALSE 0;
+#define FLAG_TRUE 1;
+#define NON_LEADER 0;
+#define LEADER 1;
+
+var detectorcorrect = DETECTORCORRECT_NOT_SET;
+var detector = FLAG_FALSE;
+var potentialLeaders[3] = [LEADER, NON_LEADER, NON_LEADER];
+
+DetectorCorrect() = 
+    [detectorcorrect == DETECTORCORRECT_NOT_SET] set_detectorcorrect{detectorcorrect = DETECTORCORRECT_SET;} -> DetectorCorrect();
+
+RandomDetector() = 
+    [detectorcorrect == DETECTORCORRECT_NOT_SET] set_detector_true{detector = FLAG_TRUE;} -> RandomDetector()
+    []
+    [detectorcorrect == DETECTORCORRECT_NOT_SET] set_detector_false{detector = FLAG_FALSE;} -> RandomDetector();
+
+Rules() = 
+    [potentialLeaders[0] == LEADER && potentialLeaders[1] == LEADER] demote_0_when_0_1_leader{potentialLeaders[0] = NON_LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == LEADER && potentialLeaders[1] == LEADER] demote_1_when_0_1_leader{potentialLeaders[1] = NON_LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == LEADER && potentialLeaders[2] == LEADER] demote_0_when_0_2_leader{potentialLeaders[0] = NON_LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == LEADER && potentialLeaders[2] == LEADER] demote_2_when_0_2_leader{potentialLeaders[2] = NON_LEADER;} -> Rules()
+    []
+    [potentialLeaders[1] == LEADER && potentialLeaders[2] == LEADER] demote_1_when_1_2_leader{potentialLeaders[1] = NON_LEADER;} -> Rules()
+    []
+    [potentialLeaders[1] == LEADER && potentialLeaders[2] == LEADER] demote_2_when_1_2_leader{potentialLeaders[2] = NON_LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && detectorcorrect == DETECTORCORRECT_NOT_SET && detector == FLAG_FALSE] promote_0_when_0_1_nonleader_branch1{potentialLeaders[0] = LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && detectorcorrect == DETECTORCORRECT_NOT_SET && detector == FLAG_FALSE] promote_1_when_0_1_nonleader_branch1{potentialLeaders[1] = LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == NON_LEADER && potentialLeaders[2] == NON_LEADER && detectorcorrect == DETECTORCORRECT_NOT_SET && detector == FLAG_FALSE] promote_0_when_0_2_nonleader_branch1{potentialLeaders[0] = LEADER;} -> Rules()
+    []
+    [potentialLeaders[0] == NON_LEADER && potentialLeaders[2] == NON_LEADER && detectorcorrect == DETECTORCORRECT_NOT_SET && detector == FLAG_FALSE] promote_2_when_0_2_nonleader_branch1{potentialLeaders[2] = LEADER;} -> Rules()
+    []
+    [potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER && detectorcorrect == DETECTORCORRECT_NOT_SET && detector == FLAG_FALSE] promote_1_when_1_2_nonleader_branch1{potentialLeaders[1] = LEADER;} -> Rules()
+    []
+    [potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER && detectorcorrect == DETECTORCORRECT_NOT_SET && detector == FLAG_FALSE] promote_2_when_1_2_nonleader_branch1{potentialLeaders[2] = LEADER;} -> Rules()
+    []
+    [detectorcorrect == DETECTORCORRECT_SET && potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER] promote_0_when_0_1_nonleader_branch2{potentialLeaders[0] = LEADER;} -> Rules()
+    []
+    [detectorcorrect == DETECTORCORRECT_SET && potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER] promote_1_when_0_1_nonleader_branch2{potentialLeaders[1] = LEADER;} -> Rules()
+    []
+    [detectorcorrect == DETECTORCORRECT_SET && potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER] promote_0_when_0_2_nonleader_branch2{potentialLeaders[0] = LEADER;} -> Rules()
+    []
+    [detectorcorrect == DETECTORCORRECT_SET && potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER] promote_2_when_0_2_nonleader_branch2{potentialLeaders[2] = LEADER;} -> Rules()
+    []
+    [detectorcorrect == DETECTORCORRECT_SET && potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER] promote_1_when_1_2_nonleader_branch2{potentialLeaders[1] = LEADER;} -> Rules()
+    []
+    [detectorcorrect == DETECTORCORRECT_SET && potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER] promote_2_when_1_2_nonleader_branch2{potentialLeaders[2] = LEADER;} -> Rules();
+
+leader_complete = DetectorCorrect() ||| RandomDetector() ||| Rules();
+
+#define oneLeader ((potentialLeaders[0] == LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == NON_LEADER) || 
+                  (potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == LEADER && potentialLeaders[2] == NON_LEADER) || 
+                  (potentialLeaders[0] == NON_LEADER && potentialLeaders[1] == NON_LEADER && potentialLeaders[2] == LEADER));
+
+#assert leader_complete |= <>[]oneLeader;

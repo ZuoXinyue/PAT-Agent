@@ -1,0 +1,18 @@
+=======================================================
+Assertion: car_system() reaches car_driving_without_owners
+********Verification Result********
+The Assertion (car_system() reaches car_driving_without_owners) is NOT valid.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:27
+Total Transitions:72
+Time Used:0.0063534s
+Estimated Memory Used:8521.76KB
+
+

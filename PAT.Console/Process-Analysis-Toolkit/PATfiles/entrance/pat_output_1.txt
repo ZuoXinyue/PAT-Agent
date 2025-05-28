@@ -1,0 +1,20 @@
+=======================================================
+Assertion: System() reaches error
+********Verification Result********
+The Assertion (System() reaches error) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> pw.1 -> check -> [if!((symbol == RESET))] -> input1 -> i2d.1 -> display -> pw.1 -> check -> [if!((symbol == RESET))] -> input2 -> i2d.1 -> display -> pw.1 -> check -> [if!((symbol == RESET))] -> input3 -> i2d.1 -> display -> pw.1 -> check -> [if!((symbol == RESET))] -> input4 -> i2d.1 -> display -> i2ctr.1 -> ctr2db.1 -> [if(((((pin[0] == 1) && (pin[1] == 1)) && (pin[2] == 1)) && (pin[3] == 1)))] -> checkOK -> db2ctr.1 -> [if((result == 1))] -> ctr2a.1 -> opendoor -> closedoor -> flag.1 -> [if!((dooropen == 1))] -> pw.1 -> check -> [if!((symbol == RESET))] -> input1 -> i2d.1 -> display -> pw.1 -> check -> [if!((symbol == RESET))] -> input2 -> i2d.1 -> display -> pw.1 -> check -> [if!((symbol == RESET))] -> input3 -> i2d.1 -> display -> pw.1 -> check -> [if!((symbol == RESET))] -> input4 -> i2d.1 -> i2ctr.1 -> ctr2db.1 -> [if(((((pin[0] == 1) && (pin[1] == 1)) && (pin[2] == 1)) && (pin[3] == 1)))] -> checkOK -> db2ctr.1 -> [if((result == 1))] -> ctr2a.1 -> flag.1 -> [if!((dooropen == 1))] -> opendoor -> display -> pw.2 -> check -> [if!((symbol == RESET))] -> input1 -> i2d.2 -> display -> pw.RESET -> check -> [if((symbol == RESET))] -> pw.2 -> check -> [if!((symbol == RESET))] -> input1 -> i2d.2 -> display -> pw.2 -> check -> [if!((symbol == RESET))] -> input2 -> i2d.2 -> display -> pw.2 -> check -> [if!((symbol == RESET))] -> input3 -> i2d.2 -> display -> pw.2 -> check -> [if!((symbol == RESET))] -> input4 -> i2d.2 -> display -> i2ctr.1 -> ctr2db.1 -> [if!(((((pin[0] == 1) && (pin[1] == 1)) && (pin[2] == 1)) && (pin[3] == 1)))] -> checkFail>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:279
+Total Transitions:444
+Time Used:0.0144585s
+Estimated Memory Used:8530.672KB
+
+

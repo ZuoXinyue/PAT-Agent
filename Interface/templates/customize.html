@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customize Algorithm/System</title>
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  
+  <style>
+    body {
+      background: #1a1a1a;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      padding: 20px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: linear-gradient(145deg, #222, #2a2a2a);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    h1,h3,h5 {
+      color: #2962ff;
+    }
+
+    h2 {
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .nobtn, .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-right: 15px;
+    }
+
+    .nobtn {
+      background: #dc3545;
+    }
+
+    .btn {
+      background: #2962ff;
+    }
+
+    .nobtn:hover {
+      background: #c82333;
+      transform: translateY(-1px);
+    }
+
+    .btn:hover {
+      background: #1e4bd8;
+      transform: translateY(-1px);
+    }
+
+    .input-group {
+      margin: 25px 0;
+    }
+
+    .input-group input {
+      padding: 15px 20px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 2px solid #444;
+      background: #2a2a2a;
+      color: #fff;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .input-group input:focus {
+      border-color: #2962ff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(41, 98, 255, 0.2);
+    }
+
+    .code-box {
+      width: 100%;
+      background: #1e1e1e;
+      color: #fff;
+      border: 2px solid #333;
+      border-radius: 12px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      min-height: 200px;
+      resize: vertical;
+      line-height: 1.5;
+      font-size:14px;
+    }
+
+    .copy-btn, .verify-btn {
+      position: absolute;
+      top: 0px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background: #2962ff;
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn {
+      right: 10px;
+    }
+
+    .verify-btn {
+      right: 150px;
+    }
+
+    .copy-btn:hover, .verify-btn:hover {
+      background: #1e4bd8;
+      transform: translateY(-1px);
+    }
+
+    /* 验证结果样式 */
+    .verification-results {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(41, 98, 255, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(41, 98, 255, 0.2);
+    }
+
+    .result-card {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .result-card pre {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    /* 加载动画 */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+
+    .loading::after {
+      content: "Loading...";
+      color: #2962ff;
+      font-size: 1.2em;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 0.6;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Add new loading animation styles */
+    .verifying-text {
+      display: inline-flex;
+      align-items: center;
+      color: #2962ff;
+      font-weight: 500;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      margin-left: 4px;
+    }
+
+    .loading-dots span {
+      width: 4px;
+      height: 4px;
+      margin: 0 2px;
+      background-color: #2962ff;
+      border-radius: 50%;
+      animation: loadingDots 1.4s infinite;
+      opacity: 0;
+    }
+
+    .loading-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes loadingDots {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+
+    /* Pulse animation for the verifying text */
+    .verifying-pulse {
+      animation: verifyingPulse 2s infinite;
+    }
+
+    @keyframes verifyingPulse {
+      0% {
+        opacity: 0.6;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.6;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <h3>Customize Algorithm/System</h3>
+    
+    <div v-if="loading" class="loading"></div>
+    
+    <div v-else>
+      <h5>{{ algorithm.name }}</h5>
+      <p style="color: #ccc; font-size: 16px; margin-bottom: 20px;">{{ algorithm.description }}</p>
+      
+      <div style="margin: 30px 0; text-align: center;">
+        <button class="nobtn" @click="goToNewSystem">
+          This is not what I wanted. I want to build my own system.
+        </button>
+        <button style="margin-top: 20px;" class="btn" @click="showVariableInput">
+          Yes, this is the algorithm/system I'm looking for. Show me the code.
+        </button>
+      </div>
+      
+      <div v-if="showVariable" class="input-group">
+        <label v-if="algorithm.variable">
+          <span style="color:#666">Enter a value for {{ algorithm.variable }} to customize the implementation.</span> 
+          <br>
+          <small style="color: #888;">If multiple variables are listed, provide a value for each, separated by a comma (,) or space:</small>
+        </label>
+        <input 
+          v-if="algorithm.variable" 
+          v-model="variableValue" 
+          type="text"
+          placeholder="Enter your values here..."
+        >
+        <button class="btn" @click="confirmVariable">Confirm</button>
+      </div>
+      
+      <div v-if="finalCode" style="position: relative; margin-top: 20px;">
+        <h3 style="color: #2962ff;">Customized Implementation</h3>
+        <textarea 
+          v-model="finalCode" 
+          class="code-box" 
+          v-autoresize
+          spellcheck="false"
+        ></textarea>
+        <button class="copy-btn" @click="copyCode">Copy Code</button>
+        <button class="verify-btn" @click="verifyCode">Verify Code</button>
+      </div>
+
+      <div v-if="verificationGroups.length > 0" class="verification-results">
+        <h3 style="color: #2962ff;">{{ verificationTitle }}</h3>
+        <div v-for="(group, index) in verificationGroups" :key="index" class="result-card">
+          <h4>Assertion {{ index + 1 }}</h4>
+          <div v-if="verifyingIndices.includes(index)">
+            <div class="verifying-text">
+              <span class="verifying-pulse">Verifying</span>
+              <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+          <div v-else>
+            <div>
+              <strong>Assertion:</strong>
+              <pre>{{ group.assertion }}</pre>
+            </div>
+            <div>
+              <strong>PAT Verification Output:</strong>
+              <pre>{{ group.patResult }}</pre>
+            </div>
+            <div>
+              <strong>Verification Result:</strong>
+              <span :style="{ color: group.actualResult.includes('Valid') ? '#28a745' : '#dc3545' }">
+                {{ group.actualResult }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    Vue.directive('autoresize', {
+        inserted(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        },
+        componentUpdated(el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
+        }
+    });
+
+    new Vue({
+      el: '#app',
+      data: {
+        algorithm: {},
+        loading: true,
+        verificationGroups: [],
+        verifyingIndices: [],
+        showVariable: false,
+        variableValue: "",
+        finalCode: "",
+        verificationTitle: "Verification Results of PAT"
+      },
+      mounted() {
+        this.fetchAlgorithmDetails();
+      },
+      methods: {
+        fetchAlgorithmDetails() {
+          const params = new URLSearchParams(window.location.search);
+          const algorithmId = params.get("algorithm");
+          if (!algorithmId) {
+            alert("No algorithm selected.");
+            window.location.href = "/index.html";
+            return;
+          }
+          fetch(`/get_classical_algorithm_details?algorithm=${encodeURIComponent(algorithmId)}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === "success") {
+              this.algorithm = data.data;
+            } else {
+              alert("Algorithm not found.");
+              window.location.href = "/index.html";
+            }
+            this.loading = false;
+          })
+          .catch(error => {
+            console.error("Error fetching algorithm details:", error);
+            this.loading = false;
+          });
+        },
+        goToNewSystem() {
+          window.location.href = "/index.html";
+        },
+        showVariableInput() {
+          if (this.algorithm.variable && this.algorithm.variable.trim() !== "") {
+            this.showVariable = true;
+          } else {
+            this.confirmVariable();
+          }
+        },
+        confirmVariable() {
+          // if users do not enter any value for the variable, we just return the default implementation
+          if (this.algorithm.variable && this.variableValue.trim() !== "") {
+            // Call the server to process the classical algorithm customization.
+            fetch('/process_algos', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: this.algorithm.id,
+                value: this.variableValue.trim()
+              })
+            })
+            .then(response => response.json())
+            .then(data => {
+              if(data.status === "success") {
+                this.finalCode = data.processed_code;
+              } else {
+                alert("Error processing customization: " + data.message);
+              }
+            })
+            .catch(error => {
+              console.error("Error processing customization:", error);
+              alert("Error processing customization: please check whether the entered variable value satisfies the requirement.");
+            });
+          } else {
+            // If no variable is needed, use the stored implementation directly.
+            this.finalCode = this.algorithm.implementation;
+          }
+        },
+        copyCode() {
+          const textarea = document.createElement("textarea");
+          textarea.value = this.finalCode;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+          alert("Code copied to clipboard!");
+        },
+        scrollToBottom() {
+          this.$nextTick(() => {
+            window.scrollTo({
+              top: document.documentElement.scrollHeight,
+              behavior: 'smooth'
+            });
+          });
+        },
+        verifyCode() {
+          // Clear previous results and initialize verifying status
+          this.verificationGroups = [];
+          this.verifyingIndices = [];
+          
+          // First, analyze the code to get the number of assertions
+          const assertionCount = (this.finalCode.match(/#assert/g) || []).length;
+          
+          // Initialize verification groups with placeholders
+          for (let i = 0; i < assertionCount; i++) {
+            this.verificationGroups.push({
+              assertion: '',
+              patResult: '',
+              actualResult: ''
+            });
+            this.verifyingIndices.push(i);
+          }
+
+          // Scroll to show the initial "Verifying..." messages
+          this.scrollToBottom();
+
+          // Create a new fetch request with streaming response
+          fetch('/verify_classical_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code: this.finalCode,
+              model_name: this.algorithm.id
+            })
+          })
+          .then(response => {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            const processStream = async () => {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const lines = decoder.decode(value).split('\n');
+                for (const line of lines) {
+                  if (!line.trim()) continue;
+                  
+                  try {
+                    const result = JSON.parse(line);
+                    
+                    if (result.error) {
+                      this.$confirmDialog({
+                        title: 'Error',
+                        message: result.error,
+                        confirmText: 'OK',
+                        cancelText: '',
+                        onConfirm: () => {},
+                        onCancel: () => {}
+                      });
+                      return;
+                    }
+                    
+                    if (result.status === 'timeout') {
+                      this.$confirmDialog({
+                        title: 'Timeout',
+                        message: 'Time out, please reduce the value of the variables.',
+                        confirmText: 'OK',
+                        cancelText: '',
+                        onConfirm: () => {},
+                        onCancel: () => {}
+                      });
+                      return;
+                    }
+                    
+                    // Update the verification group at the specific index
+                    if (result.index !== undefined) {
+                      this.verificationGroups[result.index] = {
+                        assertion: result.assertion,
+                        patResult: result.patResult,
+                        actualResult: result.actualResult
+                      };
+                      // Remove the index from verifyingIndices
+                      const idx = this.verifyingIndices.indexOf(result.index);
+                      if (idx > -1) {
+                        this.verifyingIndices.splice(idx, 1);
+                      }
+                      // Scroll to bottom after each new result
+                      this.scrollToBottom();
+                    }
+                  } catch (e) {
+                    console.error('Error parsing stream:', e);
+                  }
+                }
+              }
+            };
+            
+            return processStream();
+          })
+          .catch(error => {
+            console.error("Error verifying code:", error);
+            this.$confirmDialog({
+              title: 'Error',
+              message: 'An error occurred while verifying the code.',
+              confirmText: 'OK',
+              cancelText: '',
+              onConfirm: () => {},
+              onCancel: () => {}
+            });
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>

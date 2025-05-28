@@ -1,0 +1,117 @@
+#define GRID_DIMENSION 5;
+#define BOARD_SIZE 25;
+#define KNIGHT_LONG_MOVE 2;
+#define KNIGHT_SHORT_MOVE 1;
+#define KNIGHT_MOVE_COUNT 8;
+#define VISITED 1;
+#define UNVISITED 0;
+#define MAX_STEPS 24;
+
+var board[BOARD_SIZE] = [VISITED, UNVISITED, UNVISITED, UNVISITED, UNVISITED, 
+                         UNVISITED, UNVISITED, UNVISITED, UNVISITED, UNVISITED, 
+                         UNVISITED, UNVISITED, UNVISITED, UNVISITED, UNVISITED, 
+                         UNVISITED, UNVISITED, UNVISITED, UNVISITED, UNVISITED, 
+                         UNVISITED, UNVISITED, UNVISITED, UNVISITED, UNVISITED];
+var knightPosition[2] = [0, 0];
+var steps = 0;
+
+Knight() = 
+    [steps < MAX_STEPS && 
+     (knightPosition[0] + 2 >= 0 && knightPosition[0] + 2 < GRID_DIMENSION && 
+      knightPosition[1] + 1 >= 0 && knightPosition[1] + 1 < GRID_DIMENSION) && 
+     board[(knightPosition[0] + 2)*GRID_DIMENSION + (knightPosition[1] + 1)] == UNVISITED] 
+    move_2_1{
+        board[(knightPosition[0] + 2)*GRID_DIMENSION + (knightPosition[1] + 1)] = VISITED; 
+        knightPosition[0] = knightPosition[0] + 2; 
+        knightPosition[1] = knightPosition[1] + 1; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] + 2 >= 0 && knightPosition[0] + 2 < GRID_DIMENSION && 
+      knightPosition[1] - 1 >= 0 && knightPosition[1] - 1 < GRID_DIMENSION) && 
+     board[(knightPosition[0] + 2)*GRID_DIMENSION + (knightPosition[1] - 1)] == UNVISITED] 
+    move_2_neg1{
+        board[(knightPosition[0] + 2)*GRID_DIMENSION + (knightPosition[1] - 1)] = VISITED; 
+        knightPosition[0] = knightPosition[0] + 2; 
+        knightPosition[1] = knightPosition[1] - 1; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] - 2 >= 0 && knightPosition[0] - 2 < GRID_DIMENSION && 
+      knightPosition[1] + 1 >= 0 && knightPosition[1] + 1 < GRID_DIMENSION) && 
+     board[(knightPosition[0] - 2)*GRID_DIMENSION + (knightPosition[1] + 1)] == UNVISITED] 
+    move_neg2_1{
+        board[(knightPosition[0] - 2)*GRID_DIMENSION + (knightPosition[1] + 1)] = VISITED; 
+        knightPosition[0] = knightPosition[0] - 2; 
+        knightPosition[1] = knightPosition[1] + 1; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] - 2 >= 0 && knightPosition[0] - 2 < GRID_DIMENSION && 
+      knightPosition[1] - 1 >= 0 && knightPosition[1] - 1 < GRID_DIMENSION) && 
+     board[(knightPosition[0] - 2)*GRID_DIMENSION + (knightPosition[1] - 1)] == UNVISITED] 
+    move_neg2_neg1{
+        board[(knightPosition[0] - 2)*GRID_DIMENSION + (knightPosition[1] - 1)] = VISITED; 
+        knightPosition[0] = knightPosition[0] - 2; 
+        knightPosition[1] = knightPosition[1] - 1; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] + 1 >= 0 && knightPosition[0] + 1 < GRID_DIMENSION && 
+      knightPosition[1] + 2 >= 0 && knightPosition[1] + 2 < GRID_DIMENSION) && 
+     board[(knightPosition[0] + 1)*GRID_DIMENSION + (knightPosition[1] + 2)] == UNVISITED] 
+    move_1_2{
+        board[(knightPosition[0] + 1)*GRID_DIMENSION + (knightPosition[1] + 2)] = VISITED; 
+        knightPosition[0] = knightPosition[0] + 1; 
+        knightPosition[1] = knightPosition[1] + 2; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] + 1 >= 0 && knightPosition[0] + 1 < GRID_DIMENSION && 
+      knightPosition[1] - 2 >= 0 && knightPosition[1] - 2 < GRID_DIMENSION) && 
+     board[(knightPosition[0] + 1)*GRID_DIMENSION + (knightPosition[1] - 2)] == UNVISITED] 
+    move_1_neg2{
+        board[(knightPosition[0] + 1)*GRID_DIMENSION + (knightPosition[1] - 2)] = VISITED; 
+        knightPosition[0] = knightPosition[0] + 1; 
+        knightPosition[1] = knightPosition[1] - 2; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] - 1 >= 0 && knightPosition[0] - 1 < GRID_DIMENSION && 
+      knightPosition[1] + 2 >= 0 && knightPosition[1] + 2 < GRID_DIMENSION) && 
+     board[(knightPosition[0] - 1)*GRID_DIMENSION + (knightPosition[1] + 2)] == UNVISITED] 
+    move_neg1_2{
+        board[(knightPosition[0] - 1)*GRID_DIMENSION + (knightPosition[1] + 2)] = VISITED; 
+        knightPosition[0] = knightPosition[0] - 1; 
+        knightPosition[1] = knightPosition[1] + 2; 
+        steps = steps + 1;
+    } -> Knight()
+    []
+    [steps < MAX_STEPS && 
+     (knightPosition[0] - 1 >= 0 && knightPosition[0] - 1 < GRID_DIMENSION && 
+      knightPosition[1] - 2 >= 0 && knightPosition[1] - 2 < GRID_DIMENSION) && 
+     board[(knightPosition[0] - 1)*GRID_DIMENSION + (knightPosition[1] - 2)] == UNVISITED] 
+    move_neg1_neg2{
+        board[(knightPosition[0] - 1)*GRID_DIMENSION + (knightPosition[1] - 2)] = VISITED; 
+        knightPosition[0] = knightPosition[0] - 1; 
+        knightPosition[1] = knightPosition[1] - 2; 
+        steps = steps + 1;
+    } -> Knight();
+
+#define goal (board[0] == VISITED && board[1] == VISITED && board[2] == VISITED && board[3] == VISITED && board[4] == VISITED && 
+              board[5] == VISITED && board[6] == VISITED && board[7] == VISITED && board[8] == VISITED && board[9] == VISITED && 
+              board[10] == VISITED && board[11] == VISITED && board[12] == VISITED && board[13] == VISITED && board[14] == VISITED && 
+              board[15] == VISITED && board[16] == VISITED && board[17] == VISITED && board[18] == VISITED && board[19] == VISITED && 
+              board[20] == VISITED && board[21] == VISITED && board[22] == VISITED && board[23] == VISITED && board[24] == VISITED);
+
+#assert Knight() reaches goal;
+
+#define altergoal steps == 24;
+
+#assert Knight() reaches altergoal;

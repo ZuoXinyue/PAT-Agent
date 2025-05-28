@@ -1,0 +1,50 @@
+////number of processes
+#define N 3;
+//stack size
+#define SIZE 3;
+
+//shared head pointer for the concrete implementation
+var H = 0;
+//local variable to store the temporary head value
+var HL[N];
+
+//shared head pointer for the abstract implementation
+var HA = 0;
+//local variable to store the temporary head value
+var HLA[N];
+
+////////////////The Concrete Implementation Model//////////////////
+PushLoop(i) = headread.i{HL[i]=H;} -> (
+	ifa (HL[i] == H) {
+		push.i{if(H < SIZE) {H = H+1;} HL[i]=H;} -> tau -> push_res.i.HL[i] -> Skip
+	} else {
+		PushLoop(i)
+	});
+
+PopLoop(i) = headread.i{HL[i]=H;} -> 
+	(if(HL[i] == 0) {
+		pop_res.i.0 -> Skip 
+	} else {
+		(ifa(HL[i] != H) { PopLoop(i) } else { pop.i{H = H-1; HL[i]=H;} -> tau -> pop_res.i.(HL[i]+1) -> Skip
+		})
+	});
+
+Process(i) = (push_inv.i -> PushLoop(i)[] pop_inv.i -> PopLoop(i));Process(i);
+Stack() = (|||x:{0..N-1}@Process(x)) \ {headread.0, push.0, pop.0, headread.1, push.1, pop.1, headread.2, push.2, pop.2};
+
+////////////////The Abstract Specification Model//////////////////
+PushAbs(i) = push_inv.i -> push.i{if(HA < SIZE) {HA = HA+1;}; HLA[i]=HA;} -> push_res.i.HLA[i] -> Skip;
+
+PopAbs(i) = pop_inv.i ->
+	(ifa(HA == 0) {
+		tau-> pop_res.i.0 -> Skip 
+	} else {
+		 pop_empty.i{HA = HA -1; HLA[i]=HA;} -> pop_res.i.(HLA[i]+1) -> Skip
+	});
+
+ProcessAbs(i) = (PushAbs(i)[]PopAbs(i));ProcessAbs(i);
+StackAbs() = (|||x:{0..N-1}@ProcessAbs(x)) \ {push.0, pop.0, pop_empty.0, push.1, pop.1, pop_empty.1, push.2, pop.2, pop_empty.2};
+
+////////////////The Properties//////////////////
+
+#assert Stack() refines StackAbs();

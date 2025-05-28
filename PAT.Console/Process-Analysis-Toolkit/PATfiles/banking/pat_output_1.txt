@@ -1,0 +1,19 @@
+=======================================================
+Assertion: banking() |= []<>( accounts_closed)
+********Verification Result********
+The Assertion (banking() |= []<>( accounts_closed)) is NOT valid.
+A counterexample is presented as follows.
+<init -> bank_open -> account2_open -> account2_balance -> (account2_balance)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:6124
+Total Transitions:67282
+Time Used:0.4879284s
+Estimated Memory Used:76948.488KB
+
+

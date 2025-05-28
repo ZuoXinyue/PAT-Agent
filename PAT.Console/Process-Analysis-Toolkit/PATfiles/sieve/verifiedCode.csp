@@ -1,0 +1,27 @@
+#define N 9;
+#define SqrtOfN 3;
+#define ARRAY_SIZE 10;
+#define INIT_VALUE 2;
+#define MARKED 1;
+#define UNMARKED 0;
+
+var i = INIT_VALUE;
+var j = INIT_VALUE;
+var k = INIT_VALUE;
+var markArray[ARRAY_SIZE] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+P() = 
+    [i <= SqrtOfN] invoke_Q -> Q()
+    [] [i > SqrtOfN] Stop;
+
+Q() = 
+    [i <= SqrtOfN && markArray[i] == UNMARKED] set_j_and_k_proceed_to_Sieve{j = i; k = i+j;} -> Sieve()
+    [] [i <= SqrtOfN && markArray[i] == MARKED] increment_i_loop_back_to_P{i = i+1;} -> P();
+
+Sieve() = 
+    [k <= N] mark_and_advance_k{markArray[k] = MARKED; k = k+j;} -> Sieve()
+    [] [k > N] increment_i_and_return_to_P{i = i+1;} -> P();
+
+#define goal (i == SqrtOfN + 1 && markArray[4] == MARKED && markArray[6] == MARKED && markArray[8] == MARKED && markArray[9] == MARKED && markArray[2] == UNMARKED && markArray[3] == UNMARKED && markArray[5] == UNMARKED && markArray[7] == UNMARKED);
+
+#assert P() reaches goal;

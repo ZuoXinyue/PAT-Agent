@@ -1,0 +1,48 @@
+#define ANSWER_THRESHOLD 2;
+#define ROLE_PROCESSOR 0;
+#define ROLE_COORDINATOR 1;
+#define NODE1_ID 1;
+#define NODE2_ID 2;
+#define NODE3_ID 3;
+#define COORDINATOR_UNKNOWN -1;
+
+var coordinatorArray[3] = [COORDINATOR_UNKNOWN, COORDINATOR_UNKNOWN, COORDINATOR_UNKNOWN];
+var nodeRole = ROLE_COORDINATOR; // Initialize with a coordinator
+
+Node1() = 
+  [nodeRole == ROLE_PROCESSOR && (coordinatorArray[0] == NODE1_ID || coordinatorArray[0] == NODE2_ID || coordinatorArray[0] == NODE3_ID)] 
+    node1_send_test -> Node1()
+  [] [nodeRole == ROLE_PROCESSOR && coordinatorArray[0] == COORDINATOR_UNKNOWN] 
+    node1_send_election -> Node1()
+  [] [nodeRole == ROLE_PROCESSOR && coordinatorArray[0] == COORDINATOR_UNKNOWN] 
+    node1_update_coordinator{coordinatorArray[0] = NODE3_ID;} -> Node1()
+  [] [nodeRole == ROLE_COORDINATOR] 
+    node1_send_status -> Node1();
+
+Node2() = 
+  [nodeRole == ROLE_PROCESSOR && (coordinatorArray[1] == NODE1_ID || coordinatorArray[1] == NODE2_ID || coordinatorArray[1] == NODE3_ID)] 
+    node2_send_test -> Node2()
+  [] [nodeRole == ROLE_PROCESSOR && coordinatorArray[1] == COORDINATOR_UNKNOWN] 
+    node2_send_election -> Node2()
+  [] [nodeRole == ROLE_PROCESSOR && coordinatorArray[1] == COORDINATOR_UNKNOWN] 
+    node2_update_coordinator{coordinatorArray[1] = NODE3_ID;} -> Node2()
+  [] [nodeRole == ROLE_COORDINATOR] 
+    node2_send_status -> Node2();
+
+Node3() = 
+  [nodeRole == ROLE_PROCESSOR && (coordinatorArray[2] == NODE1_ID || coordinatorArray[2] == NODE2_ID || coordinatorArray[2] == NODE3_ID)] 
+    node3_send_test -> Node3()
+  [] [nodeRole == ROLE_PROCESSOR && coordinatorArray[2] == COORDINATOR_UNKNOWN] 
+    node3_become_coordinator{nodeRole = ROLE_COORDINATOR; coordinatorArray[2] = NODE3_ID;} -> Node3()
+  [] [nodeRole == ROLE_COORDINATOR && coordinatorArray[2] == NODE3_ID] 
+    node3_broadcast_coordinator -> Node3()
+  [] [nodeRole == ROLE_COORDINATOR && coordinatorArray[2] == NODE3_ID] 
+    node3_send_status -> Node3();
+
+Bully() = Node1() ||| Node2() ||| Node3();
+
+#define one_coordinator (nodeRole == ROLE_COORDINATOR);
+#define node1_is_coordinator (nodeRole == ROLE_COORDINATOR && coordinatorArray[0] == NODE1_ID);
+#define node1_leads_node2 (coordinatorArray[1] == NODE1_ID);
+#define node1_leads_node3 (coordinatorArray[2] == NODE1_ID);
+#assert Bully() |= []<> node1_is_coordinator;

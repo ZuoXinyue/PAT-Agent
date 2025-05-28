@@ -1,0 +1,18 @@
+=======================================================
+Assertion: railwaysys2() |= []( switch_to_trackB-> all_red)
+********Verification Result********
+The Assertion (railwaysys2() |= []( switch_to_trackB-> all_red)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:3
+Total Transitions:4
+Time Used:0.0079569s
+Estimated Memory Used:8512.968KB
+
+

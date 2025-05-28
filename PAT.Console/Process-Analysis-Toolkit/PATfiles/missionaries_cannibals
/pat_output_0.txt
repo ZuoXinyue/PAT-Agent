@@ -1,0 +1,20 @@
+=======================================================
+Assertion: Cross() reaches goal
+********Verification Result********
+The Assertion (Cross() reaches goal) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> cross_two_cannibals -> return_one_cannibal -> cross_two_cannibals -> return_one_cannibal -> cross_two_missionaries -> return_one_missionary_one_cannibal -> cross_two_missionaries -> return_one_cannibal -> cross_two_cannibals -> return_one_missionary -> cross_one_missionary_one_cannibal>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:15
+Total Transitions:30
+Time Used:0.0057735s
+Estimated Memory Used:8536.672KB
+
+

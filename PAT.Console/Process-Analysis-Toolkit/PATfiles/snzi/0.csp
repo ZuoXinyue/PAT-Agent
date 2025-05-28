@@ -1,0 +1,184 @@
+//This model is for SNZI:Scalable NonZero Indicators
+
+//number of processes
+#define P 2;
+
+// number of nodes
+#define N 3;
+
+
+//------------------------------shared variable------------------------------
+
+//Since SNZI algorithm is organized as a rooted tree of SNZI objects, we create a N array of Node objects.
+//The root is the first element of the array,  and for 0 < i < N, the parent of the ith node is the (i-1)/2th node.
+
+//array of shared variables of nodes (including hierarchical and root nodes),
+//each nodes has its own local copy. so there are N copies 
+var c[N];  //the original X.c
+var v[N];  //the original X.v
+
+var a = 0;    //the origina X.a for the root, i.e. the first element of the array
+
+//presence indicator
+var I = 0;
+
+
+//------------------------------local variable------------------------------
+
+//array of local variables which are used in the corresponding operations of nodes when a process arrives at or departs from nodes,
+// i.e. representing x in the original algorithm
+//as there may be N processes visiting one node concurrently, there could be N * P local variables
+//this is a variant of 2-dimention array. for node i, the local variable of process j
+//can be calculated by (i * P + j)
+var cc[N * P];
+var vv[N * P];
+
+//aa is the local variable of root node, so there will at most P copies because only at most
+//P processes can visit root node at the same time.
+var aa[P];
+
+//another local variables of root node, representing x' in the original algorithm
+//As above, only at most P processes can visit the root node concurrently,
+//so each array contains P elements.
+var rc[P];
+var ra[P];
+var rv[P];
+
+//other local variables of hierarchical SNZI node
+//for each such node, P processes can visit it simultoneously,
+//so the total number of each local varaible should be N * P
+var s[N * P];    //the original succ in the Arrive operation 
+var u[N * P];    //the original undoArr in the Arrive operation
+
+//for LL-SC primitive
+var count;
+var counts[P];
+
+
+//------------------------------The Concrete Implementation Model------------------------------
+
+//Single Entry of Arrival and Departure operations on any nodes 
+AI(p, n) = ai.p-> AG(p,n); ar.p -> Skip;
+
+DI(p, n) = di.p -> DG(p,n); dr.p -> Skip;
+
+AG(p, n) = ifa (n == 0) {ArriveR(p)} else { Arrive(p, n)};
+
+DG(p,n) = ifa (n == 0) {DepartR(p)} else {Depart(p,n)};
+
+//------------------------------start - this part is for root node------------------------------
+//Arrival on root node
+ArriveR(p) = 	
+    tau {cc[p] = c[0]; aa[p] = a; vv[p] = v[0];} ->// x <- Read(X)
+    if (cc[p] == 0) { // if x.c = 0    
+        tau {rc[p] = 1; ra[p] = 1; rv[p] = vv[p] + 1;} -> 
+            Until(p); Skip //  x'<- (1, true, x.v + 1)
+    } else {
+         tau {rc[p] = cc[p] + 1; ra[p] = aa[p]; rv[p] = vv[p];} ->
+            Until(p); Skip // x'<-(x.c+1, x.a, x.v)							
+    };
+
+Until(p) =  
+    ifa (cc[p] == c[0] && aa[p] == a && vv[p] == v[0])  //  until CAS(X, x, x')
+    { tau {c[0] = rc[p]; a = ra[p]; v[0] = rv[p];} -> 
+       if (ra[p] == 1) // if x'.a then
+        { tau {I = 1; count = count + 1;} -> 
+          ifa (c[0] == rc[p] && a == ra[p] && v[0] == rv[p])  //CAS(X,x',(x'.c, false, x'.v))
+            { tau {c[0] = rc[p]; a = 0; v[0] = rv[p];} -> Skip
+            } //else {tau  -> Skip}
+        }
+    } else { tau  -> ArriveR(p)};
+
+
+//Departure from root node
+DepartR(p) =  
+    tau {cc[p] = c[0]; aa[p] = a; vv[p] = v[0];} ->
+    ifa (cc[p] == c[0] && aa[p] == a && vv[p] == v[0]) //if CAS(X, x, (x.c - 1, false, x.v))
+    { tau {c[0] = cc[p] - 1; a = 0; v[0] = vv[p];} -> 
+      if (cc[p] > 1) { Skip}  
+      else { DepartRL(p)}
+    } else { tau  -> DepartR(p)};
+
+//Departure RL from root node
+DepartRL(p) = tau { counts[p] = count;} -> // LL(I)
+             if (vv[p] != v[0]) {  Skip}
+             else
+             { ifa (counts[p] != count) { tau  -> DepartRL(p)}
+              else { tau {I = 0; count = count + 1;} -> Skip}
+             };
+
+//------------------------------end - this part is for root node------------------------------
+
+
+
+//------------------------------start - hierarchical SNZI node------------------------------
+//Arrival of hierarchical SNZI node
+Arrive(p, n) = tau {s[n * P + p] = 0;} -> tau {u[n * P + p] = 0;} -> ArriveL1(p, n); ArriveL2(p, n); //Skip;
+
+ArriveL1(p, n) =
+    if (s[n * P + p] == 0)
+    {  tau {cc[n * P + p] = c[n]; vv[n * P + p] = v[n];} -> 
+       if (cc[n * P + p] > 1)  //if x.c >= 1 then
+       { 
+         ifa (cc[n * P + p] == c[n] && vv[n * P + p] == v[n])
+         { tau {c[n] = cc[n * P + p] + 2; v[n] = vv[n * P + p];} -> 
+           tau {s[n * P + p] = 1;} -> Case2(p, n)
+         } else { tau  -> Case2(p, n)}
+       } else { Case2(p, n)}
+    };
+
+Case2(p, n) = if (cc[n * P + p] == 0) // if x.c = 0 then
+    { 
+        ifa (cc[n * P + p] == c[n] && vv[n * P + p] == v[n])
+        { tau {c[n] = 1; v[n] = vv[n * P + p] + 1;} -> tau {s[n * P + p] = 1;} ->
+           tau {cc[n * P + p] = 1; vv[n * P + p] = vv[n * P + p] + 1;} -> Case3(p, n)
+        } else { tau  -> Case3(p, n)}
+    } else { Case3(p, n)};
+
+//if x.c = 1/2 then
+Case3(p, n) = if (cc[n * P + p] == 1)
+    {  AG(p, (n - 1)/2);
+       ifa (cc[n * P + p] == c[n] && vv[n * P + p] == v[n])
+       { tau {c[n] = 2; v[n] = vv[n * P + p];} -> ArriveL1(p, n)
+       } else { tau  -> tau {u[n * P + p] = u[n * P + p] + 1;} -> ArriveL1(p, n)}
+    } else { ArriveL1(p, n)};
+
+ArriveL2(p, n) = if (u[n * P + p] > 0) { DG(p, (n - 1)/2); tau {u[n * P + p] = u[n * P + p] - 1;} -> ArriveL2(p, n)}
+                 else { Skip};
+
+ //Departure of hierarchical SNZI node
+Depart(p, n) =
+    tau {cc[n * P + p] = c[n]; vv[n * P + p] = v[n];} -> 
+    ifa (cc[n * P + p] == c[n] && vv[n * P + p] == v[n])
+    { tau {c[n] = cc[n * P + p] - 2; v[n] = vv[n * P + p];} -> 
+      if (cc[n * P + p] == 2)
+      { DG(p, (n - 1)/2)}
+      //else { Skip}
+    } else { tau  -> Depart(p, n)};
+
+//------------------------------end - hierarchical SNZI node------------------------------
+
+Pro(i, j) = [j < 4]([] x:{0..N - 1}@(AI(i, x); DI(i, x)); Pro(i, j+1));
+
+Q() = q.I -> Q();
+
+SNZI() = (|||x:{0..P - 1}@Pro(x, 0)) ||| Q();
+
+
+//------------------------------Abstract Specification Model------------------------------
+
+//shared variable
+var sur = 0;
+var ind = 0;
+
+AA(i) = ai.i -> tau{sur = sur + 1; ind = 1;} -> ar.i -> Skip;
+
+DA(i) = di.i -> tau{sur = sur - 1; if (sur == 0) {ind = 0;}} -> dr.i -> Skip;
+
+PA(i, j) = [j < 4](AA(i); DA(i); PA(i, j+1));
+
+QA() = q.ind -> QA();
+
+SNZIAbs() = (|||x:{0..P-1}@PA(x, 0)) ||| QA();
+
+#assert SNZI() refines SNZIAbs();

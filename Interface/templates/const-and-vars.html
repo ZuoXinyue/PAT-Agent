@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-python.min.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/timeline.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <script src="/prompts.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>PAT Agent - System Verification</title>
+</head>
+
+<body>
+  <main id="app">
+    <timeline :current-step=2></timeline>
+    <!-- <el-header style="height: 50px;">PAT Agent - System Verification</el-header> -->
+
+    <div class="container">
+      <loading-overlay v-if="loading" text="Processing... The process may take around 2 minutes."></loading-overlay>
+      <div class="tables-section" v-if="processedTables.length">
+        <h3>System Constants and Variables</h3>
+        <div v-for="(process, index) in processedTables" :key="index" class="process-panel">
+          <div class="process-header" @click="toggleProcess(index)">
+            <i :class="['collapse-arrow', process.isCollapsed ? 'el-icon-arrow-right' : 'el-icon-arrow-down']"></i>
+            <h3>Process: {{ process.processName }}</h3>
+          </div>
+          <div class="process-content" v-show="!process.isCollapsed">
+            <!-- Constants Table -->
+            <div class="table-container">
+              <h5>Constants</h5>
+              <table class="editable-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                    <th>Operation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(constant, idx) in process.constants" :key="idx">
+                    <td style="width:250px"><input v-model="constant.name" type="text"></td>
+                    <td style="width:80px"><input v-model="constant.value" type="text"></td>
+                    <td><input v-model="constant.description" type="text"></td>
+                    <td style="width:80px;">
+                      <i class="el-icon-delete" style="cursor: pointer; color: rgb(229 41 43); font-size:20px;" @click="deleteConstant(process, idx)"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <button class="plain-btn" @click="addConstant(process)">+ Add Constant</button>
+            </div>
+            <hr/>
+            <!-- Variables Table -->
+            <div class="table-container">
+              <h5>Variables</h5>
+              <table class="editable-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th style="position: relative;">Possible Values
+                      <i class="el-icon-question" @mouseover="showTooltip = true" @mouseleave="showTooltip = false"
+                      style="cursor: pointer; color: #fff;"></i> <div v-if="showTooltip" class="tooltip" :class="{ show: showTooltip }">
+                        values should be separated by comma(,)
+                      </div>
+                    </th>
+                    <th>Initial Value</th>
+                    <th>Description</th>
+                    <th>Operation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(variable, idx) in process.variables" :key="idx">
+                    <td><input v-model="variable.name" type="text"></td>
+                    <td style="width:80px"><input v-model="variable.type" type="text"></td>
+                    <td><input v-model="variable.possibleValues" type="text"></td>
+                    <td><input v-model="variable.initialValue" type="text"></td>
+                    <td><input v-model="variable.description" type="text"></td>
+                    <td style="width:80px;">
+                      <i class="el-icon-delete" style="cursor: pointer; color: rgb(229 41 43); font-size:20px;" @click="deleteVariable(process, idx)"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <button class="plain-btn" @click="addVariable(process)">+ Add Variable</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="button-container">
+        <button style="margin-top:10px;" class="btn" @click="confirmSubmit()">
+          <i class="el-icon-check"></i> Confirm
+        </button>
+      </div>
+    </div>
+  </main>
+</body>
+
+<script>
+  window.vueApp = new Vue({
+    el: '#app',
+    data() {
+      return {
+        processedTables: [],
+        descriptions: [],
+        loading: false,
+        showTooltip: false
+      }
+    },
+    mounted() {
+      this.loadLatestHistory();
+    },
+    methods: {
+      async loadLatestHistory() {
+        try {
+          const response = await fetch('/get_const_history');
+          const history = await response.json();
+          if (history && history.length > 0) {
+            const latestEntry = history[history.length - 1];
+            this.processLLMResponse(latestEntry.answerGPT);
+            this.processContext(latestEntry.context);
+          }
+        } catch (error) {
+          console.error('Error loading history:', error);
+        }
+      },
+      processLLMResponse(response) {
+        try {
+          const data = JSON.parse(response);
+          // Add isCollapsed property to each process
+          data.processes.forEach(process => {
+            this.$set(process, 'isCollapsed', false);
+          });
+          this.processedTables = data.processes;
+        } catch (e) {
+          console.error('Failed to parse LLM response:', e);
+          this.processedTables = [];
+        }
+      },
+      processContext(context) {
+        try {
+          console.log("context",context)
+          const data = context;
+          console.log("data",data)
+          const {
+            modelName,
+            modelDesc,
+            subsystemCount,
+            subsystems,
+            interactionMode,
+            customAnswer = ""
+          } = data;
+
+          // 1) Base intro
+          let desc = `The user would like to build a system called ${modelName}, where ${modelDesc}. `;
+          desc += `There are ${subsystemCount} processes in the system, the descriptions of the processes are as follows: `;
+
+          // 2) List each subsystem
+          desc += subsystems
+            .map(s => `${s.name}: ${s.description}`)
+            .join('; ');
+
+          // // 3) Append interaction‐mode sentence (error on anything else)
+          // switch (interactionMode) {
+          //   case 'none':
+          //     desc += '. The way that the processes interact with each other is described in the process description.';
+          //     break;
+          //   case 'interleaving':
+          //     desc += '. Overall system combining all the subsystems interleavingly ("|||").';
+          //     break;
+          //   case 'parallel':
+          //     desc += '. Overall system combining all the subsystems with parallel composition ("||").';
+          //     break;
+          //   case 'choice':
+          //     desc += '. Overall system combining all the subsystems by choosing only one to execute ("[]").';
+          //     break;
+          //   case 'customize':
+          //     desc += `. The processes interact with each other through the following way: ${customAnswer}.`;
+          //     break;
+          //   default:
+          //     // anything outside the allowed set is considered invalid
+          //     throw new Error(`Invalid interaction mode: "${interactionMode}"`);
+          // }
+
+          this.descriptions = desc;
+        } catch (e) {
+          console.error('processContext error:', e);
+          this.descriptions = [];
+        }
+      },
+      async confirmSubmit() {
+        this.loading = true;
+        
+        try {
+          const startTime = Date.now(); // Start timing
+          // First save the modified constants
+          const saveResponse = await fetch('/save_modified_const', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              modified_data: this.processedTables
+            })
+          });
+
+          if (!saveResponse.ok) {
+            throw new Error('Failed to save modified constants');
+          }
+
+          // Generate the prompt for next step
+          const prompt = genActionsPrompt(this.descriptions, this.processedTables);
+
+          // Send to backend for next step
+          const response = await fetch('/get_planning_model_answers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              question: prompt,
+              context: this.processedTables,
+              history: 'action'
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to get planning model answers');
+          }
+
+          const data = await response.json();
+          this.loading = false;
+
+          const endTime = Date.now(); // End timing
+          const runTimeInSeconds = (endTime - startTime) / 1000; // Calculate run time in seconds
+
+            // After success, send the runtime to the server
+            fetch('/save_run_time', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                modelName: localStorage.getItem('modelName'),
+                stage: 'action-time',
+                runTime: runTimeInSeconds
+              })
+            }).then(response => response.json())
+              .then(saveResult => {
+                console.log('Run time saved:', saveResult);
+              })
+              .catch(error => {
+                console.error('Error saving run time:', error);
+              });
+          
+          // Store response and redirect
+          localStorage.setItem('systemContext', JSON.stringify(this.processedTables));
+          window.location.href = '/actions.html';
+          
+        } catch (error) {
+          this.loading = false;
+          console.error('Error:', error);
+          this.$message({
+            type: 'error',
+            message: 'Failed to save changes. Please try again.'
+          });
+        }
+      },
+      deleteConstant(process, index) {
+        this.$confirmDialog({
+          title: 'Delete Constant',
+          message: 'Are you sure you want to delete this constant?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            process.constants.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: 'Deleted successfully'
+            });
+          }
+        });
+      },
+      deleteVariable(process, index) {
+        this.$confirmDialog({
+          title: 'Delete Variable',
+          message: 'Are you sure you want to delete this variable?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            process.variables.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: 'Deleted successfully'
+            });
+          }
+        });
+      },
+      addConstant(process) {
+        process.constants.push({
+          name: '',
+          value: '',
+          description: ''
+        });
+      },
+      addVariable(process) {
+        process.variables.push({
+          name: '',
+          type: '',
+          possibleValues: '',
+          initialValue: '',
+          description: ''
+        });
+      },
+      toggleProcess(index) {
+        // Toggle the collapsed state for this process
+        if (!this.processedTables[index].hasOwnProperty('isCollapsed')) {
+          this.$set(this.processedTables[index], 'isCollapsed', false);
+        }
+        this.$set(this.processedTables[index], 'isCollapsed', !this.processedTables[index].isCollapsed);
+      },
+    }
+  });
+</script>
+
+<style>
+
+  .process-panel {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #333333;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+
+  .process-header {
+    padding: 15px;
+    background: #3e3e3e;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .process-header:hover {
+    background: #464646;
+  }
+
+  .process-header h3 {
+    margin: 0;
+    color: #e0e0e0;
+    font-size: 16px;
+  }
+
+  .process-content {
+    padding: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .collapse-arrow {
+    margin-right: 15px;
+    font-size: 18px;
+    color: #999;
+    transition: transform 0.3s ease;
+  }
+
+  .process-tables {
+    margin-bottom: 30px;
+  }
+
+  .process-tables h4 {
+    color: #928f8f;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  .tooltip{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+  }
+
+  .process-tables h5 {
+    color: #928f8f;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .table-container {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+
+  /* 全屏遮罩 */
+  .fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  /* "Saving..." 文字样式 */
+  .saving-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  /* Vue 过渡动画 */
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+  button:disabled {
+    background: #363636;
+    cursor: not-allowed;
+  }
+
+
+  .editable-table td {
+    padding: 8px;
+  }
+
+  .editable-table th {
+    padding: 12px 8px;
+    background: #1a1a1a;
+    color: #ccc;
+  }
+
+  .editable-table input {
+    width: 100%;
+    background: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    border-radius: 4px;
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  .editable-table input:focus {
+    border-color: #2962ff;
+    outline: none;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+</html> 

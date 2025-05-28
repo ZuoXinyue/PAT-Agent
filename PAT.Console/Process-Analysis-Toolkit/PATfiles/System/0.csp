@@ -1,0 +1,151 @@
+#define NUM_DISKS 2;
+#define NUM_PEGS 3;
+#define DISK_EMPTY 0;
+#define DISK_SMALL 1;
+#define DISK_LARGE 2;
+
+var peg1[NUM_DISKS] = [DISK_LARGE, DISK_SMALL];
+var peg2[NUM_DISKS] = [DISK_EMPTY, DISK_EMPTY];
+var peg3[NUM_DISKS] = [DISK_EMPTY, DISK_EMPTY];
+
+System() = move_small_disk_peg1_to_peg2 -> System()
+         [] move_large_disk_peg1_to_peg2 -> System()
+         [] move_small_disk_peg1_to_peg3 -> System()
+         [] move_large_disk_peg1_to_peg3 -> System()
+         [] move_small_disk_peg2_to_peg1 -> System()
+         [] move_large_disk_peg2_to_peg1 -> System()
+         [] move_small_disk_peg2_to_peg3 -> System()
+         [] move_large_disk_peg2_to_peg3 -> System()
+         [] move_small_disk_peg3_to_peg1 -> System()
+         [] move_large_disk_peg3_to_peg1 -> System()
+         [] move_small_disk_peg3_to_peg2 -> System()
+         [] move_large_disk_peg3_to_peg2 -> System();
+
+// Move small disk from peg1 to peg2
+move_small_disk_peg1_to_peg2 = 
+    [(peg1[0] == DISK_LARGE && peg1[1] == DISK_SMALL) && 
+     ((peg2[0] == DISK_EMPTY && peg2[1] == DISK_EMPTY) || 
+      (peg2[0] == DISK_LARGE && peg2[1] == DISK_EMPTY))] 
+    {peg1[1] = DISK_EMPTY; 
+     if (peg2[0] == DISK_EMPTY) {peg2[0] = DISK_SMALL;} 
+     else {peg2[1] = DISK_SMALL;}} -> Skip
+    [] [(peg1[0] == DISK_SMALL && peg1[1] == DISK_EMPTY) && 
+        ((peg2[0] == DISK_EMPTY && peg2[1] == DISK_EMPTY) || 
+         (peg2[0] == DISK_LARGE && peg2[1] == DISK_EMPTY))] 
+       {peg1[0] = DISK_EMPTY; 
+        if (peg2[0] == DISK_EMPTY) {peg2[0] = DISK_SMALL;} 
+        else {peg2[1] = DISK_SMALL;}} -> Skip;
+
+// Move large disk from peg1 to peg2
+move_large_disk_peg1_to_peg2 = 
+    [(peg1[0] == DISK_LARGE && peg1[1] == DISK_EMPTY) && 
+     (peg2[0] == DISK_EMPTY && peg2[1] == DISK_EMPTY)] 
+    {peg1[0] = DISK_EMPTY; peg2[0] = DISK_LARGE;} -> Skip;
+
+// Move small disk from peg1 to peg3
+move_small_disk_peg1_to_peg3 = 
+    [(peg1[0] == DISK_LARGE && peg1[1] == DISK_SMALL) && 
+     ((peg3[0] == DISK_EMPTY && peg3[1] == DISK_EMPTY) || 
+      (peg3[0] == DISK_LARGE && peg3[1] == DISK_EMPTY))] 
+    {peg1[1] = DISK_EMPTY; 
+     if (peg3[0] == DISK_EMPTY) {peg3[0] = DISK_SMALL;} 
+     else {peg3[1] = DISK_SMALL;}} -> Skip
+    [] [(peg1[0] == DISK_SMALL && peg1[1] == DISK_EMPTY) && 
+        ((peg3[0] == DISK_EMPTY && peg3[1] == DISK_EMPTY) || 
+         (peg3[0] == DISK_LARGE && peg3[1] == DISK_EMPTY))] 
+       {peg1[0] = DISK_EMPTY; 
+        if (peg3[0] == DISK_EMPTY) {peg3[0] = DISK_SMALL;} 
+        else {peg3[1] = DISK_SMALL;}} -> Skip;
+
+// Move large disk from peg1 to peg3
+move_large_disk_peg1_to_peg3 = 
+    [(peg1[0] == DISK_LARGE && peg1[1] == DISK_EMPTY) && 
+     (peg3[0] == DISK_EMPTY && peg3[1] == DISK_EMPTY)] 
+    {peg1[0] = DISK_EMPTY; peg3[0] = DISK_LARGE;} -> Skip;
+
+// Move small disk from peg2 to peg1
+move_small_disk_peg2_to_peg1 = 
+    [(peg2[0] == DISK_LARGE && peg2[1] == DISK_SMALL) && 
+     ((peg1[0] == DISK_EMPTY && peg1[1] == DISK_EMPTY) || 
+      (peg1[0] == DISK_LARGE && peg1[1] == DISK_EMPTY))] 
+    {peg2[1] = DISK_EMPTY; 
+     if (peg1[0] == DISK_EMPTY) {peg1[0] = DISK_SMALL;} 
+     else {peg1[1] = DISK_SMALL;}} -> Skip
+    [] [(peg2[0] == DISK_SMALL && peg2[1] == DISK_EMPTY) && 
+        ((peg1[0] == DISK_EMPTY && peg1[1] == DISK_EMPTY) || 
+         (peg1[0] == DISK_LARGE && peg1[1] == DISK_EMPTY))] 
+       {peg2[0] = DISK_EMPTY; 
+        if (peg1[0] == DISK_EMPTY) {peg1[0] = DISK_SMALL;} 
+        else {peg1[1] = DISK_SMALL;}} -> Skip;
+
+// Move large disk from peg2 to peg1
+move_large_disk_peg2_to_peg1 = 
+    [(peg2[0] == DISK_LARGE && peg2[1] == DISK_EMPTY) && 
+     (peg1[0] == DISK_EMPTY && peg1[1] == DISK_EMPTY)] 
+    {peg2[0] = DISK_EMPTY; peg1[0] = DISK_LARGE;} -> Skip;
+
+// Move small disk from peg2 to peg3
+move_small_disk_peg2_to_peg3 = 
+    [(peg2[0] == DISK_LARGE && peg2[1] == DISK_SMALL) && 
+     ((peg3[0] == DISK_EMPTY && peg3[1] == DISK_EMPTY) || 
+      (peg3[0] == DISK_LARGE && peg3[1] == DISK_EMPTY))] 
+    {peg2[1] = DISK_EMPTY; 
+     if (peg3[0] == DISK_EMPTY) {peg3[0] = DISK_SMALL;} 
+     else {peg3[1] = DISK_SMALL;}} -> Skip
+    [] [(peg2[0] == DISK_SMALL && peg2[1] == DISK_EMPTY) && 
+        ((peg3[0] == DISK_EMPTY && peg3[1] == DISK_EMPTY) || 
+         (peg3[0] == DISK_LARGE && peg3[1] == DISK_EMPTY))] 
+       {peg2[0] = DISK_EMPTY; 
+        if (peg3[0] == DISK_EMPTY) {peg3[0] = DISK_SMALL;} 
+        else {peg3[1] = DISK_SMALL;}} -> Skip;
+
+// Move large disk from peg2 to peg3
+move_large_disk_peg2_to_peg3 = 
+    [(peg2[0] == DISK_LARGE && peg2[1] == DISK_EMPTY) && 
+     (peg3[0] == DISK_EMPTY && peg3[1] == DISK_EMPTY)] 
+    {peg2[0] = DISK_EMPTY; peg3[0] = DISK_LARGE;} -> Skip;
+
+// Move small disk from peg3 to peg1
+move_small_disk_peg3_to_peg1 = 
+    [(peg3[0] == DISK_LARGE && peg3[1] == DISK_SMALL) && 
+     ((peg1[0] == DISK_EMPTY && peg1[1] == DISK_EMPTY) || 
+      (peg1[0] == DISK_LARGE && peg1[1] == DISK_EMPTY))] 
+    {peg3[1] = DISK_EMPTY; 
+     if (peg1[0] == DISK_EMPTY) {peg1[0] = DISK_SMALL;} 
+     else {peg1[1] = DISK_SMALL;}} -> Skip
+    [] [(peg3[0] == DISK_SMALL && peg3[1] == DISK_EMPTY) && 
+        ((peg1[0] == DISK_EMPTY && peg1[1] == DISK_EMPTY) || 
+         (peg1[0] == DISK_LARGE && peg1[1] == DISK_EMPTY))] 
+       {peg3[0] = DISK_EMPTY; 
+        if (peg1[0] == DISK_EMPTY) {peg1[0] = DISK_SMALL;} 
+        else {peg1[1] = DISK_SMALL;}} -> Skip;
+
+// Move large disk from peg3 to peg1
+move_large_disk_peg3_to_peg1 = 
+    [(peg3[0] == DISK_LARGE && peg3[1] == DISK_EMPTY) && 
+     (peg1[0] == DISK_EMPTY && peg1[1] == DISK_EMPTY)] 
+    {peg3[0] = DISK_EMPTY; peg1[0] = DISK_LARGE;} -> Skip;
+
+// Move small disk from peg3 to peg2
+move_small_disk_peg3_to_peg2 = 
+    [(peg3[0] == DISK_LARGE && peg3[1] == DISK_SMALL) && 
+     ((peg2[0] == DISK_EMPTY && peg2[1] == DISK_EMPTY) || 
+      (peg2[0] == DISK_LARGE && peg2[1] == DISK_EMPTY))] 
+    {peg3[1] = DISK_EMPTY; 
+     if (peg2[0] == DISK_EMPTY) {peg2[0] = DISK_SMALL;} 
+     else {peg2[1] = DISK_SMALL;}} -> Skip
+    [] [(peg3[0] == DISK_SMALL && peg3[1] == DISK_EMPTY) && 
+        ((peg2[0] == DISK_EMPTY && peg2[1] == DISK_EMPTY) || 
+         (peg2[0] == DISK_LARGE && peg2[1] == DISK_EMPTY))] 
+       {peg3[0] = DISK_EMPTY; 
+        if (peg2[0] == DISK_EMPTY) {peg2[0] = DISK_SMALL;} 
+        else {peg2[1] = DISK_SMALL;}} -> Skip;
+
+// Move large disk from peg3 to peg2
+move_large_disk_peg3_to_peg2 = 
+    [(peg3[0] == DISK_LARGE && peg3[1] == DISK_EMPTY) && 
+     (peg2[0] == DISK_EMPTY && peg2[1] == DISK_EMPTY)] 
+    {peg3[0] = DISK_EMPTY; peg2[0] = DISK_LARGE;} -> Skip;
+
+#define goal (peg3[0] == DISK_LARGE && peg3[1] == DISK_SMALL);
+#assert System() reaches goal;

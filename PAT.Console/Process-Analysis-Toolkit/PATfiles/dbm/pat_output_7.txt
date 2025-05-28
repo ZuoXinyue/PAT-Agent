@@ -1,0 +1,19 @@
+=======================================================
+Assertion: aDBMTest() |= []<> goal5
+********Verification Result********
+The Assertion (aDBMTest() |= []<> goal5) is NOT valid.
+A counterexample is presented as follows.
+<init -> newTimerID -> AddTimer.1 -> Delay -> τ -> check -> ConstraintSatisfied -> KeepTimers.1 -> ResetTimer -> newTimerID -> AddTimer.1 -> Delay -> τ -> check -> ConstraintSatisfied -> newTimerID -> AddTimer.1 -> Delay -> τ -> check -> ConstraintSatisfied -> KeepTimers.1 -> KeepTimers.1 -> ResetTimer -> newTimerID -> newTimerID -> AddTimer.1 -> Delay -> τ -> check -> ConstraintSatisfied -> KeepTimers.1 -> newTimerID -> AddTimer.2 -> Delay -> τ -> check -> ConstraintSatisfied -> KeepTimers.3 -> ResetTimer -> stop -> AddTimer.2 -> Delay -> τ -> check -> ConstraintSatisfied -> KeepTimers.3 -> ResetTimer -> stop -> (stop)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:867
+Total Transitions:1226
+Time Used:0.0506006s
+Estimated Memory Used:44182.52KB
+
+

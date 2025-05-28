@@ -1,0 +1,55 @@
+#define BLANK_TILE 0;
+#define SLOT_0 0;
+#define SLOT_1 1;
+#define SLOT_2 2;
+#define SLOT_3 3;
+#define SLOT_4 4;
+#define SLOT_5 5;
+#define SLOT_6 6;
+#define SLOT_7 7;
+#define SLOT_8 8;
+
+var board[9] = [3, 5, 6, 0, 2, 7, 8, 4, 1];
+var blankIndex = 3;
+
+MoveLeft() = 
+    [blankIndex == SLOT_0 || blankIndex == SLOT_1 || blankIndex == SLOT_3 || 
+     blankIndex == SLOT_4 || blankIndex == SLOT_6 || blankIndex == SLOT_7] 
+    move_left{
+        board[blankIndex] = board[blankIndex+1]; 
+        board[blankIndex+1] = BLANK_TILE; 
+        blankIndex = blankIndex+1;
+    } -> sliding_game();
+
+MoveRight() = 
+    [blankIndex == SLOT_1 || blankIndex == SLOT_2 || blankIndex == SLOT_4 || 
+     blankIndex == SLOT_5 || blankIndex == SLOT_7 || blankIndex == SLOT_8] 
+    move_right{
+        board[blankIndex] = board[blankIndex-1]; 
+        board[blankIndex-1] = BLANK_TILE; 
+        blankIndex = blankIndex-1;
+    } -> sliding_game();
+
+MoveUp() = 
+    [blankIndex == SLOT_0 || blankIndex == SLOT_1 || blankIndex == SLOT_2 || 
+     blankIndex == SLOT_3 || blankIndex == SLOT_4 || blankIndex == SLOT_5] 
+    move_up{
+        board[blankIndex] = board[blankIndex+3]; 
+        board[blankIndex+3] = BLANK_TILE; 
+        blankIndex = blankIndex+3;
+    } -> sliding_game();
+
+MoveDown() = 
+    [blankIndex == SLOT_3 || blankIndex == SLOT_4 || blankIndex == SLOT_5 || 
+     blankIndex == SLOT_6 || blankIndex == SLOT_7 || blankIndex == SLOT_8] 
+    move_down{
+        board[blankIndex] = board[blankIndex-3]; 
+        board[blankIndex-3] = BLANK_TILE; 
+        blankIndex = blankIndex-3;
+    } -> sliding_game();
+
+sliding_game() = MoveLeft() [] MoveRight() [] MoveUp() [] MoveDown();
+
+#define goal (board[0]==1 && board[1]==2 && board[2]==3 && board[3]==4 && board[4]==5 && board[5]==6 && board[6]==7 && board[7]==8 && board[8]==0);
+
+#assert sliding_game() reaches goal;

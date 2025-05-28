@@ -1,0 +1,19 @@
+=======================================================
+Assertion: car_system() |= []<> owner_driving
+********Verification Result********
+The Assertion (car_system() |= []<> owner_driving) is NOT valid.
+A counterexample is presented as follows.
+<init -> approach_car -> unlock_door -> (lock_door -> unlock_door)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:74
+Total Transitions:190
+Time Used:0.0112836s
+Estimated Memory Used:41245.384KB
+
+

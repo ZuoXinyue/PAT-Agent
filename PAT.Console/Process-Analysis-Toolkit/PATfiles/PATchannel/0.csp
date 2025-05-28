@@ -1,0 +1,25 @@
+//define asynchronous channel
+channel AC 3;
+
+//define variables
+var Peek;//used to store the first element in the channel
+var Size;//used to store the channel size
+var Count;//used to store how many elements are in the channel
+
+//define processes
+
+System = case{
+              call(cempty, AC) : ChannelOutput//if the channel is empty, we can just send data to channel
+              call(cfull, AC) : ChannelInput  //if the channel is full, we can just get data from channel
+              default : ChannelOutput[]ChannelInput // otherwise, we could both send or get data.
+             };
+
+                            //here using some varibles to record the channel's information    
+ChannelOutput = AC!Count -> read{Peek = call(cpeek, AC); Size = call(csize, AC); Count = call(ccount, AC)} -> System;
+
+                       //note here: cpeek is used only when the channel is not empty.
+ChannelInput = AC?i -> read{Count = call(ccount, AC); if(Count != 0){Peek = call(cpeek, AC);}else{Peek = 0} Count = call(ccount, AC)} -> System;
+
+//assertion
+
+#assert System deadlockfree;

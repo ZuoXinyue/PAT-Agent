@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAT Agent - Code Refinement</title>
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/timeline.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+
+    .nl-box pre {
+      background: transparent !important;
+      color: inherit !important;
+      margin: 0;
+      padding: 0;
+    }
+
+    .editor-container textarea {
+      width: 100%;
+      height: 300px;
+      font-size: 14px;
+      background: #1e1e1e;
+      color: #fff;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      resize: vertical;
+    }
+  </style>
+</head>
+
+<body>
+  <main id="app">
+    <timeline :current-step=8></timeline>
+    
+    <!-- Use the loading component -->
+    <loading-overlay v-if="refining" text="Processing, please wait... This process might take about 0.5 minute."></loading-overlay>
+    
+    <div class="container">
+      <div class="boxer" style="height:100%; overflow:auto;">
+
+    
+      <h5>Current PAT Code (editable):</h5>
+      <div class="editor-container">
+        <textarea style="height: calc(100vh - 380px);resize: none; overflow: auto;" v-model="currentCode"></textarea>
+      </div>
+
+      <h5>Mismatch Traces:</h5>
+      <div class="editor-container">
+        <!-- We continue to display the formatted traces as plain text -->
+        <textarea style="height: 100px; resize: none;" v-model="formattedTraces" readonly></textarea>
+      </div>
+
+      <button class="btn" @click="refineCode" :disabled="refining">Refine Code Automatically</button>
+
+      <div v-if="refinedCode" style="margin-top:35px;">
+        <h5>Refined Code:</h5>
+        <div class="warning-message">
+          <i class="el-icon-warning-outline"></i>
+          If there are multiple code chunks, please only click the 'Verify' button for the main code chunk. Verifying an
+          incomplete code chunk may result in errors.
+        </div>
+        <div v-for="(segment, index) in segments" :key="index" style="margin-top: 40px;">
+          <!-- For natural language segments: display as non-editable block -->
+          <div v-if="segment.type === 'nl'" class="nl-box"
+            style="background: #1e1e1e; color: #ddd; padding: 10px; border: 1px solid #333; border-radius: 4px; white-space: pre-wrap; box-sizing: border-box; margin-bottom: 10px;">
+            <pre>{{ segment.content }}</pre>
+          </div>
+          <!-- For code segments: display as editable textarea with copy & verify buttons -->
+          <div v-else-if="segment.type === 'code'" class="editor-container"
+            style="position: relative; margin-bottom: 20px;">
+            <textarea v-model="segments[index].content" class="code-box"
+              style="width: 100%; background: #1e1e1e; color: #ddd; border: 1px solid #333; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 14px; white-space: pre-wrap; box-sizing: border-box; resize: vertical;"></textarea>
+            <button class="btn" style="position: absolute; top: 5px; right: 120px;"
+              @click="copyCodeSegment(index)">Copy</button>
+            <button class="btn" style="position: absolute; top: 5px; right: 20px;"
+              @click="verifyCodeSegment(index)">Verify</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <script>
+    window.vm = new Vue({
+      el: '#app',
+      data: {
+        currentCode: "",
+        rawTraces: [],       // Array of mismatch objects with keys: assertion, trace, current_result, desired_result
+        formattedTraces: "", // A string representation for display
+        refinedCode: "",
+        segments: [],
+        refining: false      // Flag for the loading state
+      },
+      mounted() {
+        this.fetchData();
+      },
+      methods: {
+        async fetchData() {
+          // Show loading
+          this.refining = true;
+          
+          try {
+            // Retrieve the current code from claude-refinement.json
+            const res = await fetch('/get_last_claude_refinement', {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const codeData = await res.json();
+            this.currentCode = codeData.data.answerClaude || "";
+
+            // Retrieve the mismatch traces from the server
+            const res2 = await fetch(`/get_mismatch_traces`, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const tracesData = await res2.json();
+            // Expect an array of objects; store in rawTraces
+            this.rawTraces = tracesData.data || [];
+            // Format each object for display:
+            this.formattedTraces = this.rawTraces.map(item => {
+              return `Assertion: ${item.assertion}\nTrace that causes our requirement to fail: ${item.trace}\nCurrent Result: ${item.current_result}\nDesired Result: ${item.desired_result}`;
+            }).join("\n\n");
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            this.$confirmDialog({
+              title: 'Error Loading Data',
+              message: 'There was an error loading the necessary data. Please try again.',
+              confirmText: 'Retry',
+              cancelText: 'Cancel',
+              onConfirm: () => this.fetchData()
+            });
+          } finally {
+            this.refining = false;
+          }
+        },
+        async refineCode() {
+          // Use confirm dialog before starting the refinement process
+          // this.$confirmDialog({
+          //  title: 'Start Code Refinement',
+          //  message: 'This will analyze the mismatch traces and attempt to fix the code. This process might take about 1 minute. Continue?',
+          //  confirmText: 'Yes, refine code',
+          //  cancelText: 'Cancel',
+          //  onConfirm: async () => { 
+              // Start the refinement process
+              this.refining = true;
+              const startTime = Date.now();
+              
+              try {
+                // First, process traces via the server endpoint:
+                const processRes = await fetch('/process_traces', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ traces: this.rawTraces })
+                });
+                const processData = await processRes.json();
+                const processedTraces = processData.processed_traces || "";
+
+                // Build the final prompt using the current code and the processed traces
+                const prompt = `You are an expert in PAT (Process Analysis Toolkit). Your task now is to refine your previously generated PAT code according to some suggestions.\n\nYour previously generated PAT code is as follows:\n${this.currentCode}\n\n` +
+                  `The logic that we can follow to refine our code to satisfy user requirements is:\n${processedTraces}\n\n` +
+                  `Please refine and fix the PAT code so that it avoids the problems we mentioned, and only through modifying code relevant to our suggestions. **The other parts of code should not be changed to avoid syntax error, especially, NEVER remove semicolons.** Please provide the revised PAT code.`;
+                
+                const res = await fetch('/get_code_model_answers_claude', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    question: prompt,
+                    context: {},
+                    history: "./history/claude-code.json"
+                  })
+                });
+                const responseData = await res.json();
+                this.refinedCode = responseData.data.answerClaude || "";
+                
+              
+
+                // Save runtime metrics
+                const now = new Date();
+                const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+                const endTime = Date.now();
+                const runTimeInSeconds = (endTime - startTime) / 1000;
+
+                await fetch('/save_run_time', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    modelName: localStorage.getItem('modelName'),
+                    stage: `refinement_${timestamp}`,
+                    runTime: runTimeInSeconds
+                  })
+                });
+
+                // Parse the code segments
+                const parts = this.refinedCode.split(/```/);
+                this.segments = parts.map((text, i) => {
+                  return { type: (i % 2 === 0) ? "nl" : "code", content: text.trim() };
+                }).filter(segment => segment.content !== "");  // Remove empty segments
+                  // Scroll the .boxer container to bottom after the refined code is set
+                
+                  this.$nextTick(() => {
+                    console.log("Scrolling to bottom");
+                    const boxerElement = document.querySelector('.boxer');
+                    if (boxerElement) {
+                        boxerElement.scrollTo({
+                            top: boxerElement.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+               
+              } catch (error) {
+                console.error("Error refining code:", error);
+                this.$confirmDialog({
+                  title: 'Error Refining Code',
+                  message: 'There was an error during the code refinement process: ' + error.message,
+                  confirmText: 'Try Again',
+                  cancelText: 'Cancel',
+                  onConfirm: () => this.refineCode()
+                });
+              } finally {
+                this.refining = false;
+              }
+          //  }
+        //  });
+        },
+        copyCodeSegment(index) {
+          const code = this.segments[index].content;
+          const textarea = document.createElement("textarea");
+          textarea.value = code;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+          
+          // Use confirmation dialog instead of alert
+          this.$confirmDialog({
+            title: 'Code Copied',
+            message: 'The code has been copied to your clipboard.',
+            confirmText: 'OK',
+            cancelText: null
+          });
+        },
+        async verifyCodeSegment(index) {
+          this.refining = true;
+          const codeToVerify = this.segments[index].content;
+          const modelName = localStorage.getItem('modelName');
+          
+          try {
+            const response = await fetch('/verify_pat_code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                code: codeToVerify,
+                model_name: modelName
+              })
+            });
+            
+            const data = await response.json();
+            console.log("Verification result for segment", index, data);
+            
+            if (data.anyEmpty) {
+              this.refining = false;
+              this.$confirmDialog({
+                title: 'Verification Failed',
+                message: 'Verification failed due to syntax errors or state explosion in the code. Would you like to regenerate the code?',
+                confirmText: 'Regenerate Code',
+                cancelText: 'Cancel',
+                onConfirm: () => this.refineCode()
+              });
+            } else {
+              // Redirect to verify page
+              window.location.href = "/verify.html";
+            }
+          } catch (error) {
+            console.error("Error verifying code segment:", error);
+            this.refining = false;
+            this.$confirmDialog({
+              title: 'Verification Error',
+              message: 'An error occurred while verifying the code: ' + error.message,
+              confirmText: 'Try Again',
+              cancelText: 'Cancel',
+              onConfirm: () => this.verifyCodeSegment(index)
+            });
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,193 @@
+#define LINE_IDLE 0;
+#define LINE_BUSY 1;
+#define TONE_NONE 2;
+#define TONE_RINGING 3;
+#define TONE_BUSY 4;
+#define CALL_DISCONNECTED 5;
+#define CALL_CONNECTED 6;
+#define NO_USER 7;
+#define USER1 8;
+#define USER2 9;
+#define USER3 10;
+#define USER4 11;
+#define NUM_HANDSETS 4;
+#define HANDSET_ON_HOOK_IDLE 100;
+#define HANDSET_DIALING 101;
+#define HANDSET_WAITING 102;
+#define HANDSET_ANSWERING 103;
+#define HANDSET_IGNORING 104;
+#define HANDSET_ENGAGED 105;
+#define HANDSET_HANGING_UP 106;
+
+var lineState = LINE_IDLE;
+var targetHandset = NO_USER;
+var callingHandset = NO_USER;
+var tone = TONE_NONE;
+var callConnection = CALL_DISCONNECTED;
+var handsetStates[NUM_HANDSETS] = [HANDSET_ON_HOOK_IDLE, HANDSET_ON_HOOK_IDLE, HANDSET_ON_HOOK_IDLE, HANDSET_ON_HOOK_IDLE];
+
+tele_line() = 
+    [lineState == LINE_IDLE && targetHandset == NO_USER && handsetStates[0] == HANDSET_DIALING] 
+        process_dial_from_USER1_to_USER2{callingHandset = USER1; targetHandset = USER2; lineState = LINE_BUSY; tone = TONE_RINGING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && handsetStates[1] == HANDSET_DIALING]
+        process_dial_from_USER2_to_USER1{callingHandset = USER2; targetHandset = USER1; lineState = LINE_BUSY; tone = TONE_RINGING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && handsetStates[0] == HANDSET_ON_HOOK_IDLE] 
+        process_dial_to_USER1_ringing{targetHandset = USER1; lineState = LINE_BUSY; tone = TONE_RINGING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && (handsetStates[0] == HANDSET_DIALING || handsetStates[0] == HANDSET_WAITING || handsetStates[0] == HANDSET_ANSWERING || handsetStates[0] == HANDSET_IGNORING || handsetStates[0] == HANDSET_ENGAGED || handsetStates[0] == HANDSET_HANGING_UP)]
+        process_dial_to_USER1_busy{targetHandset = USER1; lineState = LINE_BUSY; tone = TONE_BUSY;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && handsetStates[1] == HANDSET_ON_HOOK_IDLE]
+        process_dial_to_USER2_ringing{targetHandset = USER2; lineState = LINE_BUSY; tone = TONE_RINGING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && (handsetStates[1] == HANDSET_DIALING || handsetStates[1] == HANDSET_WAITING || handsetStates[1] == HANDSET_ANSWERING || handsetStates[1] == HANDSET_IGNORING || handsetStates[1] == HANDSET_ENGAGED || handsetStates[1] == HANDSET_HANGING_UP)]
+        process_dial_to_USER2_busy{targetHandset = USER2; lineState = LINE_BUSY; tone = TONE_BUSY;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && handsetStates[2] == HANDSET_ON_HOOK_IDLE]
+        process_dial_to_USER3_ringing{targetHandset = USER3; lineState = LINE_BUSY; tone = TONE_RINGING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && (handsetStates[2] == HANDSET_DIALING || handsetStates[2] == HANDSET_WAITING || handsetStates[2] == HANDSET_ANSWERING || handsetStates[2] == HANDSET_IGNORING || handsetStates[2] == HANDSET_ENGAGED || handsetStates[2] == HANDSET_HANGING_UP)]
+        process_dial_to_USER3_busy{targetHandset = USER3; lineState = LINE_BUSY; tone = TONE_BUSY;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && handsetStates[3] == HANDSET_ON_HOOK_IDLE]
+        process_dial_to_USER4_ringing{targetHandset = USER4; lineState = LINE_BUSY; tone = TONE_RINGING;} -> tele_line()
+    []
+    [lineState == LINE_IDLE && targetHandset == NO_USER && (handsetStates[3] == HANDSET_DIALING || handsetStates[3] == HANDSET_WAITING || handsetStates[3] == HANDSET_ANSWERING || handsetStates[3] == HANDSET_IGNORING || handsetStates[3] == HANDSET_ENGAGED || handsetStates[3] == HANDSET_HANGING_UP)]
+        process_dial_to_USER4_busy{targetHandset = USER4; lineState = LINE_BUSY; tone = TONE_BUSY;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && targetHandset == USER1 && tone == TONE_RINGING && callConnection == CALL_DISCONNECTED && handsetStates[0] == HANDSET_ANSWERING]
+        connect_call_USER1{callConnection = CALL_CONNECTED; tone = TONE_NONE;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && targetHandset == USER2 && tone == TONE_RINGING && callConnection == CALL_DISCONNECTED && handsetStates[1] == HANDSET_ANSWERING]
+        connect_call_USER2{callConnection = CALL_CONNECTED; tone = TONE_NONE;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && targetHandset == USER3 && tone == TONE_RINGING && callConnection == CALL_DISCONNECTED && handsetStates[2] == HANDSET_ANSWERING]
+        connect_call_USER3{callConnection = CALL_CONNECTED; tone = TONE_NONE;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && targetHandset == USER4 && tone == TONE_RINGING && callConnection == CALL_DISCONNECTED && handsetStates[3] == HANDSET_ANSWERING]
+        connect_call_USER4{callConnection = CALL_CONNECTED; tone = TONE_NONE;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && (targetHandset == USER1 || callingHandset == USER1) && callConnection == CALL_CONNECTED && handsetStates[0] == HANDSET_HANGING_UP]
+        disconnect_call_USER1{callConnection = CALL_DISCONNECTED; lineState = LINE_IDLE; tone = TONE_NONE; targetHandset = NO_USER; callingHandset = NO_USER;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && (targetHandset == USER2 || callingHandset == USER2) && callConnection == CALL_CONNECTED && handsetStates[1] == HANDSET_HANGING_UP]
+        disconnect_call_USER2{callConnection = CALL_DISCONNECTED; lineState = LINE_IDLE; tone = TONE_NONE; targetHandset = NO_USER; callingHandset = NO_USER;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && (targetHandset == USER3 || callingHandset == USER3) && callConnection == CALL_CONNECTED && handsetStates[2] == HANDSET_HANGING_UP]
+        disconnect_call_USER3{callConnection = CALL_DISCONNECTED; lineState = LINE_IDLE; tone = TONE_NONE; targetHandset = NO_USER; callingHandset = NO_USER;} -> tele_line()
+    []
+    [lineState == LINE_BUSY && (targetHandset == USER4 || callingHandset == USER4) && callConnection == CALL_CONNECTED && handsetStates[3] == HANDSET_HANGING_UP]
+        disconnect_call_USER4{callConnection = CALL_DISCONNECTED; lineState = LINE_IDLE; tone = TONE_NONE; targetHandset = NO_USER; callingHandset = NO_USER;} -> tele_line();
+
+user() =
+    [handsetStates[0] == HANDSET_ON_HOOK_IDLE]
+        initiate_dial_USER1{handsetStates[0] = HANDSET_DIALING;} -> user()
+    []
+    [handsetStates[0] == HANDSET_ON_HOOK_IDLE && targetHandset == USER1 && tone == TONE_RINGING]
+        ring_handset_USER1{handsetStates[0] = HANDSET_WAITING;} -> user()
+    []
+    [handsetStates[0] == HANDSET_WAITING && targetHandset == USER1 && tone == TONE_RINGING]
+        answer_call_USER1{handsetStates[0] = HANDSET_ANSWERING;} -> user()
+    []
+    [handsetStates[0] == HANDSET_ANSWERING && callConnection == CALL_CONNECTED]
+        engage_call_USER1{handsetStates[0] = HANDSET_ENGAGED;} -> user()
+    []
+    [handsetStates[0] == HANDSET_DIALING && callingHandset == USER1 && targetHandset == USER2 && handsetStates[1] == HANDSET_ANSWERING && callConnection == CALL_CONNECTED]
+        engage_call_USER1_after_USER2_answers{handsetStates[0] = HANDSET_ENGAGED;} -> user()
+    []
+    [handsetStates[0] == HANDSET_DIALING || handsetStates[0] == HANDSET_WAITING || handsetStates[0] == HANDSET_ANSWERING || handsetStates[0] == HANDSET_ENGAGED]
+        hang_up_USER1{handsetStates[0] = HANDSET_HANGING_UP;} -> user()
+    []
+    [handsetStates[0] == HANDSET_HANGING_UP]
+        finish_hang_up_USER1{handsetStates[0] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[0] == HANDSET_WAITING]
+        ignore_call_USER1{handsetStates[0] = HANDSET_IGNORING;} -> user()
+    []
+    [handsetStates[0] == HANDSET_IGNORING]
+        reset_after_ignore_USER1{handsetStates[0] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[1] == HANDSET_ON_HOOK_IDLE]
+        initiate_dial_USER2{handsetStates[1] = HANDSET_DIALING;} -> user()
+    []
+    [handsetStates[1] == HANDSET_ON_HOOK_IDLE && targetHandset == USER2 && tone == TONE_RINGING]
+        ring_handset_USER2{handsetStates[1] = HANDSET_WAITING;} -> user()
+    []
+    [handsetStates[1] == HANDSET_WAITING && targetHandset == USER2 && tone == TONE_RINGING]
+        answer_call_USER2{handsetStates[1] = HANDSET_ANSWERING;} -> user()
+    []
+    [handsetStates[1] == HANDSET_ANSWERING && callConnection == CALL_CONNECTED]
+        engage_call_USER2{handsetStates[1] = HANDSET_ENGAGED;} -> user()
+    []
+    [handsetStates[1] == HANDSET_DIALING && callingHandset == USER2 && targetHandset == USER1 && handsetStates[0] == HANDSET_ANSWERING && callConnection == CALL_CONNECTED]
+        engage_call_USER2_after_USER1_answers{handsetStates[1] = HANDSET_ENGAGED;} -> user()
+    []
+    [handsetStates[1] == HANDSET_DIALING || handsetStates[1] == HANDSET_WAITING || handsetStates[1] == HANDSET_ANSWERING || handsetStates[1] == HANDSET_ENGAGED]
+        hang_up_USER2{handsetStates[1] = HANDSET_HANGING_UP;} -> user()
+    []
+    [handsetStates[1] == HANDSET_HANGING_UP]
+        finish_hang_up_USER2{handsetStates[1] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[1] == HANDSET_WAITING]
+        ignore_call_USER2{handsetStates[1] = HANDSET_IGNORING;} -> user()
+    []
+    [handsetStates[1] == HANDSET_IGNORING]
+        reset_after_ignore_USER2{handsetStates[1] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[2] == HANDSET_ON_HOOK_IDLE]
+        initiate_dial_USER3{handsetStates[2] = HANDSET_DIALING;} -> user()
+    []
+    [handsetStates[2] == HANDSET_ON_HOOK_IDLE && targetHandset == USER3 && tone == TONE_RINGING]
+        ring_handset_USER3{handsetStates[2] = HANDSET_WAITING;} -> user()
+    []
+    [handsetStates[2] == HANDSET_WAITING && targetHandset == USER3 && tone == TONE_RINGING]
+        answer_call_USER3{handsetStates[2] = HANDSET_ANSWERING;} -> user()
+    []
+    [handsetStates[2] == HANDSET_ANSWERING && callConnection == CALL_CONNECTED]
+        engage_call_USER3{handsetStates[2] = HANDSET_ENGAGED;} -> user()
+    []
+    [handsetStates[2] == HANDSET_DIALING || handsetStates[2] == HANDSET_WAITING || handsetStates[2] == HANDSET_ANSWERING || handsetStates[2] == HANDSET_ENGAGED]
+        hang_up_USER3{handsetStates[2] = HANDSET_HANGING_UP;} -> user()
+    []
+    [handsetStates[2] == HANDSET_HANGING_UP]
+        finish_hang_up_USER3{handsetStates[2] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[2] == HANDSET_WAITING]
+        ignore_call_USER3{handsetStates[2] = HANDSET_IGNORING;} -> user()
+    []
+    [handsetStates[2] == HANDSET_IGNORING]
+        reset_after_ignore_USER3{handsetStates[2] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[3] == HANDSET_ON_HOOK_IDLE]
+        initiate_dial_USER4{handsetStates[3] = HANDSET_DIALING;} -> user()
+    []
+    [handsetStates[3] == HANDSET_ON_HOOK_IDLE && targetHandset == USER4 && tone == TONE_RINGING]
+        ring_handset_USER4{handsetStates[3] = HANDSET_WAITING;} -> user()
+    []
+    [handsetStates[3] == HANDSET_WAITING && targetHandset == USER4 && tone == TONE_RINGING]
+        answer_call_USER4{handsetStates[3] = HANDSET_ANSWERING;} -> user()
+    []
+    [handsetStates[3] == HANDSET_ANSWERING && callConnection == CALL_CONNECTED]
+        engage_call_USER4{handsetStates[3] = HANDSET_ENGAGED;} -> user()
+    []
+    [handsetStates[3] == HANDSET_DIALING || handsetStates[3] == HANDSET_WAITING || handsetStates[3] == HANDSET_ANSWERING || handsetStates[3] == HANDSET_ENGAGED]
+        hang_up_USER4{handsetStates[3] = HANDSET_HANGING_UP;} -> user()
+    []
+    [handsetStates[3] == HANDSET_HANGING_UP]
+        finish_hang_up_USER4{handsetStates[3] = HANDSET_ON_HOOK_IDLE;} -> user()
+    []
+    [handsetStates[3] == HANDSET_WAITING]
+        ignore_call_USER4{handsetStates[3] = HANDSET_IGNORING;} -> user()
+    []
+    [handsetStates[3] == HANDSET_IGNORING]
+        reset_after_ignore_USER4{handsetStates[3] = HANDSET_ON_HOOK_IDLE;} -> user();
+
+telecom_service = tele_line() ||| user();
+
+#define user0_connected_to_user1 (handsetStates[0] == HANDSET_ENGAGED && handsetStates[1] == HANDSET_ENGAGED);
+#define all_user_on_call (handsetStates[0] == HANDSET_ENGAGED && handsetStates[1] == HANDSET_ENGAGED && handsetStates[2] == HANDSET_ENGAGED && handsetStates[3] == HANDSET_ENGAGED);
+#define user2_in_call (handsetStates[2] == HANDSET_ENGAGED);
+#define user3_in_call (handsetStates[3] == HANDSET_ENGAGED);
+#assert telecom_service deadlockfree;

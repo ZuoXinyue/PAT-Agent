@@ -1,0 +1,66 @@
+#define NUM_POSITIONS 3;
+#define MAX_CRASHES 2;
+#define NOT_CRASHED 0;
+#define CRASHED 1;
+#define STATE_LOW 0;
+#define STATE_HIGH 1;
+
+var positionStates[NUM_POSITIONS] = [STATE_LOW, STATE_HIGH, STATE_LOW];
+var positionCrashStatuses[NUM_POSITIONS] = [NOT_CRASHED, NOT_CRASHED, NOT_CRASHED];
+var totalCrashes = 0;
+
+Interaction_0_1() = 
+    [positionCrashStatuses[0] == NOT_CRASHED && positionCrashStatuses[1] == NOT_CRASHED && 
+     positionStates[0] == STATE_LOW && positionStates[1] == STATE_HIGH] 
+    update_state_0_1{positionStates[1] = positionStates[0];} -> Interaction_0_1()
+    []
+    [positionCrashStatuses[0] == NOT_CRASHED && totalCrashes < MAX_CRASHES] 
+    crash_0_1{positionCrashStatuses[0] = CRASHED; totalCrashes = totalCrashes + 1;} -> Skip;
+
+Interaction_0_2() = 
+    [positionCrashStatuses[0] == NOT_CRASHED && positionCrashStatuses[2] == NOT_CRASHED && 
+     positionStates[0] == STATE_LOW && positionStates[2] == STATE_HIGH] 
+    update_state_0_2{positionStates[2] = positionStates[0];} -> Interaction_0_2()
+    []
+    [positionCrashStatuses[0] == NOT_CRASHED && totalCrashes < MAX_CRASHES] 
+    crash_0_2{positionCrashStatuses[0] = CRASHED; totalCrashes = totalCrashes + 1;} -> Skip;
+
+Interaction_1_0() = 
+    [positionCrashStatuses[1] == NOT_CRASHED && positionCrashStatuses[0] == NOT_CRASHED && 
+     positionStates[1] == STATE_LOW && positionStates[0] == STATE_HIGH] 
+    update_state_1_0{positionStates[0] = positionStates[1];} -> Interaction_1_0()
+    []
+    [positionCrashStatuses[1] == NOT_CRASHED && totalCrashes < MAX_CRASHES] 
+    crash_1_0{positionCrashStatuses[1] = CRASHED; totalCrashes = totalCrashes + 1;} -> Skip;
+
+Interaction_1_2() = 
+    [positionCrashStatuses[1] == NOT_CRASHED && positionCrashStatuses[2] == NOT_CRASHED && 
+     positionStates[1] == STATE_LOW && positionStates[2] == STATE_HIGH] 
+    update_state_1_2{positionStates[2] = positionStates[1];} -> Interaction_1_2()
+    []
+    [positionCrashStatuses[1] == NOT_CRASHED && totalCrashes < MAX_CRASHES] 
+    crash_1_2{positionCrashStatuses[1] = CRASHED; totalCrashes = totalCrashes + 1;} -> Skip;
+
+Interaction_2_0() = 
+    [positionCrashStatuses[2] == NOT_CRASHED && positionCrashStatuses[0] == NOT_CRASHED && 
+     positionStates[2] == STATE_LOW && positionStates[0] == STATE_HIGH] 
+    update_state_2_0{positionStates[0] = positionStates[2];} -> Interaction_2_0()
+    []
+    [positionCrashStatuses[2] == NOT_CRASHED && totalCrashes < MAX_CRASHES] 
+    crash_2_0{positionCrashStatuses[2] = CRASHED; totalCrashes = totalCrashes + 1;} -> Skip;
+
+Interaction_2_1() = 
+    [positionCrashStatuses[2] == NOT_CRASHED && positionCrashStatuses[1] == NOT_CRASHED && 
+     positionStates[2] == STATE_LOW && positionStates[1] == STATE_HIGH] 
+    update_state_2_1{positionStates[1] = positionStates[2];} -> Interaction_2_1()
+    []
+    [positionCrashStatuses[2] == NOT_CRASHED && totalCrashes < MAX_CRASHES] 
+    crash_2_1{positionCrashStatuses[2] = CRASHED; totalCrashes = totalCrashes + 1;} -> Skip;
+
+leader_consensus = Interaction_0_1() ||| Interaction_0_2() ||| Interaction_1_0() ||| Interaction_1_2() ||| Interaction_2_0() ||| Interaction_2_1();
+
+#define stabagree01 (positionCrashStatuses[0] == NOT_CRASHED && positionCrashStatuses[1] == NOT_CRASHED && positionStates[0] == positionStates[1]);
+#define stabagree02 (positionCrashStatuses[0] == NOT_CRASHED && positionCrashStatuses[2] == NOT_CRASHED && positionStates[0] == positionStates[2]);
+#define stabagree12 (positionCrashStatuses[1] == NOT_CRASHED && positionCrashStatuses[2] == NOT_CRASHED && positionStates[1] == positionStates[2]);
+
+#assert leader_consensus |= <>[](stabagree01 && stabagree02 && stabagree12);

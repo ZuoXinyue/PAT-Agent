@@ -1,0 +1,19 @@
+=======================================================
+Assertion: system_name() |= []<>( open_door.0|| open_door.1|| unlock_door.0|| unlock_door.1|| place_key_in_car.0|| place_key_in_car.1)
+********Verification Result********
+The Assertion (system_name() |= []<>( open_door.0|| open_door.1|| unlock_door.0|| unlock_door.1|| place_key_in_car.0|| place_key_in_car.1)) is NOT valid.
+A counterexample is presented as follows.
+<init -> close_door.1 -> start_engine.1 -> (stop_engine.1 -> start_engine.1)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:28
+Total Transitions:55
+Time Used:0.1516967s
+Estimated Memory Used:41328.864KB
+
+

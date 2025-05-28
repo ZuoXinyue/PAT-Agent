@@ -1,0 +1,7 @@
+#import "PAT.Lib.CMethodDemo";
+
+var x;
+
+System = event{x = call(plus, 1,2);} -> out.x -> Skip;
+
+#assert System() deadlockfree;

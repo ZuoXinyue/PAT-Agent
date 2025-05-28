@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Favicon with increased sizes -->
+  <link rel="icon" href="icon.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-python.min.js"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="/timeline.js"></script>
+  <script src="/loading.js"></script>
+  <script src="/confirmmsgbox.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>PAT Agent - System Verification</title>
+</head>
+
+<body>
+  <main id="app">
+    <timeline :current-step=3></timeline>
+    <div class="container">
+      <loading-overlay v-if="loading" text="Saving..."></loading-overlay>
+      <div class="tables-section" v-if="actionsTables.length">
+        <h3>Actions Available in Our System</h3>
+
+        <div v-for="(process, processIndex) in actionsTables" :key="processIndex" class="process-panel">
+          <div class="process-header" @click="toggleProcess(processIndex)">
+            <i :class="['collapse-arrow', process.isCollapsed ? 'el-icon-arrow-right' : 'el-icon-arrow-down']"></i>
+            <h3>Process: {{ process.processName }}</h3>
+          </div>
+          <div class="process-content" v-show="!process.isCollapsed">
+            <div v-for="(action, index) in process.actions" :key="index" class="action-block">
+              <div class="action-header">
+                <h4>Action: {{ action.action_name || 'New Action' }}</h4>
+                <i class="el-icon-delete" style="cursor: pointer; color: rgb(229 41 43); font-size:18px;"
+                  @click="deleteAction(process, index)"></i>
+              </div>
+
+              <!-- Conditions Table -->
+              <div class="table-container">
+                <h5>Conditions</h5>
+                <table class="editable-table">
+                  <thead>
+                    <tr>
+                      <th>Key</th>
+                      <th>Value</th>
+                      <th>Operation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(cond, idx) in action.conditions" :key="idx">
+                      <td><input v-model="cond.key" type="text"></td>
+                      <td><input v-model="cond.value" type="text"></td>
+                      <td style="width:80px;">
+                        <i class="el-icon-delete" style="cursor: pointer; color: rgb(229 41 43); font-size:20px;"
+                          @click="deleteCondition(action, idx)"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button class="plain-btn" @click="addCondition(action)">+ Add Condition</button>
+              </div>
+
+              <hr/>
+              
+              <!-- State Changes Table -->
+              <div class="table-container">
+                <h5>State Changes</h5>
+                <table class="editable-table">
+                  <thead>
+                    <tr>
+                      <th>Key</th>
+                      <th>Value</th>
+                      <th>Operation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(change, idx) in action.state_changes" :key="idx">
+                      <td><input v-model="change.key" type="text"></td>
+                      <td><input v-model="change.value" type="text"></td>
+                      <td style="width:80px;">
+                        <i class="el-icon-delete" style="cursor: pointer; color: rgb(229 41 43); font-size:20px;"
+                          @click="deleteStateChange(action, idx)"></i>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button class="plain-btn" @click="addStateChange(action)">+ Add State Change</button>
+              </div>
+            </div>
+            
+            <!-- Add Action Button -->
+            <button class="plain-btn" style="margin-top: 15px;" @click="addAction(process)">+ Add Action</button>
+          </div>
+        </div>
+      </div>
+      <div class="button-container">
+        <button style="margin-top:10px" class="btn" @click="confirmSubmit()">
+          <i class="el-icon-check"></i> Confirm
+        </button>
+      </div>
+    </div>
+  </main>
+</body>
+
+<script>
+  window.vueApp = new Vue({
+    el: '#app',
+    data() {
+      return {
+        actionsTables: [],
+        loading: false,
+      }
+    },
+    mounted() {
+      this.loadLatestHistory();
+    },
+    methods: {
+      toggleProcess(index) {
+        // Toggle the collapsed state for this process
+        if (!this.actionsTables[index].hasOwnProperty('isCollapsed')) {
+          this.$set(this.actionsTables[index], 'isCollapsed', false);
+        }
+        this.$set(this.actionsTables[index], 'isCollapsed', !this.actionsTables[index].isCollapsed);
+      },
+      async loadLatestHistory() {
+        try {
+          const response = await fetch('/get_action_history');
+          const history = await response.json();
+          if (history && history.length > 0) {
+            const latestEntry = history[history.length - 1];
+            this.processLLMResponse(latestEntry.answerGPT);
+          }
+        } catch (error) {
+          console.error('Error loading history:', error);
+        }
+      },
+      processLLMResponse(response) {
+        try {
+          const data = JSON.parse(response);
+          this.actionsTables = data.processes.map(process => {
+            return {
+              ...process,
+              isCollapsed: false,
+              actions: process.actions.map(action => ({
+                ...action,
+                conditions: Object.entries(action.conditions || {}).map(([key, value]) => ({ key, value })),
+                state_changes: Object.entries(action.state_changes || {}).map(([key, value]) => ({ key, value }))
+              }))
+            };
+          });
+        } catch (e) {
+          console.error('Failed to parse LLM response:', e);
+          this.actionsTables = [];
+        }
+      },
+      deleteCondition(action, index) {
+        this.$confirmDialog({
+          title: 'Delete Condition',
+          message: 'Are you sure you want to delete this condition?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            action.conditions.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: 'Deleted successfully'
+            });
+          }
+        });
+      },
+      addCondition(action) {
+        if (!action.conditions) {
+          this.$set(action, 'conditions', []);
+        }
+        action.conditions.push({ key: '', value: '' });
+      },
+      deleteStateChange(action, index) {
+        this.$confirmDialog({
+          title: 'Delete State Change',
+          message: 'Are you sure you want to delete this state change?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            action.state_changes.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: 'Deleted successfully'
+            });
+          }
+        });
+      },
+      addStateChange(action) {
+        if (!action.state_changes) {
+          this.$set(action, 'state_changes', []);
+        }
+        action.state_changes.push({ key: '', value: '' });
+      },
+      deleteAction(process, index) {
+        this.$confirmDialog({
+          title: 'Delete Action',
+          message: 'Are you sure you want to delete this action?',
+          confirmText: 'Delete',
+          cancelText: 'Cancel',
+          onConfirm: () => {
+            process.actions.splice(index, 1);
+            this.$message({
+              type: 'success',
+              message: 'Action deleted successfully'
+            });
+          }
+        });
+      },
+      addAction(process) {
+        process.actions.push({
+          action_name: '',
+          conditions: [],
+          state_changes: []
+        });
+      },
+      confirmSubmit() {
+        // Generate the prompt
+        window.location.href = '/assertion.html';
+      }
+    }
+  });
+</script>
+
+<style>
+  
+  .process-panel {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #333333;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+
+  .process-header {
+    padding: 15px;
+    background: #3e3e3e;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .process-header:hover {
+    background: #464646;
+  }
+
+  .process-header h3 {
+    margin: 0;
+    color: #e0e0e0;
+    font-size: 16px;
+  }
+
+  .process-content {
+    padding: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .collapse-arrow {
+    margin-right: 15px;
+    font-size: 18px;
+    color: #999;
+    transition: transform 0.3s ease;
+  }
+
+  .action-block {
+    margin-bottom: 30px;
+    padding: 15px;
+    background: #2a2a2a;
+    border-radius: 8px;
+  }
+  
+  .action-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .action-header h4 {
+    margin: 0;
+    color: #e0e0e0;
+  }
+
+  .table-container {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+</html>

@@ -1,0 +1,147 @@
+/***************************************************************************************************
+The Driving Philosophers is a new synchronization problem in mobile ad-hoc systems. 
+In this problem, an unbounded number of driving philosophers (processes) try to access 
+a round-about (set of shared resources, organized along a logical ring).   
+The process does not release the resources it has occupied until it occupies all the resources it needs.
+"enter" and "exit" are separated as two phases.
+*****************************************************************************************************/
+
+//the number of philosophers
+#define N 3; 
+//the number of resources
+#define M 5; 
+
+//the start and end resource of each philosopher
+#define ph1_start 0;
+#define ph1_end   3;
+
+#define ph2_start 1;
+#define ph2_end   2;
+
+//for each i:
+//start_end[i*2] indicates the i-th philosopher's start resource
+//start_end[i*2+1] indicates the i-th philosopher's end resource 
+var start_end[2*N] = [ph1_start,ph1_end,ph2_start,ph2_end];
+
+//pointer[i] indicates the current resource which i-th philosopher needs to enter
+var pointer[N]:{0..M-1} = [ph1_start,ph2_start];
+
+//-----------------paste the testing data in "data.text" above for convenience-------------------- 
+
+//flag[i*2]==1: the i-th philosopher has done the drive and can exit the resources
+//flag[i*2+1]==1: the i-th phiolsopher has entered all the resources it needs and can drive
+var flag[2*N]:{0..1};
+ 
+//variables for the fairness
+var count[N];
+var sum;
+
+//resource[k] indicates the current number of phil which enters k-th resource
+//this variable is only for testing the mutex. it will NOT appear in any preconditions
+var resource[M];
+
+//this variable is only for testing if there is a state that two processes share one resource
+var mutex = false;
+
+/***************************************************************************************************
+The second part is the modeling of the philosopher.
+Assume: 1.Each philosopher needs to enter a finite continuous sequence of resources to drive.
+        2.Each philosopher enters the resources which it needs by sequence until its end resource 
+          is entered and starts at its start resource.
+        3.Each philosopher exits the resources after its driving by sequence and
+          starts at its first entered resource.
+*****************************************************************************************************/
+
+//Mainly, in this case, every phil has three phases: occupy all the resources->drive->release all the resources
+//Simply, here can use "if else" to control the process, but we use "[]" to split the process to 3 subprocesses just for clarity
+
+Philosopher(i)=[count[i]*N <= sum]   // "counter" method is used to ensure the fairness        
+               Phil_occupy(i) [] Phil_drive(i) [] Phil_release(i);
+           
+Phil_occupy(i) =[]k:{0..M-1}@Phil_enter(i,k);
+Phil_release(i)=[]k:{0..M-1}@Phil_exit(i,k);
+
+//i-th philosopher enters the k-th resource
+Phil_enter(i,k) = [flag[i*2+1]==0 && flag[i*2]==0 && k==pointer[i]]
+                  enter.i.k
+                  -> {                                   //tau event is to update      
+                         resource[k]++;
+               		     if(k==start_end[i*2+1])
+               		     flag[i*2+1]=1;
+               		     pointer[i] = (pointer[i]+1)%M;
+                     }
+                  -> occupied.i.k
+                  -> Philosopher(i);
+        
+//i-th philosopher drives              
+Phil_drive(i) = [flag[i*2]==0 && flag[i*2+1]==1]
+                drive.i
+                {
+                    flag[i*2] = 1;
+                 	sum = sum +1;
+                 	count[i] = count[i] + 1; 
+                 	if (sum == N){                        //clear the counter variables after all phils have done once driving 
+                 	    sum = 0;                          //otherwise, it will reaches a run time error
+                 	    var y;                            //and also, it can speed up the verification
+                 	    while(y<N){
+                 	    count[y]=0;
+                 	    y=y+1;}}
+                }
+                -> Philosopher(i);
+               
+//i-th philosopher exits k-th resource              
+Phil_exit(i,k) = [flag[i*2]==1 && k==(start_end[i*2]+start_end[i*2+1]-pointer[i]+1)%M]
+                 exit.i.k
+                 -> {
+                        resource[k]--;
+                        pointer[i]=(pointer[i]-1)%M;
+                        if(pointer[i]==start_end[i*2])
+        	              {flag[i*2] = 0;
+                           flag[i*2+1]=0;}
+                    }
+                 -> released.i.k
+                 -> Philosopher(i);
+               
+/***************************************************************************************************
+The third part is the modeling of the resources.
+*****************************************************************************************************/
+
+Res_Phil(i,k) = enter.i.k -> occupied.i.k -> exit.i.k -> released.i.k -> Resource(k);
+Resource(k) = []x:{0..N-1}@Res_Phil(x,k);
+
+/***************************************************************************************************
+The fourth part is the modeling of the system.
+*****************************************************************************************************/
+
+Res()  = ||k:{0..M-1}@Resource(k);
+Phil() = ||x:{0..N-1}@Philosopher(x);
+
+College() = Res()||Phil();
+
+Test_mutex = []k:{0..M-1}@([resource[k]>1]{mutex=true}->Test_mutex);
+Implementation = College() || Test_mutex;
+
+
+/***************************************************************************************************
+The fifth part is the analysis of the system.
+*****************************************************************************************************/
+
+//DEADLOCK CHECKING.
+
+
+//FAIRNESS CHECKING. 
+//the aasertion will hold if the system is deadlock free
+
+
+
+//MUTEX CHECKING. 
+
+//another way to check mutex (whether resource0 reaches mutex)
+
+//INVALID STATE TRANSITIONS CHECKING.
+//this is for testing whether our model in PAT is consistent to our modeling in DFA (Details are discussed in report)
+
+#define Mutex (mutex==true);
+#define Mutex_resource0 (resource[0]>1);
+#define BadTransition (flag[1] == 0 && flag[0] == 1); //phil0 has done driving but not entered all resources
+#assert College() deadlockfree;

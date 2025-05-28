@@ -1,0 +1,17 @@
+=======================================================
+Assertion: System() |= []( up.1-><> AllMoveUP)
+********Verification Result********
+The Assertion (System() |= []( up.1-><> AllMoveUP)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:2782
+Total Transitions:3262
+Time Used:0.1037519s
+Estimated Memory Used:43854.2KB
+
+

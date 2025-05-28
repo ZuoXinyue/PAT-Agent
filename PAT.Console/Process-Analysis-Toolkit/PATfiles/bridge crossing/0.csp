@@ -1,0 +1,58 @@
+#define MAX_CROSSING_TIME 17;
+#define KNIGHT_CROSSING_TIME 1;
+#define LADY_CROSSING_TIME 2;
+#define KING_CROSSING_TIME 5;
+#define QUEEN_CROSSING_TIME 10;
+#define POSITION_SOUTH 0;
+#define POSITION_NORTH 1;
+var time = 0;
+var positions[4] = [POSITION_SOUTH, POSITION_SOUTH, POSITION_SOUTH, POSITION_SOUTH];
+
+South() = 
+    [positions[0] == POSITION_SOUTH && time + KNIGHT_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_to_north{positions[0] = POSITION_NORTH; time = time + KNIGHT_CROSSING_TIME;} -> North()
+    [] [positions[1] == POSITION_SOUTH && time + LADY_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_lady_to_north{positions[1] = POSITION_NORTH; time = time + LADY_CROSSING_TIME;} -> North()
+    [] [positions[2] == POSITION_SOUTH && time + KING_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_king_to_north{positions[2] = POSITION_NORTH; time = time + KING_CROSSING_TIME;} -> North()
+    [] [positions[3] == POSITION_SOUTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_queen_to_north{positions[3] = POSITION_NORTH; time = time + QUEEN_CROSSING_TIME;} -> North()
+    [] [positions[0] == POSITION_SOUTH && positions[1] == POSITION_SOUTH && time + LADY_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_lady_to_north{positions[0] = POSITION_NORTH; positions[1] = POSITION_NORTH; time = time + LADY_CROSSING_TIME;} -> North()
+    [] [positions[0] == POSITION_SOUTH && positions[2] == POSITION_SOUTH && time + KING_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_king_to_north{positions[0] = POSITION_NORTH; positions[2] = POSITION_NORTH; time = time + KING_CROSSING_TIME;} -> North()
+    [] [positions[0] == POSITION_SOUTH && positions[3] == POSITION_SOUTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_queen_to_north{positions[0] = POSITION_NORTH; positions[3] = POSITION_NORTH; time = time + QUEEN_CROSSING_TIME;} -> North()
+    [] [positions[1] == POSITION_SOUTH && positions[2] == POSITION_SOUTH && time + KING_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_lady_king_to_north{positions[1] = POSITION_NORTH; positions[2] = POSITION_NORTH; time = time + KING_CROSSING_TIME;} -> North()
+    [] [positions[1] == POSITION_SOUTH && positions[3] == POSITION_SOUTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_lady_queen_to_north{positions[1] = POSITION_NORTH; positions[3] = POSITION_NORTH; time = time + QUEEN_CROSSING_TIME;} -> North()
+    [] [positions[2] == POSITION_SOUTH && positions[3] == POSITION_SOUTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_king_queen_to_north{positions[2] = POSITION_NORTH; positions[3] = POSITION_NORTH; time = time + QUEEN_CROSSING_TIME;} -> North();
+
+North() = 
+    [positions[0] == POSITION_NORTH && time + KNIGHT_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_to_south{positions[0] = POSITION_SOUTH; time = time + KNIGHT_CROSSING_TIME;} -> South()
+    [] [positions[1] == POSITION_NORTH && time + LADY_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_lady_to_south{positions[1] = POSITION_SOUTH; time = time + LADY_CROSSING_TIME;} -> South()
+    [] [positions[2] == POSITION_NORTH && time + KING_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_king_to_south{positions[2] = POSITION_SOUTH; time = time + KING_CROSSING_TIME;} -> South()
+    [] [positions[3] == POSITION_NORTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_queen_to_south{positions[3] = POSITION_SOUTH; time = time + QUEEN_CROSSING_TIME;} -> South()
+    [] [positions[0] == POSITION_NORTH && positions[1] == POSITION_NORTH && time + LADY_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_lady_to_south{positions[0] = POSITION_SOUTH; positions[1] = POSITION_SOUTH; time = time + LADY_CROSSING_TIME;} -> South()
+    [] [positions[0] == POSITION_NORTH && positions[2] == POSITION_NORTH && time + KING_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_king_to_south{positions[0] = POSITION_SOUTH; positions[2] = POSITION_SOUTH; time = time + KING_CROSSING_TIME;} -> South()
+    [] [positions[0] == POSITION_NORTH && positions[3] == POSITION_NORTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_knight_queen_to_south{positions[0] = POSITION_SOUTH; positions[3] = POSITION_SOUTH; time = time + QUEEN_CROSSING_TIME;} -> South()
+    [] [positions[1] == POSITION_NORTH && positions[2] == POSITION_NORTH && time + KING_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_lady_king_to_south{positions[1] = POSITION_SOUTH; positions[2] = POSITION_SOUTH; time = time + KING_CROSSING_TIME;} -> South()
+    [] [positions[1] == POSITION_NORTH && positions[3] == POSITION_NORTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_lady_queen_to_south{positions[1] = POSITION_SOUTH; positions[3] = POSITION_SOUTH; time = time + QUEEN_CROSSING_TIME;} -> South()
+    [] [positions[2] == POSITION_NORTH && positions[3] == POSITION_NORTH && time + QUEEN_CROSSING_TIME <= MAX_CROSSING_TIME] 
+    cross_king_queen_to_south{positions[2] = POSITION_SOUTH; positions[3] = POSITION_SOUTH; time = time + QUEEN_CROSSING_TIME;} -> South();
+
+#define goal (positions[0] == POSITION_NORTH && positions[1] == POSITION_NORTH && positions[2] == POSITION_NORTH && positions[3] == POSITION_NORTH);
+#define alter ((positions[0] == POSITION_NORTH && positions[1] == POSITION_NORTH && positions[2] == POSITION_NORTH && positions[3] == POSITION_NORTH && time > MAX_CROSSING_TIME) || !(positions[0] == POSITION_NORTH && positions[1] == POSITION_NORTH && positions[2] == POSITION_NORTH && positions[3] == POSITION_NORTH));
+
+#assert South() reaches goal;

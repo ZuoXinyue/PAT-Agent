@@ -1,0 +1,19 @@
+=======================================================
+Assertion: Stack() |= []( push_inv-><>( push_res.0|| push_res.1|| push_res.2))
+********Verification Result********
+The Assertion (Stack() |= []( push_inv-><>( push_res.0|| push_res.1|| push_res.2))) is NOT valid.
+A counterexample is presented as follows.
+<init -> push_inv -> t -> push_res.1 -> push_inv -> t -> pop_inv -> [if!((2 == 0))] -> t -> pop_res.1 -> pop_inv -> [if!((1 == 0))] -> t -> push_inv -> t -> pop_res.0 -> pop_inv -> [if!((1 == 0))] -> t -> push_inv -> t -> pop_res.0 -> pop_inv -> [if!((1 == 0))] -> t -> push_inv -> t -> pop_res.0 -> pop_inv -> [if!((1 == 0))] -> t -> pop_res.0 -> (pop_inv -> [if((0 == 0))] -> pop_res.0)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:180
+Total Transitions:217
+Time Used:0.0166181s
+Estimated Memory Used:41248.232KB
+
+

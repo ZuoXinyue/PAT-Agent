@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Bully() |= [] one_coordinator
+********Verification Result********
+The Assertion (Bully() |= [] one_coordinator) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:3
+Total Transitions:6
+Time Used:0.0075574s
+Estimated Memory Used:8511KB
+
+

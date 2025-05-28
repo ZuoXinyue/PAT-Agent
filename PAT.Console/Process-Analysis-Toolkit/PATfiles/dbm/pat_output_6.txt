@@ -1,0 +1,18 @@
+=======================================================
+Assertion: aDBMTest() |= [] goal4
+********Verification Result********
+The Assertion (aDBMTest() |= [] goal4) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:334665
+Total Transitions:5182410
+Time Used:119.2782075s
+Estimated Memory Used:29450.264KB
+
+

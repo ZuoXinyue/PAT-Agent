@@ -1,0 +1,22 @@
+#define MAX_READERS 2;
+#define WRITER_INACTIVE 0;
+#define WRITER_ACTIVE 1;
+
+var readerCount = 0;
+var writerActive = WRITER_INACTIVE;
+
+Writer() = [readerCount == 0 && writerActive == WRITER_INACTIVE] start_writing{writerActive = WRITER_ACTIVE;} -> Writer()
+         [] [writerActive == WRITER_ACTIVE] stop_writing{writerActive = WRITER_INACTIVE;} -> Writer();
+
+Reader() = [writerActive == WRITER_INACTIVE && readerCount < MAX_READERS] start_reading{readerCount = readerCount + 1;} -> Reader()
+         [] [readerCount > 0] stop_reading{readerCount = readerCount - 1;} -> Reader();
+
+reader_writer() = (Reader() ||| Writer());
+
+#define exclusive (!(writerActive == WRITER_ACTIVE && readerCount > 0));
+#define someonereading (readerCount > 0);
+#define someonewriting (writerActive == WRITER_ACTIVE);
+
+#assert reader_writer() |= []exclusive;
+#assert reader_writer() |= []<>someonereading;
+#assert reader_writer() |= []<>someonewriting;

@@ -1,0 +1,17 @@
+=======================================================
+Assertion: System() |= []<> someoneaccess
+********Verification Result********
+The Assertion (System() |= []<> someoneaccess) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:928
+Total Transitions:2712
+Time Used:0.0693049s
+Estimated Memory Used:42193.584KB
+
+

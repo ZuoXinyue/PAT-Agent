@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Stack() refines StackAbs()
+********Verification Result********
+The Assertion (Stack() refines StackAbs()) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: On-the-fly Trace Refinement Checking using DFS and Antichain
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:925184
+Total Transitions:8134209
+Time Used:69.1610013s
+Estimated Memory Used:1068004.032KB
+
+

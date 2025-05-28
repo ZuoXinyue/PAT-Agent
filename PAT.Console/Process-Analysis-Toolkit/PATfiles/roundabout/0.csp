@@ -1,0 +1,36 @@
+#define STATE_FULL 1;
+#define STATE_EMPTY 0;
+#define STATE_LEFTWARDS 2;
+#define STATE_RIGHTWARDS 3;
+
+var laneAState = STATE_EMPTY;
+var laneBState = STATE_EMPTY;
+var laneCState = STATE_EMPTY;
+var loopDState = STATE_EMPTY;
+
+LaneA() = 
+    [laneAState == STATE_FULL && laneCState == STATE_EMPTY && loopDState == STATE_EMPTY] 
+    A_full_to_C{laneAState = STATE_EMPTY; laneCState = STATE_LEFTWARDS;} -> LaneA()
+    []
+    [laneAState == STATE_EMPTY] 
+    A_empty_to_full{laneAState = STATE_FULL;} -> LaneA();
+
+LaneB() = 
+    [laneCState == STATE_RIGHTWARDS && laneBState == STATE_EMPTY] 
+    C_to_B{laneBState = STATE_FULL; laneCState = STATE_EMPTY;} -> LaneB()
+    []
+    [laneBState == STATE_FULL] 
+    B_full_to_empty{laneBState = STATE_EMPTY;} -> LaneB();
+
+LoopD() = 
+    [loopDState == STATE_FULL && laneCState == STATE_EMPTY] 
+    D_to_C{loopDState = STATE_EMPTY; laneCState = STATE_RIGHTWARDS;} -> LoopD()
+    []
+    [loopDState == STATE_EMPTY && laneCState == STATE_LEFTWARDS] 
+    C_to_D{loopDState = STATE_FULL; laneCState = STATE_EMPTY;} -> LoopD();
+
+roundabout = LaneA() ||| LaneB() ||| LoopD();
+
+#define D_empty (loopDState == STATE_EMPTY);
+#define C_not_Empty (laneCState == STATE_LEFTWARDS || laneCState == STATE_RIGHTWARDS);
+#assert roundabout deadlockfree;

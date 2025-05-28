@@ -1,0 +1,20 @@
+=======================================================
+Assertion: sliding_game() reaches goal
+********Verification Result********
+The Assertion (sliding_game() reaches goal) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> move_left -> move_left -> move_down -> move_right -> move_right -> move_up -> move_left -> move_up -> move_left -> move_down -> move_right -> move_up -> move_right -> move_down -> move_left -> move_left -> move_down -> move_right -> move_right -> move_up -> move_left -> move_left -> move_up>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:127283
+Total Transitions:278993
+Time Used:3.7546626s
+Estimated Memory Used:118187.648KB
+
+

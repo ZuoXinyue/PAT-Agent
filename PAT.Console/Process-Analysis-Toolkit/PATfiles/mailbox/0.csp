@@ -1,0 +1,131 @@
+#import "PAT.Lib.Example";
+
+#define EQ 0;
+#define NEQ 1;
+ 
+#define BOTTOM  0;
+#define UNKNOWN  1;
+#define SUCCESS  2;
+#define DONE  3;
+ 
+//bounded number of Rounds
+#define ROUND 6;
+#define MaxROUND 3;
+ 
+var A0TS[ROUND];
+var A0C[ROUND];
+ 
+var A1TS[ROUND];
+var A1C[ROUND];
+ 
+var B0[ROUND];
+var B1[ROUND];
+ 
+var TS = [1, 1];
+var Rel = [0, 0];
+ 
+var Counter[2];
+var Rounds[2];
+var Otherc[2];
+var OutvalueTS[2];
+var OutvalueC[2];
+var Outcome[2];
+var TSL[2];
+var RelL[2];
+ 
+var NextTS=[2,2];
+var Otherts = [1,1];
+var TSC = [1, 1];
+ 
+var rnd0 = 0;
+var rnd1 = 0;
+ 
+////////////////The Concrete Implementation Model//////////////////
+//process 0: postman
+Postman(i) = [i < MaxROUND](deliver_inv -> tau{Counter[0] = Counter[0] + 1;} -> (Compare(0); deliver_res -> Postman(i+1)));
+ 
+Compare(i) = tau{Outcome[i] = UNKNOWN;} -> 
+   (CompareLoop(i); 
+    (if(Counter[i]!=Otherc[i]) {
+         tau{TS[i] = TSC[i]; Rel[i] = NEQ;} -> Skip
+     } else { 
+         tau{TS[i] = TSC[i]; Rel[i] = EQ;} -> Skip
+     })
+   );
+ 
+var TRound[2];
+var TOtherRound[2];
+CompareLoop(i)  =  if (Outcome[i] == SUCCESS) { Skip } else {
+              if(i == 1 && Counter[i] < Otherc[i]) { 
+                  Skip 
+              } else {
+                  tau{TOtherRound[i] = Rounds[1-i];} -> tau{ if(Rounds[i]+1 > TOtherRound[i]-1) { TRound[i] = Rounds[i]+1;} else {TRound[i] = TOtherRound[i]-1;} } -> tau{Rounds[i] = TRound[i];} -> tau{TSC[i] = NextTS[i];} -> Sussus(i);
+                        (if (OutvalueC[i] !=  BOTTOM) { 
+                             tau{Otherts[i] = OutvalueTS[i];} -> tau{Otherc[i] = OutvalueC[i];} -> Skip
+                        	} else {
+                             Skip
+                         });
+                         tau{NextTS[i] = call(dominate, Otherts[i], TS[1-i]);} -> CompareLoop(i)
+              }};
+ 
+Sussus(i) = if(i==0) { Sussus0() } else { Sussus1()};
+ 
+Sussus0() = tau{rnd0 = Rounds[0] - 1; A0TS[rnd0] = TSC[0]; A0C[rnd0] = Counter[0];} ->  tau{OutvalueTS[0] = A1TS[rnd0]; OutvalueC[0] = A1C[rnd0];} ->
+    (if(OutvalueC[0] == BOTTOM ) {
+        tau{Outcome[0] = SUCCESS;} -> Skip
+    } else {
+        tau{B0[rnd0] = DONE;} ->
+            (if(B1[rnd0] == BOTTOM) {
+                tau{Outcome[0] = UNKNOWN;} -> Skip
+             } else {
+                tau{Outcome[0] = SUCCESS;} -> Skip
+             })
+    });
+ 
+Sussus1() = tau{rnd1 = Rounds[1] - 1; A1TS[rnd1] = TSC[1]; A1C[rnd1] = Counter[1];} ->  tau{OutvalueTS[1] = A0TS[rnd1]; OutvalueC[1] = A0C[rnd1];} ->
+    (if(OutvalueTS[1] == BOTTOM ) {
+        tau{Outcome[1] = SUCCESS;} -> Skip
+    } else {
+        tau{B1[rnd1] = DONE;} ->
+            (if(B0[rnd1] == BOTTOM) {
+                tau{Outcome[1] = UNKNOWN;} -> Skip
+             } else {
+                tau{Outcome[1] = SUCCESS;} -> Skip
+             })
+    });
+ 
+//process 1: wife
+Check() = check_inv -> tau{TSL[0] = TS[0]; RelL[0] = Rel[0];} -> tau{TSL[1] = TS[1]; RelL[1] = Rel[1];} ->
+   (if(call(mailorder, TSL[0],  TSL[1])) {
+           (if(RelL[0] == EQ) {
+               check_resf -> Check()
+           } else {
+               check_rest -> Remove()
+           }) 
+    } else {
+           (if(RelL[1] == EQ) {
+               check_resf -> Check()
+           } else {
+               check_rest -> Remove()
+           })
+    }); 
+  
+Remove() = remove_inv -> tau{Counter[1] = Counter[1] + 1;} -> (Compare(1); remove_res -> Skip);
+Wife(i) = [i < MaxROUND](Check();Wife(i+1));
+Mailbox() = Postman(0) ||| Wife(0);
+ 
+////////////////The Abstract Specification Model////////////////// 
+var FlagL = 0;
+var CountA = 0;
+ 
+PostmanAbs(i) =[i < MaxROUND]( deliver_inv -> deliver{CountA = CountA + 1;} -> deliver_res -> PostmanAbs(i+1));
+ 
+CheckAbs() = check_inv -> check{FlagL = CountA;} -> (if(FlagL > 0) {check_rest -> RemoveAbs()} else { check_resf -> CheckAbs() });
+RemoveAbs() = remove_inv -> remove{CountA = CountA - 1;} -> remove_res -> Skip;
+WifeAbs(i) = [i < MaxROUND] (CheckAbs();WifeAbs(i+1));
+ 
+MailboxAbs() = (PostmanAbs(0) ||| WifeAbs(0)) \{deliver, check, remove};
+ 
+////////////////The Properties//////////////////
+
+#assert Mailbox() refines MailboxAbs();

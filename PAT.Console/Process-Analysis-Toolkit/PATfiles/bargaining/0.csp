@@ -1,0 +1,34 @@
+#define ITEM_COUNT 3;
+#define MERCHANT_ITEM1_PRICE 10;
+#define MERCHANT_ITEM2_PRICE 15;
+#define MERCHANT_ITEM3_PRICE 20;
+#define AVAILABLE 1;
+#define UNAVAILABLE 0;
+#define BUYER_ITEM1_PRICE 5;
+#define BUYER_ITEM2_PRICE 15;
+#define BUYER_ITEM3_PRICE 25;
+#define BUYER_INITIAL_BUDGET 25;
+
+var availability[ITEM_COUNT] = [AVAILABLE, AVAILABLE, AVAILABLE];
+var budget = BUYER_INITIAL_BUDGET;
+
+Merchant() = ([availability[0] == AVAILABLE && budget >= BUYER_ITEM1_PRICE && BUYER_ITEM1_PRICE > MERCHANT_ITEM1_PRICE] 
+             merchant_finalize_sale_item1{availability[0] = UNAVAILABLE; budget = budget - BUYER_ITEM1_PRICE;} -> Merchant())
+          [] ([availability[1] == AVAILABLE && budget >= BUYER_ITEM2_PRICE && BUYER_ITEM2_PRICE >= MERCHANT_ITEM2_PRICE] 
+             merchant_finalize_sale_item2{availability[1] = UNAVAILABLE; budget = budget - BUYER_ITEM2_PRICE;} -> Merchant())
+          [] ([availability[2] == AVAILABLE && budget >= BUYER_ITEM3_PRICE && BUYER_ITEM3_PRICE > MERCHANT_ITEM3_PRICE] 
+             merchant_finalize_sale_item3{availability[2] = UNAVAILABLE; budget = budget - BUYER_ITEM3_PRICE;} -> Merchant());
+
+Buyer() = ([availability[0] == AVAILABLE && budget >= BUYER_ITEM1_PRICE && BUYER_ITEM1_PRICE > MERCHANT_ITEM1_PRICE] 
+          buyer_buy_item1{availability[0] = UNAVAILABLE; budget = budget - BUYER_ITEM1_PRICE;} -> Buyer())
+       [] ([availability[1] == AVAILABLE && budget >= BUYER_ITEM2_PRICE && BUYER_ITEM2_PRICE >= MERCHANT_ITEM2_PRICE] 
+          buyer_buy_item2{availability[1] = UNAVAILABLE; budget = budget - BUYER_ITEM2_PRICE;} -> Buyer())
+       [] ([availability[2] == AVAILABLE && budget >= BUYER_ITEM3_PRICE && BUYER_ITEM3_PRICE > MERCHANT_ITEM3_PRICE] 
+          buyer_buy_item3{availability[2] = UNAVAILABLE; budget = budget - BUYER_ITEM3_PRICE;} -> Buyer());
+
+Bargaining() = Merchant() ||| Buyer();
+
+#define budget_nonnegative budget >= 0;
+#define item1_valid_price BUYER_ITEM1_PRICE >= MERCHANT_ITEM1_PRICE;
+#define all_items_unavailable availability[0] == UNAVAILABLE && availability[1] == UNAVAILABLE && availability[2] == UNAVAILABLE;
+#assert Bargaining() |= []budget_nonnegative;

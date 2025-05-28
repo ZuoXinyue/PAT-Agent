@@ -1,0 +1,19 @@
+=======================================================
+Assertion: LiftSystem() |= []( inside-><> dooropen)
+********Verification Result********
+The Assertion (LiftSystem() |= []( inside-><> dooropen)) is NOT valid.
+A counterexample is presented as follows.
+<init -> call_lift_up_from_1 -> open_door -> enter_lift -> select_floor_3_from_1 -> select_floor_2_from_1 -> enter_lift -> exit_lift -> call_lift_up_from_1 -> exit_lift -> enter_lift -> close_door -> move_up_from_1_to_2 -> select_floor_1_from_2 -> move_down_from_2_to_1 -> (move_up_from_1_to_2 -> move_down_from_2_to_1)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:67
+Total Transitions:93
+Time Used:0.0131866s
+Estimated Memory Used:41236.944KB
+
+

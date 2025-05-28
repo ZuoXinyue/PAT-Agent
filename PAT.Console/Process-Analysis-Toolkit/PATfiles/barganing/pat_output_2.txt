@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Bargaining() |= ( buy_item1-> item1_valid_price)
+********Verification Result********
+The Assertion (Bargaining() |= ( buy_item1-> item1_valid_price)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:5
+Total Transitions:16
+Time Used:0.0079188s
+Estimated Memory Used:8522.52KB
+
+

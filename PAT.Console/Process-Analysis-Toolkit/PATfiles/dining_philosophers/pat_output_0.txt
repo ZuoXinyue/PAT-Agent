@@ -1,0 +1,20 @@
+=======================================================
+Assertion: College() deadlockfree
+********Verification Result********
+The Assertion (College() deadlockfree) is NOT valid.
+The following trace leads to a deadlock situation.
+<init -> get.1.2 -> get.2.0 -> get.0.1>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:34
+Total Transitions:56
+Time Used:0.0080005s
+Estimated Memory Used:8520.984KB
+
+

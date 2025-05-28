@@ -1,0 +1,10 @@
+#define N 3;
+
+Phil(i) = get.i.(i+1)%N -> get.i.i -> eat.i -> put.i.(i+1)%N -> put.i.i -> Phil(i);
+Fork(x) = get.x.x -> put.x.x -> Fork(x) [] get.(x-1)%N.x -> put.(x-1)%N.x -> Fork(x);
+College() = ||x:{0..N-1}@(Phil(x)||Fork(x));
+Implementation() = College() \ {get.0.0,get.0.1,put.0.0,put.0.1,eat.1,get.1.1,get.1.2,put.1.1,put.1.2,eat.2,get.2.2,get.2.0,put.2.2,put.2.0};
+Specification() = eat.0 -> Specification();
+////////////////The Properties//////////////////
+
+#assert Implementation() refines Specification();

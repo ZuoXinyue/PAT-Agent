@@ -1,0 +1,34 @@
+//shared binary array of size N
+var B = [0,0,1];
+//register value used by the abstract model
+var R = 2;
+//temporary value for abstract reader to stored the value read from register
+var M = 0;
+
+////////////////The Concrete Implementation Model//////////////////
+Readers() = read_inv -> UpScan(0);
+UpScan(i) = if(B[i] == 1) { DownScan(i - 1, i) } else { UpScan(i + 1) };
+DownScan(i, v) =
+		if(i >= 0) {
+			if(B[i] == 1) { DownScan(i - 1, i) } else { DownScan(i - 1, v) }
+		} else {
+			read_res.v -> Readers()
+		};
+
+Writer(i) = write_inv.i -> tau{B[i] = 1;} -> WriterDownScan(i-1);
+WriterDownScan(i) = if(i >= 0) { tau{B[i] = 0;} -> WriterDownScan(i-1) } else { write_res -> Skip };
+
+Writers() = (Writer(0)[]Writer(1)[]Writer(2)); Writers();
+Register() = Readers() ||| Writers();
+
+////////////////The Abstract Specification Model//////////////////
+ReadersAbs() = read_inv -> tau{M=R;} -> read_res.M -> ReadersAbs();
+
+WriterAbs(i) = write_inv.i -> tau{R=i;} -> write_res -> Skip;
+WritersAbs() = (WriterAbs(0)[]WriterAbs(1)[]WriterAbs(2)); WritersAbs();
+
+RegisterAbs() = ReadersAbs() ||| WritersAbs();
+
+////////////////The Properties//////////////////
+
+#assert Register() refines RegisterAbs();

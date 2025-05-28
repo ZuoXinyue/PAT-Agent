@@ -1,0 +1,20 @@
+=======================================================
+Assertion: Knight() reaches altergoal
+********Verification Result********
+The Assertion (Knight() reaches altergoal) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> move_2_1 -> move_2_1 -> move_neg1_2 -> move_neg2_neg1 -> move_neg1_neg2 -> move_2_1 -> move_1_neg2 -> move_neg2_1 -> move_neg1_2 -> move_2_1 -> move_2_neg1 -> move_neg1_neg2 -> move_neg2_neg1 -> move_neg1_2 -> move_1_2 -> move_2_neg1 -> move_1_neg2 -> move_neg2_neg1 -> move_neg1_2 -> move_neg1_2 -> move_2_neg1 -> move_2_1 -> move_neg1_neg2 -> move_1_neg2>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:508129
+Total Transitions:677580
+Time Used:24.097434s
+Estimated Memory Used:461395.104KB
+
+

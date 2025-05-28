@@ -1,0 +1,7 @@
+B() = e1 -> e2 -> p1 -> B();
+C() = e4 -> e3 -> p2 -> C();
+D() = e2 -> p3 -> D();
+E() = B() [] C();
+A() = D() || E();
+
+#assert A deadlockfree;

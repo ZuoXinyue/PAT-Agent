@@ -1,0 +1,35 @@
+#define N 2;
+
+//shared binary array of size N
+var B = [0,0,1];
+//register value used by the abstract model
+var R = 2;
+//temporary value for abstract reader to stored the value read from register
+var M[N];
+
+////////////////The Concrete Implementation Model//////////////////
+Readers(id) = read_inv.id -> UpScan(0, id);
+UpScan(i, id) =  if(B[i] == 1) { DownScan(i - 1, i, id) } else { UpScan(i + 1, id) };
+DownScan(i, v, id) =
+	if(i >= 0) {
+		if(B[i] == 1) { DownScan(i - 1, i, id) } else { DownScan(i - 1, v, id) }
+	} else {
+		read_res.id.v -> Readers(id)
+	};
+
+Writer(i) = write_inv.i -> tau{B[i] = 1;} -> WriterDownScan(i-1);
+WriterDownScan(i) = if(i >= 0 ) { tau{B[i] = 0;} -> WriterDownScan(i-1) } else { write_res -> Skip } ;
+
+Writers() = (Writer(0)[]Writer(1)[]Writer(2)); Writers();
+Register() = (|||x:{0..N-1}@Readers(x)) ||| Writers();
+
+////////////////The Abstract Specification Model//////////////////
+ReadersAbs(id) = read_inv.id -> tau{M[id]=R;} -> read_res.id.M[id] -> ReadersAbs(id);
+
+WriterAbs(i) = write_inv.i -> tau{R=i;} -> write_res -> Skip;
+WritersAbs() = (WriterAbs(0)[]WriterAbs(1)[]WriterAbs(2)); WritersAbs();
+RegisterAbs() = (|||x:{0..N-1}@ReadersAbs(x))||| WritersAbs();
+
+////////////////The Properties//////////////////
+
+#assert Register() refines RegisterAbs();

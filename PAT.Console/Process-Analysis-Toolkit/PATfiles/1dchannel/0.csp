@@ -1,0 +1,16 @@
+#define N 7;
+
+//a synchronous channel array
+channel right[N+1] 0;  
+
+//example of channel array to send data in one action
+Send() = right[0]!5 -> Send();
+//example of channel array to receive data in one action
+Receive() = right[N]?x -> Receive();
+
+COPY(i) = right[i]?x -> right[i+1]!x -> COPY(i);
+PIPE() = ||| i:{0..(N-1)} @ COPY(i);
+
+System() = PIPE() ||| Send() ||| Receive();
+
+#assert System() deadlockfree;

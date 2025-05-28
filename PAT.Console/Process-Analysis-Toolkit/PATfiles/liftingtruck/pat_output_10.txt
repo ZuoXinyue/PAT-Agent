@@ -1,0 +1,18 @@
+=======================================================
+Assertion: System() |= [](! MoveUpOrDownDifferent)
+********Verification Result********
+The Assertion (System() |= [](! MoveUpOrDownDifferent)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:2703
+Total Transitions:3177
+Time Used:0.0931716s
+Estimated Memory Used:9501.872KB
+
+

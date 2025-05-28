@@ -1,0 +1,86 @@
+#define COLOR_0 0;
+#define COLOR_1 1;
+#define COLOR_2 2;
+
+var pos0_color = COLOR_0;
+var pos0_precolor = COLOR_2;
+var pos0_succolor = COLOR_1;
+
+var pos1_color = COLOR_1;
+var pos1_precolor = COLOR_0;
+var pos1_succolor = COLOR_2;
+
+var pos2_color = COLOR_2;
+var pos2_precolor = COLOR_1;
+var pos2_succolor = COLOR_0;
+
+Interaction_0_1() = 
+    [(pos1_color == pos0_precolor) && (pos1_color != pos0_succolor)] 
+        Interaction_0_1_match_precolor_only{pos1_succolor = pos0_color;} -> Interaction_0_1()
+    [] [(pos1_color == pos0_succolor) && (pos1_color != pos0_precolor)] 
+        Interaction_0_1_match_succolor_only{pos1_precolor = pos0_color;} -> Interaction_0_1()
+    [] [(pos1_color == pos0_precolor) && (pos1_color == pos0_succolor)] 
+        Interaction_0_1_match_both{pos0_precolor = pos1_color; pos1_succolor = pos0_color;} -> Interaction_0_1()
+    [] [(pos1_color != pos0_precolor) && (pos1_color != pos0_succolor)] 
+        Interaction_0_1_match_neither{pos0_precolor = pos1_color; pos1_succolor = pos0_color;} -> Interaction_0_1();
+
+Interaction_0_2() = 
+    [(pos2_color == pos0_precolor) && (pos2_color != pos0_succolor)] 
+        Interaction_0_2_match_precolor_only{pos2_succolor = pos0_color;} -> Interaction_0_2()
+    [] [(pos2_color == pos0_succolor) && (pos2_color != pos0_precolor)] 
+        Interaction_0_2_match_succolor_only{pos2_precolor = pos0_color;} -> Interaction_0_2()
+    [] [(pos2_color == pos0_precolor) && (pos2_color == pos0_succolor)] 
+        Interaction_0_2_match_both{pos0_precolor = pos2_color; pos2_succolor = pos0_color;} -> Interaction_0_2()
+    [] [(pos2_color != pos0_precolor) && (pos2_color != pos0_succolor)] 
+        Interaction_0_2_match_neither{pos0_precolor = pos2_color; pos2_succolor = pos0_color;} -> Interaction_0_2();
+
+Interaction_1_2() = 
+    [(pos2_color == pos1_precolor) && (pos2_color != pos1_succolor)] 
+        Interaction_1_2_match_precolor_only{pos2_succolor = pos1_color;} -> Interaction_1_2()
+    [] [(pos2_color == pos1_succolor) && (pos2_color != pos1_precolor)] 
+        Interaction_1_2_match_succolor_only{pos2_precolor = pos1_color;} -> Interaction_1_2()
+    [] [(pos2_color == pos1_precolor) && (pos2_color == pos1_succolor)] 
+        Interaction_1_2_match_both{pos1_precolor = pos2_color; pos2_succolor = pos1_color;} -> Interaction_1_2()
+    [] [(pos2_color != pos1_precolor) && (pos2_color != pos1_succolor)] 
+        Interaction_1_2_match_neither{pos1_precolor = pos2_color; pos2_succolor = pos1_color;} -> Interaction_1_2();
+
+Interaction_1_0() = 
+    [(pos0_color == pos1_precolor) && (pos0_color != pos1_succolor)] 
+        Interaction_1_0_match_precolor_only{pos0_succolor = pos1_color;} -> Interaction_1_0()
+    [] [(pos0_color == pos1_succolor) && (pos0_color != pos1_precolor)] 
+        Interaction_1_0_match_succolor_only{pos0_precolor = pos1_color;} -> Interaction_1_0()
+    [] [(pos0_color == pos1_precolor) && (pos0_color == pos1_succolor)] 
+        Interaction_1_0_match_both{pos1_precolor = pos0_color; pos0_succolor = pos1_color;} -> Interaction_1_0()
+    [] [(pos0_color != pos1_precolor) && (pos0_color != pos1_succolor)] 
+        Interaction_1_0_match_neither{pos1_precolor = pos0_color; pos0_succolor = pos1_color;} -> Interaction_1_0();
+
+Interaction_2_0() = 
+    [(pos0_color == pos2_precolor) && (pos0_color != pos2_succolor)] 
+        Interaction_2_0_match_precolor_only{pos0_succolor = pos2_color;} -> Interaction_2_0()
+    [] [(pos0_color == pos2_succolor) && (pos0_color != pos2_precolor)] 
+        Interaction_2_0_match_succolor_only{pos0_precolor = pos2_color;} -> Interaction_2_0()
+    [] [(pos0_color == pos2_precolor) && (pos0_color == pos2_succolor)] 
+        Interaction_2_0_match_both{pos2_precolor = pos0_color; pos0_succolor = pos2_color;} -> Interaction_2_0()
+    [] [(pos0_color != pos2_precolor) && (pos0_color != pos2_succolor)] 
+        Interaction_2_0_match_neither{pos2_precolor = pos0_color; pos0_succolor = pos2_color;} -> Interaction_2_0();
+
+Interaction_2_1() = 
+    [(pos1_color == pos2_precolor) && (pos1_color != pos2_succolor)] 
+        Interaction_2_1_match_precolor_only{pos1_succolor = pos2_color;} -> Interaction_2_1()
+    [] [(pos1_color == pos2_succolor) && (pos1_color != pos2_precolor)] 
+        Interaction_2_1_match_succolor_only{pos1_precolor = pos2_color;} -> Interaction_2_1()
+    [] [(pos1_color == pos2_precolor) && (pos1_color == pos2_succolor)] 
+        Interaction_2_1_match_both{pos2_precolor = pos1_color; pos1_succolor = pos2_color;} -> Interaction_2_1()
+    [] [(pos1_color != pos2_precolor) && (pos1_color != pos2_succolor)] 
+        Interaction_2_1_match_neither{pos2_precolor = pos1_color; pos1_succolor = pos2_color;} -> Interaction_2_1();
+
+leader_undirected_ring() = Interaction_0_1() ||| Interaction_0_2() ||| Interaction_1_2() ||| Interaction_1_0() ||| Interaction_2_0() ||| Interaction_2_1();
+
+#define presucdistinct ((pos0_precolor != pos0_succolor) && (pos1_precolor != pos1_succolor) && (pos2_precolor != pos2_succolor));
+
+#define adjecent01 (((pos0_color == pos1_precolor) && (pos1_color == pos0_succolor)) || ((pos0_color == pos1_succolor) && (pos1_color == pos0_precolor)));
+#define adjecent12 (((pos1_color == pos2_precolor) && (pos2_color == pos1_succolor)) || ((pos1_color == pos2_succolor) && (pos2_color == pos1_precolor)));
+#define adjecent20 (((pos2_color == pos0_precolor) && (pos0_color == pos2_succolor)) || ((pos2_color == pos0_succolor) && (pos0_color == pos2_precolor)));
+
+#assert leader_undirected_ring() |= <>[]presucdistinct;
+#assert leader_undirected_ring() |= <>[](adjecent01 && adjecent12 && adjecent20);

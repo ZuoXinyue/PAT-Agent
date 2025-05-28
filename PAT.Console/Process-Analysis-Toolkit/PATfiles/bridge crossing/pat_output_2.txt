@@ -1,0 +1,20 @@
+=======================================================
+Assertion: South() |= [] alter
+********Verification Result********
+The Assertion (South() |= [] alter) is NOT valid.
+A counterexample is presented as follows.
+<init -> cross_knight_lady_to_north -> cross_lady_to_south -> cross_king_queen_to_north -> cross_knight_to_south -> cross_knight_lady_to_north>
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:319
+Total Transitions:612
+Time Used:0.0142222s
+Estimated Memory Used:8522.528KB
+
+

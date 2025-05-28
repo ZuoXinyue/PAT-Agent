@@ -1,0 +1,18 @@
+=======================================================
+Assertion: roundabout() |= []( C_not_Empty-> D_empty)
+********Verification Result********
+The Assertion (roundabout() |= []( C_not_Empty-> D_empty)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:29
+Total Transitions:46
+Time Used:0.0080064s
+Estimated Memory Used:8520.024KB
+
+

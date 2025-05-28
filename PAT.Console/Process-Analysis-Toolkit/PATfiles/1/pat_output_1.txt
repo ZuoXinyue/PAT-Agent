@@ -1,0 +1,18 @@
+=======================================================
+Assertion: LiftSystem() |= [] validfloor
+********Verification Result********
+The Assertion (LiftSystem() |= [] validfloor) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:217
+Total Transitions:690
+Time Used:0.0208399s
+Estimated Memory Used:8679.328KB
+
+

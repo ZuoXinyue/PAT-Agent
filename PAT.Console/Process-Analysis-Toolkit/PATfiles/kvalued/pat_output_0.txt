@@ -1,0 +1,18 @@
+=======================================================
+Assertion: Register() deadlockfree
+********Verification Result********
+The Assertion (Register() deadlockfree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:838656
+Total Transitions:3384576
+Time Used:47.7360431s
+Estimated Memory Used:245002.112KB
+
+

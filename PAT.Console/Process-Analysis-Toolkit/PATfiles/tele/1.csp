@@ -1,0 +1,112 @@
+#define MAX_USERS 3;
+#define LINE_FREE 0;
+#define LINE_BUSY 1;
+#define LINE_RINGING 2;
+#define NO_CALL 0;
+#define FEATURE_NONE 0;
+#define FEATURE_FORWARDING 1;
+#define FEATURE_SCREENING 2;
+
+var callerMapping[MAX_USERS] = [NO_CALL, NO_CALL, NO_CALL];
+var lineStatuses[MAX_USERS] = [LINE_FREE, LINE_FREE, LINE_FREE];
+var userFeatures[MAX_USERS] = [FEATURE_NONE, FEATURE_NONE, FEATURE_NONE];
+
+Service(i) = 
+    init_network{
+        callerMapping[0] = NO_CALL; callerMapping[1] = NO_CALL; callerMapping[2] = NO_CALL;
+        lineStatuses[0] = LINE_FREE; lineStatuses[1] = LINE_FREE; lineStatuses[2] = LINE_FREE;
+        userFeatures[0] = FEATURE_NONE; userFeatures[1] = FEATURE_NONE; userFeatures[2] = FEATURE_NONE;
+    } -> Service(i)
+    [] [callerMapping[i] == i] reject_self_call{callerMapping[i] = NO_CALL;} -> Service(i)
+    [] [callerMapping[i] < 1 || callerMapping[i] > 3] reject_invalid_call{callerMapping[i] = NO_CALL;} -> Service(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && callerMapping[i] != i 
+        && lineStatuses[callerMapping[i]-1] == LINE_FREE 
+        && userFeatures[callerMapping[i]-1] == FEATURE_NONE] 
+        ring_callee_normal{
+            lineStatuses[callerMapping[i]-1] = LINE_RINGING; 
+            lineStatuses[i] = LINE_BUSY;
+        } -> Service(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && callerMapping[i] != i 
+        && lineStatuses[callerMapping[i]-1] == LINE_FREE 
+        && userFeatures[callerMapping[i]-1] == FEATURE_SCREENING] 
+        ring_callee_screening{
+            lineStatuses[callerMapping[i]-1] = LINE_RINGING; 
+            lineStatuses[i] = LINE_BUSY;
+        } -> Service(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && callerMapping[i] != i 
+        && lineStatuses[callerMapping[i]-1] == LINE_BUSY 
+        && userFeatures[callerMapping[i]-1] == FEATURE_NONE] 
+        busy_tone_no_forward{
+            callerMapping[i] = NO_CALL; 
+            lineStatuses[i] = LINE_FREE;
+        } -> Service(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && callerMapping[i] != i 
+        && lineStatuses[callerMapping[i]-1] == LINE_BUSY 
+        && userFeatures[callerMapping[i]-1] == FEATURE_FORWARDING] 
+        forward_call{
+            callerMapping[i] = 3;
+            lineStatuses[2] = LINE_RINGING;
+            lineStatuses[i] = LINE_BUSY;
+        } -> Service(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && callerMapping[i] != i
+        && lineStatuses[callerMapping[i]-1] == LINE_RINGING] 
+        cancel_dial{
+            lineStatuses[callerMapping[i]-1] = LINE_FREE;
+            lineStatuses[i] = LINE_FREE;
+            callerMapping[i] = NO_CALL;
+        } -> Service(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && callerMapping[i] != i
+        && lineStatuses[callerMapping[i]-1] == LINE_RINGING] 
+        connect_call{
+            lineStatuses[i] = LINE_BUSY;
+            lineStatuses[callerMapping[i]-1] = LINE_BUSY;
+        } -> Service(i)
+    [] [callerMapping[i] != NO_CALL && callerMapping[i] >= 1 && callerMapping[i] <= 3 
+        && lineStatuses[i] == LINE_BUSY 
+        && lineStatuses[callerMapping[i]-1] == LINE_BUSY] 
+        hang_up_call{
+            if (callerMapping[callerMapping[i]-1] == i+1) {
+                callerMapping[callerMapping[i]-1] = NO_CALL;
+            }
+            callerMapping[i] = NO_CALL;
+            lineStatuses[i] = LINE_FREE;
+            lineStatuses[callerMapping[i]-1] = LINE_FREE;
+        } -> Service(i);
+
+Users(i) = 
+    [callerMapping[i] == NO_CALL && lineStatuses[i] == LINE_FREE] 
+    lift_receiver_to_dial -> Users(i)
+    [] [callerMapping[i] == NO_CALL && lineStatuses[i] == LINE_FREE] 
+    dial_number.1{callerMapping[i] = 1;} -> Users(i)
+    [] [callerMapping[i] == NO_CALL && lineStatuses[i] == LINE_FREE] 
+    dial_number.2{callerMapping[i] = 2;} -> Users(i)
+    [] [callerMapping[i] == NO_CALL && lineStatuses[i] == LINE_FREE] 
+    dial_number.3{callerMapping[i] = 3;} -> Users(i)
+    [] [callerMapping[i] >= 1 && callerMapping[i] <= 3 && lineStatuses[i] != LINE_RINGING] 
+    cancel_call{
+        callerMapping[i] = NO_CALL;
+        lineStatuses[i] = LINE_FREE;
+    } -> Users(i)
+    [] [lineStatuses[i] == LINE_RINGING] 
+    answer_call{lineStatuses[i] = LINE_BUSY;} -> Users(i)
+    [] [callerMapping[i] != NO_CALL && lineStatuses[i] == LINE_BUSY] 
+    hang_up{
+        callerMapping[i] = NO_CALL;
+        lineStatuses[i] = LINE_FREE;
+    } -> Users(i);
+
+// Feature management
+FeatureManagement(i) = 
+    [userFeatures[i] == FEATURE_NONE] 
+    enable_forwarding{userFeatures[i] = FEATURE_FORWARDING;} -> FeatureManagement(i)
+    [] [userFeatures[i] == FEATURE_NONE] 
+    enable_screening{userFeatures[i] = FEATURE_SCREENING;} -> FeatureManagement(i)
+    [] [userFeatures[i] != FEATURE_NONE] 
+    disable_features{userFeatures[i] = FEATURE_NONE;} -> FeatureManagement(i);
+
+tele() = (||| i:{0..MAX_USERS-1} @ (Service(i) ||| Users(i) ||| FeatureManagement(i)));
+
+#define forwarding_in_progress userFeatures[0] == FEATURE_FORWARDING && callerMapping[1] == 1 && lineStatuses[0] == LINE_RINGING;
+#define screening_active userFeatures[1] == FEATURE_SCREENING && callerMapping[2] == 2 && lineStatuses[1] == LINE_RINGING;
+#define contradictory_user_features userFeatures[2] == FEATURE_FORWARDING && userFeatures[2] == FEATURE_SCREENING;
+#assert tele() reaches forwarding_in_progress;

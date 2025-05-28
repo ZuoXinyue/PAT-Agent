@@ -1,0 +1,92 @@
+#define NUM_NODES 3;
+
+var detectorcorrect = 0;
+var detector = 0;
+var nodesBullet[NUM_NODES] = [0,0,0];
+var nodesLeader[NUM_NODES] = [0,0,0];
+var nodesShield[NUM_NODES] = [0,0,0];
+
+DetectorCorrect() = 
+    [detectorcorrect == 0] set_detectorcorrect{detectorcorrect = 1;} -> DetectorCorrect();
+
+RandomDetector() = 
+    [detectorcorrect == 0] set_detector_true{detector = 1;} -> RandomDetector()
+    []
+    [detectorcorrect == 0] set_detector_false{detector = 0;} -> RandomDetector();
+
+Process_0() = 
+    [detectorcorrect == 0 && detector == 0] arm_elect_case1{nodesBullet[0] = 1; nodesShield[0] = 1; nodesLeader[0] = 1;} -> Process_0()
+    []
+    [detectorcorrect == 1 && nodesLeader[0] == 0 && nodesLeader[1] == 0 && nodesLeader[2] == 0] arm_elect_case2{nodesBullet[0] = 1; nodesShield[0] = 1; nodesLeader[0] = 1;} -> Process_0()
+    []
+    [nodesLeader[0] == 0 && nodesShield[0] == 1 && detectorcorrect == 0 && detector == 1] hand_off_case1{nodesShield[0] = 0; nodesBullet[1] = 0; nodesShield[1] = 1;} -> Process_0()
+    []
+    [nodesLeader[0] == 0 && nodesShield[0] == 1 && detectorcorrect == 1 && nodesLeader[1] == 1] hand_off_case2_node1{nodesShield[0] = 0; nodesBullet[1] = 0; nodesShield[1] = 1;} -> Process_0()
+    []
+    [nodesLeader[0] == 0 && nodesShield[0] == 1 && detectorcorrect == 1 && nodesLeader[2] == 1] hand_off_case2_node2{nodesShield[0] = 0; nodesBullet[1] = 0; nodesShield[1] = 1;} -> Process_0()
+    []
+    [nodesLeader[0] == 1 && nodesShield[0] == 1 && detectorcorrect == 0 && detector == 1] shield_transfer_case1{nodesBullet[0] = 1; nodesShield[0] = 0; nodesShield[1] = 1; nodesBullet[1] = 0;} -> Process_0()
+    []
+    [nodesLeader[0] == 1 && nodesShield[0] == 1 && detectorcorrect == 1] shield_transfer_case2{nodesBullet[0] = 1; nodesShield[0] = 0; nodesShield[1] = 1; nodesBullet[1] = 0;} -> Process_0()
+    []
+    [nodesLeader[0] == 1 && nodesShield[0] == 0 && nodesBullet[1] == 0 && detectorcorrect == 0 && detector == 1] simply_arm_case1{nodesBullet[0] = 1;} -> Process_0()
+    []
+    [nodesLeader[0] == 1 && nodesShield[0] == 0 && nodesBullet[1] == 0 && detectorcorrect == 1] simply_arm_case2{nodesBullet[0] = 1;} -> Process_0()
+    []
+    [nodesShield[0] == 0 && nodesBullet[1] == 1 && detectorcorrect == 0 && detector == 1] fallback_demotion_case1{nodesBullet[0] = 1; nodesLeader[0] = 0; nodesBullet[1] = 0;} -> Process_0()
+    []
+    [nodesShield[0] == 0 && nodesBullet[1] == 1 && detectorcorrect == 1] fallback_demotion_case2{nodesBullet[0] = 1; nodesLeader[0] = 0; nodesBullet[1] = 0;} -> Process_0();
+
+Process_1() = 
+    [detectorcorrect == 0 && detector == 0] arm_elect_case1{nodesBullet[1] = 1; nodesShield[1] = 1; nodesLeader[1] = 1;} -> Process_1()
+    []
+    [detectorcorrect == 1 && nodesLeader[0] == 0 && nodesLeader[1] == 0 && nodesLeader[2] == 0] arm_elect_case2{nodesBullet[1] = 1; nodesShield[1] = 1; nodesLeader[1] = 1;} -> Process_1()
+    []
+    [nodesLeader[1] == 0 && nodesShield[1] == 1 && detectorcorrect == 0 && detector == 1] hand_off_case1{nodesShield[1] = 0; nodesBullet[2] = 0; nodesShield[2] = 1;} -> Process_1()
+    []
+    [nodesLeader[1] == 0 && nodesShield[1] == 1 && detectorcorrect == 1 && nodesLeader[0] == 1] hand_off_case2_node0{nodesShield[1] = 0; nodesBullet[2] = 0; nodesShield[2] = 1;} -> Process_1()
+    []
+    [nodesLeader[1] == 0 && nodesShield[1] == 1 && detectorcorrect == 1 && nodesLeader[2] == 1] hand_off_case2_node2{nodesShield[1] = 0; nodesBullet[2] = 0; nodesShield[2] = 1;} -> Process_1()
+    []
+    [nodesLeader[1] == 1 && nodesShield[1] == 1 && detectorcorrect == 0 && detector == 1] shield_transfer_case1{nodesBullet[1] = 1; nodesShield[1] = 0; nodesShield[2] = 1; nodesBullet[2] = 0;} -> Process_1()
+    []
+    [nodesLeader[1] == 1 && nodesShield[1] == 1 && detectorcorrect == 1] shield_transfer_case2{nodesBullet[1] = 1; nodesShield[1] = 0; nodesShield[2] = 1; nodesBullet[2] = 0;} -> Process_1()
+    []
+    [nodesLeader[1] == 1 && nodesShield[1] == 0 && nodesBullet[2] == 0 && detectorcorrect == 0 && detector == 1] simply_arm_case1{nodesBullet[1] = 1;} -> Process_1()
+    []
+    [nodesLeader[1] == 1 && nodesShield[1] == 0 && nodesBullet[2] == 0 && detectorcorrect == 1] simply_arm_case2{nodesBullet[1] = 1;} -> Process_1()
+    []
+    [nodesShield[1] == 0 && nodesBullet[2] == 1 && detectorcorrect == 0 && detector == 1] fallback_demotion_case1{nodesBullet[1] = 1; nodesLeader[1] = 0; nodesBullet[2] = 0;} -> Process_1()
+    []
+    [nodesShield[1] == 0 && nodesBullet[2] == 1 && detectorcorrect == 1] fallback_demotion_case2{nodesBullet[1] = 1; nodesLeader[1] = 0; nodesBullet[2] = 0;} -> Process_1();
+
+Process_2() = 
+    [detectorcorrect == 0 && detector == 0] arm_elect_case1{nodesBullet[2] = 1; nodesShield[2] = 1; nodesLeader[2] = 1;} -> Process_2()
+    []
+    [detectorcorrect == 1 && nodesLeader[0] == 0 && nodesLeader[1] == 0 && nodesLeader[2] == 0] arm_elect_case2{nodesBullet[2] = 1; nodesShield[2] = 1; nodesLeader[2] = 1;} -> Process_2()
+    []
+    [nodesLeader[2] == 0 && nodesShield[2] == 1 && detectorcorrect == 0 && detector == 1] hand_off_case1{nodesShield[2] = 0; nodesBullet[0] = 0; nodesShield[0] = 1;} -> Process_2()
+    []
+    [nodesLeader[2] == 0 && nodesShield[2] == 1 && detectorcorrect == 1 && nodesLeader[0] == 1] hand_off_case2_node0{nodesShield[2] = 0; nodesBullet[0] = 0; nodesShield[0] = 1;} -> Process_2()
+    []
+    [nodesLeader[2] == 0 && nodesShield[2] == 1 && detectorcorrect == 1 && nodesLeader[1] == 1] hand_off_case2_node1{nodesShield[2] = 0; nodesBullet[0] = 0; nodesShield[0] = 1;} -> Process_2()
+    []
+    [nodesLeader[2] == 1 && nodesShield[2] == 1 && detectorcorrect == 0 && detector == 1] shield_transfer_case1{nodesBullet[2] = 1; nodesShield[2] = 0; nodesShield[0] = 1; nodesBullet[0] = 0;} -> Process_2()
+    []
+    [nodesLeader[2] == 1 && nodesShield[2] == 1 && detectorcorrect == 1] shield_transfer_case2{nodesBullet[2] = 1; nodesShield[2] = 0; nodesShield[0] = 1; nodesBullet[0] = 0;} -> Process_2()
+    []
+    [nodesLeader[2] == 1 && nodesShield[2] == 0 && nodesBullet[0] == 0 && detectorcorrect == 0 && detector == 1] simply_arm_case1{nodesBullet[2] = 1;} -> Process_2()
+    []
+    [nodesLeader[2] == 1 && nodesShield[2] == 0 && nodesBullet[0] == 0 && detectorcorrect == 1] simply_arm_case2{nodesBullet[2] = 1;} -> Process_2()
+    []
+    [nodesShield[2] == 0 && nodesBullet[0] == 1 && detectorcorrect == 0 && detector == 1] fallback_demotion_case1{nodesBullet[2] = 1; nodesLeader[2] = 0; nodesBullet[0] = 0;} -> Process_2()
+    []
+    [nodesShield[2] == 0 && nodesBullet[0] == 1 && detectorcorrect == 1] fallback_demotion_case2{nodesBullet[2] = 1; nodesLeader[2] = 0; nodesBullet[0] = 0;} -> Process_2();
+
+leader_ring = DetectorCorrect() ||| RandomDetector() ||| Process_0() ||| Process_1() ||| Process_2();
+
+#define oneLeader ((nodesLeader[0] == 1 && nodesLeader[1] == 0 && nodesLeader[2] == 0) || 
+                  (nodesLeader[0] == 0 && nodesLeader[1] == 1 && nodesLeader[2] == 0) || 
+                  (nodesLeader[0] == 0 && nodesLeader[1] == 0 && nodesLeader[2] == 1));
+
+#assert leader_ring |= <>[]oneLeader;

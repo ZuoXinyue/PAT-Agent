@@ -1,0 +1,17 @@
+=======================================================
+Assertion: System() |= [](<>( startActive.1|| startActive.2|| startActive.3))
+********Verification Result********
+The Assertion (System() |= [](<>( startActive.1|| startActive.2|| startActive.3))) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:5379
+Total Transitions:9423
+Time Used:0.1886092s
+Estimated Memory Used:45482.352KB
+
+

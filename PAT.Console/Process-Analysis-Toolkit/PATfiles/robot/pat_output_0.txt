@@ -1,0 +1,18 @@
+=======================================================
+Assertion: robot() |= [](! reach_3_3)
+********Verification Result********
+The Assertion (robot() |= [](! reach_3_3)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:41
+Total Transitions:66
+Time Used:0.0077017s
+Estimated Memory Used:8509.016KB
+
+

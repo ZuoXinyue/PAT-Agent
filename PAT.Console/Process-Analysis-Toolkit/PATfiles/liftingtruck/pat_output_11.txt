@@ -1,0 +1,18 @@
+=======================================================
+Assertion: System() |= [](! MultiSETREF)
+********Verification Result********
+The Assertion (System() |= [](! MultiSETREF)) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:2703
+Total Transitions:3177
+Time Used:0.0868424s
+Estimated Memory Used:9535.88KB
+
+
