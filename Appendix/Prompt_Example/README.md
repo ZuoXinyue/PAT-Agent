@@ -1,0 +1,1 @@
+Example prompts for processing constants, variables, and actions are provided below for reference.

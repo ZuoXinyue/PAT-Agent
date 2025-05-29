@@ -1,4 +1,3 @@
-
 ## Setup Instructions
 
 ### 1. Create a Conda Environment
@@ -25,3 +24,6 @@ Once the server is running, open your web browser and go to:
 ```bash
 http://127.0.0.1:5000
 ```
+
+### 5. Demo
+See the video below for a walkthrough of how to use the interface.

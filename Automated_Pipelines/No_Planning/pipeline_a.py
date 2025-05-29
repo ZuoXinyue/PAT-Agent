@@ -676,7 +676,7 @@ def _extract_longest_code_block(text):
 
 if __name__ == '__main__':
     # read ./test-automated-pipeline.json
-    with open('./PAT-Examples-Alloy-dataset.json', 'r') as file:
+    with open('./PAT.json', 'r') as file:
         structured_data_list = json.load(file)
         assert len(structured_data_list) == 8, "The number of entries in the JSON file should be 8."
         for i in range(len(structured_data_list)): # Iterate through all entries in the JSON
