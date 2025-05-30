@@ -25,5 +25,9 @@ Once the server is running, open your web browser and go to:
 http://127.0.0.1:5000
 ```
 
-### 5. Demo
+<!-- ### 5. Demo
 See the video below for a walkthrough of how to use the interface.
+<video width="640" height="360" controls>
+  <source src="../demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video> -->

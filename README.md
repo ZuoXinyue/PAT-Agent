@@ -1,4 +1,4 @@
-# PAT Agent
+# PAT-Agent
 This project focuses on natural language autoformalization and formal code repair. We provide both a fully automated pipeline that accepts natural language inputs, as well as an interactive interface that allows controllable step-by-step model developement.
 
 ## Folder Structure
@@ -7,7 +7,7 @@ Here's an overview of the project's folder structure:
 
 ```
 PAT-Agent-Submission/
-├── Appendix/                 # Additional results not provided in the paper due to space constraint
+├── Appendix/                 # Additional results not provided in the PAT-Agent paper due to space constraint
 │   ├── Interface_Screenshots/
 │   ├── Prompt_Example/
 │   ├── RQ1/
@@ -31,5 +31,10 @@ PAT-Agent-Submission/
 └── PAT.Console/              # PAT Model Checker
 ```
 
-## Video
+<!-- ## Video
 The following demo video illustrates how to use the PAT-Agent interface to interactively develop a formal model from general natural language descriptions.
+
+<video width="640" height="360" controls>
+  <source src="./demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video> -->
