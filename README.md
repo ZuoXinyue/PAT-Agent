@@ -31,10 +31,12 @@ PAT-Agent-Submission/
 └── PAT.Console/              # PAT Model Checker
 ```
 
-<!-- ## Video
+## Video
 The following demo video illustrates how to use the PAT-Agent interface to interactively develop a formal model from general natural language descriptions.
 
 <video width="640" height="360" controls>
   <source src="./demo.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> -->
+</video>
+
+If you’re unable to view the video above, you can download it directly [here](./demo.mp4).

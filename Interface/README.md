@@ -25,9 +25,13 @@ Once the server is running, open your web browser and go to:
 http://127.0.0.1:5000
 ```
 
-<!-- ### 5. Demo
-See the video below for a walkthrough of how to use the interface.
+### 5. Demo
+The following demo video illustrates how to use the PAT-Agent interface to interactively develop a formal model from general natural language descriptions.
+
 <video width="640" height="360" controls>
   <source src="../demo.mp4" type="video/mp4">
   Your browser does not support the video tag.
-</video> -->
+</video>
+
+If you can’t view the embedded player, download the video directly:
+[Download the demo video](../demo.mp4)
