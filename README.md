@@ -34,4 +34,6 @@ PAT-Agent-Submission/
 ## Video
 The demo video illustrates how to use the PAT-Agent interface to interactively develop a formal model from general natural language descriptions.
 
-Download the demo video here: [demo.mp4](./demo.mp4)
+**Click the image below to watch on YouTube:**
+
+[![Watch the demo on YouTube](https://img.youtube.com/vi/1dAPfLEG3wU/0.jpg)](https://youtu.be/1dAPfLEG3wU)
