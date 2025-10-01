@@ -1,4 +1,6 @@
 # PAT-Agent
+**Accepted by ASE 2025 (International Conference on Automated Software Engineering)**
+
 This project focuses on natural language autoformalization and formal code repair. We provide both a fully automated pipeline that accepts natural language inputs, as well as an interactive interface that allows controllable step-by-step model developement.
 
 ## Folder Structure
