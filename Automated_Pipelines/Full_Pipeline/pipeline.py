@@ -656,7 +656,7 @@ def verify_code(structured_data, code_to_verify, is_refine=False, refine_round=0
     model_name = structured_data.get('modelName', 'unknown_model')
     
     # Setup directories
-    root_path = "path_to_your_root_directory"  # Replace with your actual root path
+    root_path = "path_to_your_project_directory"  # Replace with your actual root path
     
     if is_refine:
         # If we're refining, create a specific subdirectory for this round
@@ -933,7 +933,7 @@ def gen_refine(structured_data, current_code, mismatches, refine_round):
     
     # Save the refined code to a specific file for this round
     model_name = structured_data.get('modelName', 'unknown_model')
-    root_path = "path_to_your_root_directory"  # Replace with your actual root path
+    root_path = "path_to_your_project_directory"  # Replace with your actual root path
     folder_path = f"{root_path}/Automated_Pipelines/Full_Pipeline/generated_code/{model_name}"
     refined_code_path = f"{folder_path}/refined_code_{refine_round}.csp"
     
@@ -1129,7 +1129,7 @@ if __name__ == '__main__':
                 
                 # Save both the original response and the extracted code for reference
                 model_name = current_structured_data.get('modelName', 'unknown_model')
-                root_path = "path_to_your_root_directory"  # Replace with your actual root path
+                root_path = "path_to_your_project_directory"  # Replace with your actual root path
                 folder_path = f"{root_path}/Automated_Pipelines/Full_Pipeline/generated_code/{model_name}"
                 os.makedirs(folder_path, exist_ok=True)
                 
@@ -1182,7 +1182,7 @@ if __name__ == '__main__':
                 model_name = current_structured_data.get('modelName', 'unknown_model')
                 
                 # Main directory for the model
-                root_path = "path_to_your_root_directory"  # Replace with your actual root path
+                root_path = "path_to_your_project_directory"  # Replace with your actual root path
                 model_dir = f"{root_path}/Automated_Pipelines/Full_Pipeline/generated_code/{model_name}"
                 
                 # Make sure the model directory exists

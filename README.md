@@ -42,10 +42,10 @@ PAT-Agent-Submission/
 
 To reproduce the experiments reported in the PAT-Agent paper:
 - Step 1: Clone the Repository.
-- Step 2: Move each dataset file to its expected location.
-    - Example: place ```Datasets/PAT.json``` into ```Full_Pipeline/PAT.json```.
+- Step 2: Move the dataset to run to its expected location.
+    - Example: place ```Datasets/PAT.json``` into ```Automated_Pipelines/Full_Pipeline/PAT.json```.
 - Step 3: Set the project root path.
-    - Update the ```root_path``` variable so it points to the absolute path of your cloned repository.
+    - Update the ```root_path``` variable (e.g., in ```Automated_Pipelines/Full_Pipeline/pipeline.py```) so it points to the absolute path of your cloned repository.
 - Step 4: Set up the environment.
     - Create the conda environment as instructed in ```Automated_Pipelines/README.md```.
 - Step 5: Run the experiments.
