@@ -1,0 +1,50 @@
+[
+  {
+    "assertion": "#assert tesla |= water_sensor_high -> X openAll;",
+    "patResult": "The Assertion (tesla() |= water_sensor_high-> X openAll) is VALID.",
+    "actualResult": "Valid",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert tesla |= []<> start_driving;",
+    "patResult": "The Assertion (tesla() |= []<> start_driving) is NOT valid.\nA counterexample is presented as follows.\n<init -> water_sensor_high -> submerge -> stop -> terminate>",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches keylockinside;",
+    "patResult": "The Assertion (tesla() reaches keylockinside) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches runwithoutowner;",
+    "patResult": "The Assertion (tesla() reaches runwithoutowner) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches ownerdrivetogether;",
+    "patResult": "The Assertion (tesla() reaches ownerdrivetogether) is VALID.\nThe following trace leads to a state where the condition is satisfied.\n<init -> owner1_approach_car -> owner1_pickup_key_far -> start_engine -> unlock_door -> open_door -> owner1_enter_car -> start_driving -> owner2_approach_car -> owner2_enter_car>",
+    "actualResult": "Valid",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert tesla reaches drivewithoutengineon;",
+    "patResult": "The Assertion (tesla() reaches drivewithoutengineon) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches drivewithoutfuel;",
+    "patResult": "The Assertion (tesla() reaches drivewithoutfuel) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches drivewithoutkeyholdbyother;",
+    "patResult": "The Assertion (tesla() reaches drivewithoutkeyholdbyother) is VALID.\nThe following trace leads to a state where the condition is satisfied.\n<init -> owner1_approach_car -> owner1_pickup_key_far -> start_engine -> unlock_door -> open_door -> owner1_leave_area -> owner2_approach_car -> owner2_enter_car -> start_driving>",
+    "actualResult": "Valid",
+    "desiredOutcome": "Valid"
+  }
+]

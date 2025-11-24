@@ -21,10 +21,14 @@ PAT-Agent-Submission/
 │   ├── Full_Pipeline/
 │   ├── No_Planning/
 │   └── README.md 
-├── Datasets/ # Paper experiments datasets
+├── Datasets/                 # Paper experiments datasets
 │   ├── A4F.json
 │   ├── PAT.json
 │   └── UCS.json
+├── Experiments_Demo/         # End-to-end pipeline demonstration, including planning, synthesis, verification, and repair
+│   ├── generated_code/
+│   ├── history/              # Detailed breakdown of the outputs from each pipeline step
+│   └── run_time_record/
 ├── Interface/                # PAT-Agent interface for controllable and interetaive development
 │   ├── history/
 │   ├── run_time_record/
@@ -34,7 +38,27 @@ PAT-Agent-Submission/
 └── PAT.Console/              # PAT Model Checker
 ```
 
-## Video
+## Replicating the Experiments
+
+To reproduce the experiments reported in the PAT-Agent paper:
+- Step 1: Clone the Repository.
+- Step 2: Move each dataset file to its expected location.
+    - Example: place ```Datasets/PAT.json``` into ```Full_Pipeline/PAT.json```.
+- Step 3: Set the project root path.
+    - Update the ```root_path``` variable so it points to the absolute path of your cloned repository.
+- Step 4: Set up the environment.
+    - Create the conda environment as instructed in ```Automated_Pipelines/README.md```.
+- Step 5: Run the experiments.
+    - Execute the pipeline at ```Full_Pipeline/pipeline.py```.
+
+## Pipeline Demonstration Materials
+To help users understand the full workflow, including planning, synthesis, verification, and repair, we provide detailed intermediate results in the ```Experiments_Demo``` folder.
+
+These demonstration materials are taken directly from real executions of our pipeline on the two most complex systems in our dataset. They show how constants and variables are extracted, how plans are constructed, how models are synthesized and verified, and how the final repairs are produced.
+
+For more details, please refer to ```Experiments_Demo/README.md```.
+
+## Video [Interface Demo]
 The demo video illustrates how to use the PAT-Agent interface to interactively develop a formal model from general natural language descriptions.
 
 **Click the image below to watch on YouTube:**

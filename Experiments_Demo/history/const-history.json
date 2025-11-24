@@ -1,0 +1,362 @@
+[
+    {
+        "timestamp": "2025-11-24 10:20:17",
+        "question": "As an expert in information extraction and analysis in computer science domain, can you extract all the constants and variables involved in each of the 4 processes described?\nprocess 1: process name: owner_pos, process description: This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car.\nprocess 2: process name: key_pos, process description: This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners.\nprocess 3: process name: door_op, process description: This process models the car door's status. The door can be open, unlocked, or locked.\nprocess 4: process name: motor, process description: This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled.\nPlease structure your analyzed results in the following JSON format:\n{\n    \"processes\": [\n    {\n        \"processName\": \"Process 1\",\n        \"constants\": [\n        {\n            \"name\": \"MAX_USERS\",\n            \"value\": \"2\",\n            \"description\": \"Maximum number of users allowed\"\n        }\n        ],\n        \"variables\": [\n        {\n            \"name\": \"userCount\",\n            \"type\": \"int\",\n            \"possibleValues\": \"0 to MAX_USERS\",\n            \"initialValue\": \"MAX_USERS\",\n            \"description\": \"Current number of active users\"\n        },\n        {\n            \"name\": \"positions\",\n            \"type\": \"array\",\n            \"possibleValues\": \"NEAR,FAR,IN\",\n            \"initialValue\": \"[FAR,FAR]\",\n            \"description\": \"Positions of the two users\"\n        }\n        ]\n    }\n    ]\n}\n\nRequirements for the content:\n1. For constants, they have 3 properties: name, value (should be an integer), and description. For variables, they have 4 properties: name, type (integer, array, etc.), possible values (**please ensure the possible values are defined as constants if necessary**), and description.\n2. Constants should be defined before variables. The names of variables and constants (including the possible values of variables) must be unique across all processes and must not conflict with any process name.\n3. The interaction mode for the processes is interleaving. If the mode is \"none\" or \"choice\", note that constants and variables are likely to overlap significantly across processes. In such cases, ensure that shared constants and variables are defined only once - under the first process - and not duplicated in each individual process.\n4. Initial values should be specified based on commonsense or process description.\n5. Types of variables should be either int or array. If a variable is an array, it is **MANDATORY** to specify its initial value as a list (i.e., the initialValue field cannot be left empty). If no initial value can be reasonably assigned, it indicates that the **possible values are incomplete** and should include additional entries (e.g., it may be necessary to define a value like \"disk_empty\").\n6. The possible values of a variable should be listed out as concrete values separated by \",\" without \"[]\". For example: \"ENGINE_OFF, ENGINE_ON\". It **should not involve any natural language description** (i.e., cannot be something like 0 to MAX_CROSSING_TIME), each possible value **MUST be either a defined constant or a number**.\n7. Descriptions should be clear and concise.\n8. For processName, please follow exactly the processName entered by the user without any additional natural language description.\n9. Variables whose possible values represent actions, transitions, or system control (e.g., moveSelection, activeControl) rather than data states **should not** be included as variables. These are part of the system behavior and will be handled separately during action extraction.\n\nPlease ensure your response is a valid JSON string that can be parsed directly.",
+        "answerGPT": "{\n  \"processes\": [\n    {\n      \"processName\": \"owner_pos\",\n      \"constants\": [\n        {\n          \"name\": \"OWNER_COUNT\",\n          \"value\": 2,\n          \"description\": \"Total number of owners\"\n        },\n        {\n          \"name\": \"OWNER_IN_CAR\",\n          \"value\": 0,\n          \"description\": \"Owner is in the car\"\n        },\n        {\n          \"name\": \"OWNER_NEAR_CAR\",\n          \"value\": 1,\n          \"description\": \"Owner is near the car\"\n        },\n        {\n          \"name\": \"OWNER_FAR_AWAY\",\n          \"value\": 2,\n          \"description\": \"Owner is far from the car\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"ownerPositions\",\n          \"type\": \"array\",\n          \"possibleValues\": \"OWNER_IN_CAR,OWNER_NEAR_CAR,OWNER_FAR_AWAY\",\n          \"initialValue\": [\"OWNER_FAR_AWAY\", \"OWNER_FAR_AWAY\"],\n          \"description\": \"Positions of the two owners relative to the car\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"key_pos\",\n      \"constants\": [\n        {\n          \"name\": \"KEY_IN_CAR\",\n          \"value\": 0,\n          \"description\": \"Key is in the car\"\n        },\n        {\n          \"name\": \"KEY_FAR_AWAY\",\n          \"value\": 1,\n          \"description\": \"Key is far away from the car\"\n        },\n        {\n          \"name\": \"KEY_WITH_OWNER\",\n          \"value\": 2,\n          \"description\": \"Key is with one of the owners\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"keyPosition\",\n          \"type\": \"int\",\n          \"possibleValues\": \"KEY_IN_CAR,KEY_FAR_AWAY,KEY_WITH_OWNER\",\n          \"initialValue\": \"KEY_FAR_AWAY\",\n          \"description\": \"Key's position relative to the car\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"door_op\",\n      \"constants\": [\n        {\n          \"name\": \"DOOR_OPEN\",\n          \"value\": 0,\n          \"description\": \"Door is open\"\n        },\n        {\n          \"name\": \"DOOR_UNLOCKED\",\n          \"value\": 1,\n          \"description\": \"Door is unlocked\"\n        },\n        {\n          \"name\": \"DOOR_LOCKED\",\n          \"value\": 2,\n          \"description\": \"Door is locked\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"doorStatus\",\n          \"type\": \"int\",\n          \"possibleValues\": \"DOOR_OPEN,DOOR_UNLOCKED,DOOR_LOCKED\",\n          \"initialValue\": \"DOOR_LOCKED\",\n          \"description\": \"Current status of the car door\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"motor\",\n      \"constants\": [\n        {\n          \"name\": \"FUEL_LEVEL_0\",\n          \"value\": 0,\n          \"description\": \"Fuel empty\"\n        },\n        {\n          \"name\": \"FUEL_LEVEL_25\",\n          \"value\": 25,\n          \"description\": \"Fuel level at 25%\"\n        },\n        {\n          \"name\": \"FUEL_LEVEL_50\",\n          \"value\": 50,\n          \"description\": \"Fuel level at 50%\"\n        },\n        {\n          \"name\": \"FUEL_LEVEL_75\",\n          \"value\": 75,\n          \"description\": \"Fuel level at 75%\"\n        },\n        {\n          \"name\": \"FUEL_LEVEL_100\",\n          \"value\": 100,\n          \"description\": \"Fuel fully refueled\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"fuelLevel\",\n          \"type\": \"int\",\n          \"possibleValues\": \"FUEL_LEVEL_0,FUEL_LEVEL_25,FUEL_LEVEL_50,FUEL_LEVEL_75,FUEL_LEVEL_100\",\n          \"initialValue\": \"FUEL_LEVEL_100\",\n          \"description\": \"Current fuel level of the car motor\"\n        }\n      ]\n    }\n  ]\n}",
+        "context": {
+            "index": 14,
+            "modelName": "keyless_car",
+            "modelDesc": "We would like to model a car in this system, which involves the interaction between owners, car door, the key, and the engine.",
+            "interactionMode": "interleaving",
+            "subsystemCount": 4,
+            "subsystems": [
+                {
+                    "name": "owner_pos",
+                    "description": "This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car."
+                },
+                {
+                    "name": "key_pos",
+                    "description": "This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners."
+                },
+                {
+                    "name": "door_op",
+                    "description": "This process models the car door's status. The door can be open, unlocked, or locked."
+                },
+                {
+                    "name": "motor",
+                    "description": "This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled."
+                }
+            ],
+            "assertions": [
+                {
+                    "assertionType": "deadlock-free",
+                    "component": "",
+                    "stateName": "",
+                    "reachabilityType": "state",
+                    "customDescription": "",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": "",
+                            "connector": "AND"
+                        }
+                    ],
+                    "editingFinished": false,
+                    "assertionTruth": "",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "ltl",
+                    "component": "",
+                    "stateName": "",
+                    "reachabilityType": "state",
+                    "customDescription": "assert that the car always eventually perform the action that owner 0 is driving (e.g., drive.0)",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": "",
+                            "connector": "AND"
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "customize",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "keylockinside",
+                    "reachabilityType": "customize",
+                    "customDescription": "key position is in the car, door is locked, owner 0 and owner 1's positions are not in the car",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "runwithoutowner",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving, and owner 0 and owner 1 are far away from the car",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "ownerdrivetogether",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving and owner 0 and 1 are in the car",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Valid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "drivewithoutengineon",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving but the engine is off",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "drivewithoutfuel",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving but the fuel is empty",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "drivewithoutkeyholdbyother",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving, owner 1 is in the car, owner 0 is far away from the car, and key is with owner 0",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Valid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                }
+            ]
+        }
+    },
+    {
+        "timestamp": "2025-11-24 10:44:22",
+        "question": "As an expert in information extraction and analysis in computer science domain, can you extract all the constants and variables involved in each of the 5 processes described?\nprocess 1: process name: owner_pos, process description: This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car.\nprocess 2: process name: key_pos, process description: This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners.\nprocess 3: process name: door_op, process description: This process models the car door's status. The door can be open, unlocked, or locked.\nprocess 4: process name: motor, process description: This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled.\nprocess 5: process name: window, process description: This process models the window in the car. The window (as a whole) can be open, half-opened, or closed.\nPlease structure your analyzed results in the following JSON format:\n{\n    \"processes\": [\n    {\n        \"processName\": \"Process 1\",\n        \"constants\": [\n        {\n            \"name\": \"MAX_USERS\",\n            \"value\": \"2\",\n            \"description\": \"Maximum number of users allowed\"\n        }\n        ],\n        \"variables\": [\n        {\n            \"name\": \"userCount\",\n            \"type\": \"int\",\n            \"possibleValues\": \"0 to MAX_USERS\",\n            \"initialValue\": \"MAX_USERS\",\n            \"description\": \"Current number of active users\"\n        },\n        {\n            \"name\": \"positions\",\n            \"type\": \"array\",\n            \"possibleValues\": \"NEAR,FAR,IN\",\n            \"initialValue\": \"[FAR,FAR]\",\n            \"description\": \"Positions of the two users\"\n        }\n        ]\n    }\n    ]\n}\n\nRequirements for the content:\n1. For constants, they have 3 properties: name, value (should be an integer), and description. For variables, they have 4 properties: name, type (integer, array, etc.), possible values (**please ensure the possible values are defined as constants if necessary**), and description.\n2. Constants should be defined before variables. The names of variables and constants (including the possible values of variables) must be unique across all processes and must not conflict with any process name.\n3. The interaction mode for the processes is processes motor, door_op, key_pos, owner_pos, and window interleave each other and interrupted by a process: (water_sensor_high -> submerge -> Stop). If the mode is \"none\" or \"choice\", note that constants and variables are likely to overlap significantly across processes. In such cases, ensure that shared constants and variables are defined only once - under the first process - and not duplicated in each individual process.\n4. Initial values should be specified based on commonsense or process description.\n5. Types of variables should be either int or array. If a variable is an array, it is **MANDATORY** to specify its initial value as a list (i.e., the initialValue field cannot be left empty). If no initial value can be reasonably assigned, it indicates that the **possible values are incomplete** and should include additional entries (e.g., it may be necessary to define a value like \"disk_empty\").\n6. The possible values of a variable should be listed out as concrete values separated by \",\" without \"[]\". For example: \"ENGINE_OFF, ENGINE_ON\". It **should not involve any natural language description** (i.e., cannot be something like 0 to MAX_CROSSING_TIME), each possible value **MUST be either a defined constant or a number**.\n7. Descriptions should be clear and concise.\n8. For processName, please follow exactly the processName entered by the user without any additional natural language description.\n9. Variables whose possible values represent actions, transitions, or system control (e.g., moveSelection, activeControl) rather than data states **should not** be included as variables. These are part of the system behavior and will be handled separately during action extraction.\n\nPlease ensure your response is a valid JSON string that can be parsed directly.",
+        "answerGPT": "{\n  \"processes\": [\n    {\n      \"processName\": \"owner_pos\",\n      \"constants\": [\n        {\n          \"name\": \"OWNER_COUNT\",\n          \"value\": 2,\n          \"description\": \"Total number of car owners\"\n        },\n        {\n          \"name\": \"IN_CAR\",\n          \"value\": 0,\n          \"description\": \"Indicates an object is inside the car\"\n        },\n        {\n          \"name\": \"NEAR_CAR\",\n          \"value\": 1,\n          \"description\": \"Indicates an object is near the car\"\n        },\n        {\n          \"name\": \"FAR_AWAY\",\n          \"value\": 2,\n          \"description\": \"Indicates an object is far away from the car\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"ownerPositions\",\n          \"type\": \"array\",\n          \"possibleValues\": \"IN_CAR,NEAR_CAR,FAR_AWAY\",\n          \"initialValue\": [\"FAR_AWAY\", \"FAR_AWAY\"],\n          \"description\": \"Positions of the two owners relative to the car\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"key_pos\",\n      \"constants\": [\n        {\n          \"name\": \"WITH_OWNER1\",\n          \"value\": 3,\n          \"description\": \"Key is with owner 1\"\n        },\n        {\n          \"name\": \"WITH_OWNER2\",\n          \"value\": 4,\n          \"description\": \"Key is with owner 2\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"keyPosition\",\n          \"type\": \"int\",\n          \"possibleValues\": \"IN_CAR,FAR_AWAY,WITH_OWNER1,WITH_OWNER2\",\n          \"initialValue\": \"FAR_AWAY\",\n          \"description\": \"Position of the key relative to the car\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"door_op\",\n      \"constants\": [\n        {\n          \"name\": \"DOOR_OPEN\",\n          \"value\": 0,\n          \"description\": \"Door is open\"\n        },\n        {\n          \"name\": \"DOOR_UNLOCKED\",\n          \"value\": 1,\n          \"description\": \"Door is unlocked\"\n        },\n        {\n          \"name\": \"DOOR_LOCKED\",\n          \"value\": 2,\n          \"description\": \"Door is locked\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"doorState\",\n          \"type\": \"int\",\n          \"possibleValues\": \"DOOR_OPEN,DOOR_UNLOCKED,DOOR_LOCKED\",\n          \"initialValue\": \"DOOR_LOCKED\",\n          \"description\": \"Status of the car door\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"motor\",\n      \"constants\": [\n        {\n          \"name\": \"ENGINE_OFF\",\n          \"value\": 0,\n          \"description\": \"Engine is turned off\"\n        },\n        {\n          \"name\": \"ENGINE_ON\",\n          \"value\": 1,\n          \"description\": \"Engine is turned on\"\n        },\n        {\n          \"name\": \"CAR_STOPPED\",\n          \"value\": 0,\n          \"description\": \"Car is not moving\"\n        },\n        {\n          \"name\": \"CAR_DRIVING\",\n          \"value\": 1,\n          \"description\": \"Car is in motion\"\n        },\n        {\n          \"name\": \"FUEL_EMPTY\",\n          \"value\": 0,\n          \"description\": \"Fuel tank is empty\"\n        },\n        {\n          \"name\": \"FUEL_LOW\",\n          \"value\": 25,\n          \"description\": \"Fuel level is low\"\n        },\n        {\n          \"name\": \"FUEL_HALF\",\n          \"value\": 50,\n          \"description\": \"Fuel level is half full\"\n        },\n        {\n          \"name\": \"FUEL_FULL\",\n          \"value\": 100,\n          \"description\": \"Fuel tank is full\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"engineState\",\n          \"type\": \"int\",\n          \"possibleValues\": \"ENGINE_OFF,ENGINE_ON\",\n          \"initialValue\": \"ENGINE_OFF\",\n          \"description\": \"State of the car engine\"\n        },\n        {\n          \"name\": \"drivingState\",\n          \"type\": \"int\",\n          \"possibleValues\": \"CAR_STOPPED,CAR_DRIVING\",\n          \"initialValue\": \"CAR_STOPPED\",\n          \"description\": \"Driving state of the car\"\n        },\n        {\n          \"name\": \"fuelLevel\",\n          \"type\": \"int\",\n          \"possibleValues\": \"FUEL_EMPTY,FUEL_LOW,FUEL_HALF,FUEL_FULL\",\n          \"initialValue\": \"FUEL_FULL\",\n          \"description\": \"Fuel level of the car\"\n        }\n      ]\n    },\n    {\n      \"processName\": \"window\",\n      \"constants\": [\n        {\n          \"name\": \"WINDOW_OPEN\",\n          \"value\": 0,\n          \"description\": \"Window is fully open\"\n        },\n        {\n          \"name\": \"WINDOW_HALF_OPENED\",\n          \"value\": 1,\n          \"description\": \"Window is half-opened\"\n        },\n        {\n          \"name\": \"WINDOW_CLOSED\",\n          \"value\": 2,\n          \"description\": \"Window is closed\"\n        }\n      ],\n      \"variables\": [\n        {\n          \"name\": \"windowState\",\n          \"type\": \"int\",\n          \"possibleValues\": \"WINDOW_OPEN,WINDOW_HALF_OPENED,WINDOW_CLOSED\",\n          \"initialValue\": \"WINDOW_CLOSED\",\n          \"description\": \"State of the car window\"\n        }\n      ]\n    }\n  ]\n}",
+        "context": {
+            "index": 17,
+            "modelName": "tesla",
+            "modelDesc": "the tesla car design which tries to guarantee exit opportunities for owners when submerged in water",
+            "interactionMode": "processes motor, door_op, key_pos, owner_pos, and window interleave each other and interrupted by a process: (water_sensor_high -> submerge -> Stop)",
+            "subsystemCount": 5,
+            "subsystems": [
+                {
+                    "name": "owner_pos",
+                    "description": "This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car."
+                },
+                {
+                    "name": "key_pos",
+                    "description": "This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners."
+                },
+                {
+                    "name": "door_op",
+                    "description": "This process models the car door's status. The door can be open, unlocked, or locked."
+                },
+                {
+                    "name": "motor",
+                    "description": "This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled."
+                },
+                {
+                    "name": "window",
+                    "description": "This process models the window in the car. The window (as a whole) can be open, half-opened, or closed."
+                }
+            ],
+            "assertions": [
+                {
+                    "assertionType": "ltl",
+                    "component": "",
+                    "stateName": "",
+                    "reachabilityType": "state",
+                    "customDescription": "define a state called openAll where the door is unlocked and window is open. assert that the system will always have water_sensor_high -> X openAll, which means once submerged in water there's still chance to escape",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": "",
+                            "connector": "AND"
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Valid",
+                    "ltlLogic": "",
+                    "ltlTarget": "customize",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "ltl",
+                    "component": "",
+                    "stateName": "",
+                    "reachabilityType": "state",
+                    "customDescription": "assert that the car always eventually perform the action that owner 0 is driving (e.g., drive.0)",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": "",
+                            "connector": "AND"
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "customize",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "keylockinside",
+                    "reachabilityType": "customize",
+                    "customDescription": "key position is in the car, door is locked, owner 0 and owner 1's positions are not in the car",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "runwithoutowner",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving, and owner 0 and owner 1 are far away from the car",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "ownerdrivetogether",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving and owner 0 and 1 are in the car",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Valid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "drivewithoutengineon",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving but the engine is off",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "drivewithoutfuel",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving but the fuel is empty",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Invalid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                },
+                {
+                    "assertionType": "reachability",
+                    "component": "",
+                    "stateName": "drivewithoutkeyholdbyother",
+                    "reachabilityType": "customize",
+                    "customDescription": "the car is moving, owner 1 is in the car, owner 0 is far away from the car, and key is with owner 0",
+                    "conditions": [
+                        {
+                            "variable": "",
+                            "value": ""
+                        }
+                    ],
+                    "editingFinished": true,
+                    "assertionTruth": "Valid",
+                    "ltlLogic": "",
+                    "ltlTarget": "",
+                    "selectedActions": []
+                }
+            ]
+        }
+    }
+]

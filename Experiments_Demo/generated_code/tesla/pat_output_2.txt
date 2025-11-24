@@ -1,0 +1,20 @@
+=======================================================
+Assertion: tesla() reaches keylockinside
+********Verification Result********
+The Assertion (tesla() reaches keylockinside) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> owner1_approach_car -> owner1_pickup_key_far -> owner1_enter_car -> owner1_place_key_in_car -> owner1_exit_car>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:1179
+Total Transitions:3265
+Time Used:0.0285606s
+Estimated Memory Used:9432.624KB
+
+

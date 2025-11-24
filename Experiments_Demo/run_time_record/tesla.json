@@ -1,0 +1,43 @@
+{
+    "const-var-time": {
+        "runTime": 97.41030565905385
+    },
+    "action-time": {
+        "runTime": 101.99454452982172
+    },
+    "nl-annotation-time": {
+        "runTime": 86.0793026869651
+    },
+    "codegen-time_2025-11-24-10-47-57": {
+        "runTime": 26.854941385099664
+    },
+    "verification-time_2025-11-24-10-48-01": {
+        "runTime": 4.472135564079508,
+        "hasMismatch": true,
+        "codegenFailed": false
+    },
+    "refine-time_1_2025-11-24-10-48-58": {
+        "runTime": 56.602694457164034
+    },
+    "verification-time_2025-11-24-10-49-02": {
+        "runTime": 3.9216497319284827,
+        "hasMismatch": true,
+        "codegenFailed": false
+    },
+    "refine-time_2_2025-11-24-10-49-33": {
+        "runTime": 31.14791536098346
+    },
+    "verification-time_2025-11-24-10-49-36": {
+        "runTime": 3.5714109409600496,
+        "hasMismatch": true,
+        "codegenFailed": false
+    },
+    "refine-time_3_2025-11-24-10-50-08": {
+        "runTime": 31.924588754074648
+    },
+    "verification-time_2025-11-24-10-50-12": {
+        "runTime": 3.6210321460384876,
+        "hasMismatch": false,
+        "codegenFailed": false
+    }
+}

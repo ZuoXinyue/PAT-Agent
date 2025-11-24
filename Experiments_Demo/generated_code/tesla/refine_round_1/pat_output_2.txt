@@ -1,0 +1,18 @@
+=======================================================
+Assertion: tesla() reaches keylockinside
+********Verification Result********
+The Assertion (tesla() reaches keylockinside) is NOT valid.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:14250
+Total Transitions:31507
+Time Used:0.1831105s
+Estimated Memory Used:16657.688KB
+
+

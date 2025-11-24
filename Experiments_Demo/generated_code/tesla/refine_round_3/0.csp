@@ -1,0 +1,112 @@
+#define OWNER_COUNT 2;
+#define IN_CAR 0;
+#define NEAR_CAR 1;
+#define FAR_AWAY 2;
+#define WITH_OWNER1 3;
+#define WITH_OWNER2 4;
+#define DOOR_OPEN 0;
+#define DOOR_UNLOCKED 1;
+#define DOOR_LOCKED 2;
+#define ENGINE_OFF 0;
+#define ENGINE_ON 1;
+#define CAR_STOPPED 0;
+#define CAR_DRIVING 1;
+#define FUEL_EMPTY 0;
+#define FUEL_LOW 25;
+#define FUEL_HALF 50;
+#define FUEL_FULL 100;
+#define WINDOW_OPEN 0;
+#define WINDOW_HALF_OPENED 1;
+#define WINDOW_CLOSED 2;
+
+var ownerPositions[OWNER_COUNT] = [FAR_AWAY, FAR_AWAY];
+var keyPosition = FAR_AWAY;
+var doorState = DOOR_LOCKED;
+var engineState = ENGINE_OFF;
+var drivingState = CAR_STOPPED;
+var fuelLevel = FUEL_FULL;
+var windowState = WINDOW_CLOSED;
+
+owner_pos() = 
+    [ownerPositions[0] == FAR_AWAY] owner1_approach_car{ownerPositions[0] = NEAR_CAR;} -> owner_pos()
+    []
+    [ownerPositions[0] == NEAR_CAR && doorState == DOOR_OPEN] owner1_enter_car{ownerPositions[0] = IN_CAR;} -> owner_pos()
+    []
+    [ownerPositions[0] == IN_CAR && keyPosition != IN_CAR && drivingState == CAR_STOPPED] owner1_exit_car{ownerPositions[0] = NEAR_CAR;} -> owner_pos()
+    []
+    [ownerPositions[0] == NEAR_CAR] owner1_leave_area{ownerPositions[0] = FAR_AWAY;} -> owner_pos()
+    []
+    [ownerPositions[1] == FAR_AWAY] owner2_approach_car{ownerPositions[1] = NEAR_CAR;} -> owner_pos()
+    []
+    [ownerPositions[1] == NEAR_CAR && doorState == DOOR_OPEN] owner2_enter_car{ownerPositions[1] = IN_CAR;} -> owner_pos()
+    []
+    [ownerPositions[1] == IN_CAR && keyPosition != IN_CAR && drivingState == CAR_STOPPED] owner2_exit_car{ownerPositions[1] = NEAR_CAR;} -> owner_pos()
+    []
+    [ownerPositions[1] == NEAR_CAR] owner2_leave_area{ownerPositions[1] = FAR_AWAY;} -> owner_pos();
+
+key_pos() = 
+    [keyPosition == FAR_AWAY && ownerPositions[0] == NEAR_CAR] owner1_pickup_key_far{keyPosition = WITH_OWNER1;} -> key_pos()
+    []
+    [keyPosition == IN_CAR && ownerPositions[0] == IN_CAR] owner1_pickup_key_in{keyPosition = WITH_OWNER1;} -> key_pos()
+    []
+    [keyPosition == FAR_AWAY && ownerPositions[1] == NEAR_CAR] owner2_pickup_key_far{keyPosition = WITH_OWNER2;} -> key_pos()
+    []
+    [keyPosition == IN_CAR && ownerPositions[1] == IN_CAR] owner2_pickup_key_in{keyPosition = WITH_OWNER2;} -> key_pos()
+    []
+    [keyPosition == WITH_OWNER1 && ownerPositions[0] == IN_CAR] owner1_place_key_in_car{keyPosition = IN_CAR;} -> key_pos()
+    []
+    [keyPosition == WITH_OWNER2 && ownerPositions[1] == IN_CAR] owner2_place_key_in_car{keyPosition = IN_CAR;} -> key_pos()
+    []
+    [keyPosition == WITH_OWNER1 && ownerPositions[0] == NEAR_CAR] owner1_drop_key{keyPosition = FAR_AWAY;} -> key_pos()
+    []
+    [keyPosition == WITH_OWNER2 && ownerPositions[1] == NEAR_CAR] owner2_drop_key{keyPosition = FAR_AWAY;} -> key_pos();
+
+door_op() = 
+    [doorState == DOOR_LOCKED && (keyPosition == WITH_OWNER1 || keyPosition == WITH_OWNER2)] unlock_door{doorState = DOOR_UNLOCKED;} -> door_op()
+    []
+    [doorState == DOOR_UNLOCKED] open_door{doorState = DOOR_OPEN;} -> door_op()
+    []
+    [doorState == DOOR_OPEN] close_door{doorState = DOOR_UNLOCKED;} -> door_op()
+    []
+    [doorState == DOOR_UNLOCKED && (keyPosition == WITH_OWNER1 || keyPosition == WITH_OWNER2)] lock_door{doorState = DOOR_LOCKED;} -> door_op();
+
+motor() = 
+    [engineState == ENGINE_OFF && (keyPosition == WITH_OWNER1 || keyPosition == WITH_OWNER2 || keyPosition == IN_CAR) && (fuelLevel == FUEL_FULL || fuelLevel == FUEL_HALF || fuelLevel == FUEL_LOW)] start_engine{engineState = ENGINE_ON;} -> motor()
+    []
+    [engineState == ENGINE_ON && drivingState == CAR_STOPPED] stop_engine{engineState = ENGINE_OFF;} -> motor()
+    []
+    [drivingState == CAR_STOPPED && engineState == ENGINE_ON && (fuelLevel == FUEL_FULL || fuelLevel == FUEL_HALF || fuelLevel == FUEL_LOW) && (ownerPositions[0] == IN_CAR || ownerPositions[1] == IN_CAR)] start_driving{drivingState = CAR_DRIVING;} -> motor()
+    []
+    [drivingState == CAR_DRIVING] stop_driving{drivingState = CAR_STOPPED;} -> motor()
+    []
+    [drivingState == CAR_DRIVING && fuelLevel == FUEL_FULL] consume_fuel_full{fuelLevel = FUEL_HALF;} -> motor()
+    []
+    [drivingState == CAR_DRIVING && fuelLevel == FUEL_HALF] consume_fuel_half{fuelLevel = FUEL_LOW;} -> motor()
+    []
+    [drivingState == CAR_DRIVING && fuelLevel == FUEL_LOW] consume_fuel_low{drivingState = CAR_STOPPED; engineState = ENGINE_OFF; fuelLevel = FUEL_EMPTY;} -> motor()
+    []
+    [engineState == ENGINE_OFF && (fuelLevel == FUEL_EMPTY || fuelLevel == FUEL_LOW || fuelLevel == FUEL_HALF)] refuel{fuelLevel = FUEL_FULL;} -> motor();
+
+window() = 
+    [windowState == WINDOW_CLOSED] window_open_from_closed{windowState = WINDOW_OPEN;} -> window()
+    []
+    [windowState == WINDOW_HALF_OPENED] window_open_from_half{windowState = WINDOW_OPEN;} -> window()
+    []
+    [windowState == WINDOW_CLOSED] window_half_open{windowState = WINDOW_HALF_OPENED;} -> window()
+    []
+    [windowState == WINDOW_OPEN] window_close_from_open{windowState = WINDOW_CLOSED;} -> window()
+    []
+    [windowState == WINDOW_HALF_OPENED] window_close_from_half{windowState = WINDOW_CLOSED;} -> window();
+
+emergency() = water_sensor_high -> submerge -> stop -> Skip;
+
+tesla = (motor() ||| door_op() ||| key_pos() ||| owner_pos() ||| window()) interrupt emergency();
+
+#define openAll (doorState == DOOR_UNLOCKED && windowState == WINDOW_OPEN);
+#define keylockinside (keyPosition == IN_CAR && doorState == DOOR_LOCKED && ownerPositions[0] != IN_CAR && ownerPositions[1] != IN_CAR);
+#define runwithoutowner (drivingState == CAR_DRIVING && ownerPositions[0] == FAR_AWAY && ownerPositions[1] == FAR_AWAY);
+#define ownerdrivetogether (drivingState == CAR_DRIVING && ownerPositions[0] == IN_CAR && ownerPositions[1] == IN_CAR);
+#define drivewithoutengineon (drivingState == CAR_DRIVING && engineState == ENGINE_OFF);
+#define drivewithoutfuel (drivingState == CAR_DRIVING && fuelLevel == FUEL_EMPTY);
+#define drivewithoutkeyholdbyother (drivingState == CAR_DRIVING && ownerPositions[1] == IN_CAR && ownerPositions[0] == FAR_AWAY && keyPosition == WITH_OWNER1);
+#assert tesla |= water_sensor_high -> X openAll;

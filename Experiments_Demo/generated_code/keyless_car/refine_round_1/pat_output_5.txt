@@ -1,0 +1,18 @@
+=======================================================
+Assertion: keyless_car() reaches drivewithoutengineon
+********Verification Result********
+The Assertion (keyless_car() reaches drivewithoutengineon) is NOT valid.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:994
+Total Transitions:6556
+Time Used:0.059324s
+Estimated Memory Used:9692.008KB
+
+

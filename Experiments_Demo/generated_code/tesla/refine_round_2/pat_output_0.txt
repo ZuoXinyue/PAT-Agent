@@ -1,0 +1,18 @@
+=======================================================
+Assertion: tesla() |= water_sensor_high-> X openAll
+********Verification Result********
+The Assertion (tesla() |= water_sensor_high-> X openAll) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:23897
+Total Transitions:122391
+Time Used:0.9895302s
+Estimated Memory Used:57474.624KB
+
+

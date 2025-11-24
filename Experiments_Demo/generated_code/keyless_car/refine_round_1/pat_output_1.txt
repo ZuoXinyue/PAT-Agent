@@ -1,0 +1,19 @@
+=======================================================
+Assertion: keyless_car() |= []<> drive_consume_fuel_from_full
+********Verification Result********
+The Assertion (keyless_car() |= []<> drive_consume_fuel_from_full) is NOT valid.
+A counterexample is presented as follows.
+<init -> owner1_approach_car -> (owner1_leave_car -> owner1_approach_car)*>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+
+
+********Verification Statistics********
+Visited States:1058
+Total Transitions:6547
+Time Used:0.0783027s
+Estimated Memory Used:45250.112KB
+
+

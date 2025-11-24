@@ -1,0 +1,341 @@
+[
+    {
+        "timestamp": "2025-11-24 10:21:38",
+        "question": "As an expert in reasoning and action extraction, analyze the following system: The user would like to build a system called keyless_car, where We would like to model a car in this system, which involves the interaction between owners, car door, the key, and the engine.. There are 4 processes in the system, the descriptions of the processes are as follows: owner_pos: This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car.; key_pos: This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners.; door_op: This process models the car door's status. The door can be open, unlocked, or locked.; motor: This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled.\nGiven the list of system variables and their possible values in JSON format:\n{\"processes\": [{\"processName\": \"owner_pos\", \"constants\": [{\"name\": \"OWNER_COUNT\", \"value\": 2, \"description\": \"Total number of owners\"}, {\"name\": \"OWNER_IN_CAR\", \"value\": 0, \"description\": \"Owner is in the car\"}, {\"name\": \"OWNER_NEAR_CAR\", \"value\": 1, \"description\": \"Owner is near the car\"}, {\"name\": \"OWNER_FAR_AWAY\", \"value\": 2, \"description\": \"Owner is far from the car\"}], \"variables\": [{\"name\": \"ownerPositions\", \"type\": \"array\", \"possibleValues\": \"OWNER_IN_CAR,OWNER_NEAR_CAR,OWNER_FAR_AWAY\", \"initialValue\": [\"OWNER_FAR_AWAY\", \"OWNER_FAR_AWAY\"], \"description\": \"Positions of the two owners relative to the car\"}]}, {\"processName\": \"key_pos\", \"constants\": [{\"name\": \"KEY_IN_CAR\", \"value\": 0, \"description\": \"Key is in the car\"}, {\"name\": \"KEY_FAR_AWAY\", \"value\": 1, \"description\": \"Key is far away from the car\"}, {\"name\": \"KEY_WITH_OWNER\", \"value\": 2, \"description\": \"Key is with one of the owners\"}], \"variables\": [{\"name\": \"keyPosition\", \"type\": \"int\", \"possibleValues\": \"KEY_IN_CAR,KEY_FAR_AWAY,KEY_WITH_OWNER\", \"initialValue\": \"KEY_FAR_AWAY\", \"description\": \"Key's position relative to the car\"}]}, {\"processName\": \"door_op\", \"constants\": [{\"name\": \"DOOR_OPEN\", \"value\": 0, \"description\": \"Door is open\"}, {\"name\": \"DOOR_UNLOCKED\", \"value\": 1, \"description\": \"Door is unlocked\"}, {\"name\": \"DOOR_LOCKED\", \"value\": 2, \"description\": \"Door is locked\"}], \"variables\": [{\"name\": \"doorStatus\", \"type\": \"int\", \"possibleValues\": \"DOOR_OPEN,DOOR_UNLOCKED,DOOR_LOCKED\", \"initialValue\": \"DOOR_LOCKED\", \"description\": \"Current status of the car door\"}]}, {\"processName\": \"motor\", \"constants\": [{\"name\": \"FUEL_LEVEL_0\", \"value\": 0, \"description\": \"Fuel empty\"}, {\"name\": \"FUEL_LEVEL_25\", \"value\": 25, \"description\": \"Fuel level at 25%\"}, {\"name\": \"FUEL_LEVEL_50\", \"value\": 50, \"description\": \"Fuel level at 50%\"}, {\"name\": \"FUEL_LEVEL_75\", \"value\": 75, \"description\": \"Fuel level at 75%\"}, {\"name\": \"FUEL_LEVEL_100\", \"value\": 100, \"description\": \"Fuel fully refueled\"}], \"variables\": [{\"name\": \"fuelLevel\", \"type\": \"int\", \"possibleValues\": \"FUEL_LEVEL_0,FUEL_LEVEL_25,FUEL_LEVEL_50,FUEL_LEVEL_75,FUEL_LEVEL_100\", \"initialValue\": \"FUEL_LEVEL_100\", \"description\": \"Current fuel level of the car motor\"}]}]}\nFollow these steps:\n1. **Identify all possible actions for each process**\n- Ensure actions are realistic and align with the system behavior.\n\n2. **Determine the conditions for each action**\n- Under what conditions should an action occur?\n- What values must the system variables have (including variables from other processes) for the action to be valid?\n- **Ensure each condition accounts for dependencies between processes**.\n\n3. Organize the analyzed results into a **JSON format**, each action should have **3 properties**: \"action_name\", \"conditions\" (exhaustive list of related variables and values they should assume), and \"state_changes\" associated with the action (affected variables and their respective new value). For both conditions and state changes, please list the variables with their expected value(s) (the values can be defined constants, numeric values, or expressions combining variables with constants or numbers), instead of using any natural language description. An example JSON is as follows:\n{\n    \"processes\": [\n    {\n        \"processName\": \"Process 1\",\n        \"actions\": [\n        {\n            \"action_name\": \"open\",\n            \"conditions\": {\n            \"owner.i\": \"near\",\n            \"door\": [\"closed\", \"locked\"],\n            \"complex_composite_conditions\": \"((key == with_owner_i and owner.i == in) or (key == in))\"\n            },\n            \"state_changes\": {\n            \"door\": \"open\"\n            }\n        }\n        ]\n    }\n    ]\n}\n\n4. All conditions must be exhaustively listed under the \"conditions\" field. There should **NEVER** be any conditions inside \"state_changes\". If a state change depends on an additional condition, the action **must be split** into multiple more specific actions, each with deterministic conditions and unconditional state changes.\n\n5. In \"conditions\", the reserved keyword \"complex_composite_conditions\" is used to represent complex composite conditions. This is the **only** case where a key may be something other than a variable name. However, using \"complex_composite_conditions\" is **strongly discouraged** and should **ONLY BE USED WHEN THERE IS ABSOLUTELY NO STANDARD WAY TO EXPRESS THE CONDITIONS**. All expressions inside \"complex_composite_conditions\" **MUST** be based solely on **DEFINED VARIABLES** and their valid value relationships.\n\nEnsure that:\n- Action names (action_name) must be **unique** and consists of alphanumeric characters and underscores **only**.\n- All variables used in conditions and state changes **MUST** be declared in the provided list of system variables, and their assigned values MUST come from the corresponding list of defined possible values.\n- The **conditions are specific** and use system variables appropriately by considering dependencies between processes.\n- **Avoid overly generic statements** - each process should feel logically connected to system behavior.\n\nNote that some actions **may not have any conditions or state changes**. In such cases, the corresponding field should be an empty JSON object. This is especially appropriate when conditions and changes cannot be determined through common sense reasoning or by analyzing the system description, or when the intended conditions or changes cannot be expressed using the existing variables.\n\nPlease ensure your response is a valid JSON string that can be parsed directly.",
+        "answerGPT": "{\n  \"processes\": [\n    {\n      \"processName\": \"owner_pos\",\n      \"actions\": [\n        {\n          \"action_name\": \"owner0_approach_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_FAR_AWAY\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner0_leave_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"OWNER_FAR_AWAY\"\n          }\n        },\n        {\n          \"action_name\": \"owner0_enter_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\",\n            \"doorStatus\": \"DOOR_OPEN\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"OWNER_IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner0_exit_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_IN_CAR\",\n            \"doorStatus\": \"DOOR_OPEN\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_approach_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_FAR_AWAY\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_leave_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"OWNER_FAR_AWAY\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_enter_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\",\n            \"doorStatus\": \"DOOR_OPEN\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"OWNER_IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_exit_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_IN_CAR\",\n            \"doorStatus\": \"DOOR_OPEN\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"key_pos\",\n      \"actions\": [\n        {\n          \"action_name\": \"owner0_pickup_key_far\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\",\n            \"keyPosition\": \"KEY_FAR_AWAY\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          }\n        },\n        {\n          \"action_name\": \"owner0_pickup_key_from_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_IN_CAR\",\n            \"keyPosition\": \"KEY_IN_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_pickup_key_far\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\",\n            \"keyPosition\": \"KEY_FAR_AWAY\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_pickup_key_from_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_IN_CAR\",\n            \"keyPosition\": \"KEY_IN_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          }\n        },\n        {\n          \"action_name\": \"owner0_drop_key_in_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_IN_CAR\",\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner0_drop_key_outside\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\",\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_FAR_AWAY\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_drop_key_in_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_IN_CAR\",\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_drop_key_outside\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\",\n            \"keyPosition\": \"KEY_WITH_OWNER\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"KEY_FAR_AWAY\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"door_op\",\n      \"actions\": [\n        {\n          \"action_name\": \"unlock_door_using_key_in_car\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_LOCKED\",\n            \"keyPosition\": \"KEY_IN_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"unlock_door_owner0\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_LOCKED\",\n            \"keyPosition\": \"KEY_WITH_OWNER\",\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"unlock_door_owner1\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_LOCKED\",\n            \"keyPosition\": \"KEY_WITH_OWNER\",\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"open_door_owner0\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\",\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_OPEN\"\n          }\n        },\n        {\n          \"action_name\": \"open_door_owner1\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\",\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_OPEN\"\n          }\n        },\n        {\n          \"action_name\": \"close_door_owner0\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_OPEN\",\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"close_door_owner1\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_OPEN\",\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"lock_door_using_key_in_car\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\",\n            \"keyPosition\": \"KEY_IN_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_LOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"lock_door_owner0\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\",\n            \"keyPosition\": \"KEY_WITH_OWNER\",\n            \"ownerPositions[0]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_LOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"lock_door_owner1\",\n          \"conditions\": {\n            \"doorStatus\": \"DOOR_UNLOCKED\",\n            \"keyPosition\": \"KEY_WITH_OWNER\",\n            \"ownerPositions[1]\": \"OWNER_NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"doorStatus\": \"DOOR_LOCKED\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"motor\",\n      \"actions\": [\n        {\n          \"action_name\": \"drive_consume_fuel_from_full\",\n          \"conditions\": {\n            \"fuelLevel\": \"FUEL_LEVEL_100\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_LEVEL_75\"\n          }\n        },\n        {\n          \"action_name\": \"drive_consume_fuel_from_75\",\n          \"conditions\": {\n            \"fuelLevel\": \"FUEL_LEVEL_75\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_LEVEL_50\"\n          }\n        },\n        {\n          \"action_name\": \"drive_consume_fuel_from_50\",\n          \"conditions\": {\n            \"fuelLevel\": \"FUEL_LEVEL_50\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_LEVEL_25\"\n          }\n        },\n        {\n          \"action_name\": \"drive_consume_fuel_from_25\",\n          \"conditions\": {\n            \"fuelLevel\": \"FUEL_LEVEL_25\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_LEVEL_0\"\n          }\n        },\n        {\n          \"action_name\": \"refuel\",\n          \"conditions\": {\n            \"fuelLevel\": [\n              \"FUEL_LEVEL_0\",\n              \"FUEL_LEVEL_25\",\n              \"FUEL_LEVEL_50\",\n              \"FUEL_LEVEL_75\"\n            ]\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_LEVEL_100\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "context": {
+            "processes": [
+                {
+                    "processName": "owner_pos",
+                    "constants": [
+                        {
+                            "name": "OWNER_COUNT",
+                            "value": 2,
+                            "description": "Total number of owners"
+                        },
+                        {
+                            "name": "OWNER_IN_CAR",
+                            "value": 0,
+                            "description": "Owner is in the car"
+                        },
+                        {
+                            "name": "OWNER_NEAR_CAR",
+                            "value": 1,
+                            "description": "Owner is near the car"
+                        },
+                        {
+                            "name": "OWNER_FAR_AWAY",
+                            "value": 2,
+                            "description": "Owner is far from the car"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "ownerPositions",
+                            "type": "array",
+                            "possibleValues": "OWNER_IN_CAR,OWNER_NEAR_CAR,OWNER_FAR_AWAY",
+                            "initialValue": [
+                                "OWNER_FAR_AWAY",
+                                "OWNER_FAR_AWAY"
+                            ],
+                            "description": "Positions of the two owners relative to the car"
+                        }
+                    ]
+                },
+                {
+                    "processName": "key_pos",
+                    "constants": [
+                        {
+                            "name": "KEY_IN_CAR",
+                            "value": 0,
+                            "description": "Key is in the car"
+                        },
+                        {
+                            "name": "KEY_FAR_AWAY",
+                            "value": 1,
+                            "description": "Key is far away from the car"
+                        },
+                        {
+                            "name": "KEY_WITH_OWNER",
+                            "value": 2,
+                            "description": "Key is with one of the owners"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "keyPosition",
+                            "type": "int",
+                            "possibleValues": "KEY_IN_CAR,KEY_FAR_AWAY,KEY_WITH_OWNER",
+                            "initialValue": "KEY_FAR_AWAY",
+                            "description": "Key's position relative to the car"
+                        }
+                    ]
+                },
+                {
+                    "processName": "door_op",
+                    "constants": [
+                        {
+                            "name": "DOOR_OPEN",
+                            "value": 0,
+                            "description": "Door is open"
+                        },
+                        {
+                            "name": "DOOR_UNLOCKED",
+                            "value": 1,
+                            "description": "Door is unlocked"
+                        },
+                        {
+                            "name": "DOOR_LOCKED",
+                            "value": 2,
+                            "description": "Door is locked"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "doorStatus",
+                            "type": "int",
+                            "possibleValues": "DOOR_OPEN,DOOR_UNLOCKED,DOOR_LOCKED",
+                            "initialValue": "DOOR_LOCKED",
+                            "description": "Current status of the car door"
+                        }
+                    ]
+                },
+                {
+                    "processName": "motor",
+                    "constants": [
+                        {
+                            "name": "FUEL_LEVEL_0",
+                            "value": 0,
+                            "description": "Fuel empty"
+                        },
+                        {
+                            "name": "FUEL_LEVEL_25",
+                            "value": 25,
+                            "description": "Fuel level at 25%"
+                        },
+                        {
+                            "name": "FUEL_LEVEL_50",
+                            "value": 50,
+                            "description": "Fuel level at 50%"
+                        },
+                        {
+                            "name": "FUEL_LEVEL_75",
+                            "value": 75,
+                            "description": "Fuel level at 75%"
+                        },
+                        {
+                            "name": "FUEL_LEVEL_100",
+                            "value": 100,
+                            "description": "Fuel fully refueled"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "fuelLevel",
+                            "type": "int",
+                            "possibleValues": "FUEL_LEVEL_0,FUEL_LEVEL_25,FUEL_LEVEL_50,FUEL_LEVEL_75,FUEL_LEVEL_100",
+                            "initialValue": "FUEL_LEVEL_100",
+                            "description": "Current fuel level of the car motor"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "timestamp": "2025-11-24 10:46:04",
+        "question": "As an expert in reasoning and action extraction, analyze the following system: The user would like to build a system called tesla, where the tesla car design which tries to guarantee exit opportunities for owners when submerged in water. There are 5 processes in the system, the descriptions of the processes are as follows: owner_pos: This process models the owner's position relative to the car. There are two owners, they can be in the car, near the car, or far away from the car.; key_pos: This process models the key's position relative to the car. The key can be in the car, far away from the car, or with one of the two owners.; door_op: This process models the car door's status. The door can be open, unlocked, or locked.; motor: This process models the motor in the car. The engine can be turned on and off, the car can start and stop driving, and the fuel is gradually consumed after driving and can be refueled.; window: This process models the window in the car. The window (as a whole) can be open, half-opened, or closed.\nGiven the list of system variables and their possible values in JSON format:\n{\"processes\": [{\"processName\": \"owner_pos\", \"constants\": [{\"name\": \"OWNER_COUNT\", \"value\": 2, \"description\": \"Total number of car owners\"}, {\"name\": \"IN_CAR\", \"value\": 0, \"description\": \"Indicates an object is inside the car\"}, {\"name\": \"NEAR_CAR\", \"value\": 1, \"description\": \"Indicates an object is near the car\"}, {\"name\": \"FAR_AWAY\", \"value\": 2, \"description\": \"Indicates an object is far away from the car\"}], \"variables\": [{\"name\": \"ownerPositions\", \"type\": \"array\", \"possibleValues\": \"IN_CAR,NEAR_CAR,FAR_AWAY\", \"initialValue\": [\"FAR_AWAY\", \"FAR_AWAY\"], \"description\": \"Positions of the two owners relative to the car\"}]}, {\"processName\": \"key_pos\", \"constants\": [{\"name\": \"WITH_OWNER1\", \"value\": 3, \"description\": \"Key is with owner 1\"}, {\"name\": \"WITH_OWNER2\", \"value\": 4, \"description\": \"Key is with owner 2\"}], \"variables\": [{\"name\": \"keyPosition\", \"type\": \"int\", \"possibleValues\": \"IN_CAR,FAR_AWAY,WITH_OWNER1,WITH_OWNER2\", \"initialValue\": \"FAR_AWAY\", \"description\": \"Position of the key relative to the car\"}]}, {\"processName\": \"door_op\", \"constants\": [{\"name\": \"DOOR_OPEN\", \"value\": 0, \"description\": \"Door is open\"}, {\"name\": \"DOOR_UNLOCKED\", \"value\": 1, \"description\": \"Door is unlocked\"}, {\"name\": \"DOOR_LOCKED\", \"value\": 2, \"description\": \"Door is locked\"}], \"variables\": [{\"name\": \"doorState\", \"type\": \"int\", \"possibleValues\": \"DOOR_OPEN,DOOR_UNLOCKED,DOOR_LOCKED\", \"initialValue\": \"DOOR_LOCKED\", \"description\": \"Status of the car door\"}]}, {\"processName\": \"motor\", \"constants\": [{\"name\": \"ENGINE_OFF\", \"value\": 0, \"description\": \"Engine is turned off\"}, {\"name\": \"ENGINE_ON\", \"value\": 1, \"description\": \"Engine is turned on\"}, {\"name\": \"CAR_STOPPED\", \"value\": 0, \"description\": \"Car is not moving\"}, {\"name\": \"CAR_DRIVING\", \"value\": 1, \"description\": \"Car is in motion\"}, {\"name\": \"FUEL_EMPTY\", \"value\": 0, \"description\": \"Fuel tank is empty\"}, {\"name\": \"FUEL_LOW\", \"value\": 25, \"description\": \"Fuel level is low\"}, {\"name\": \"FUEL_HALF\", \"value\": 50, \"description\": \"Fuel level is half full\"}, {\"name\": \"FUEL_FULL\", \"value\": 100, \"description\": \"Fuel tank is full\"}], \"variables\": [{\"name\": \"engineState\", \"type\": \"int\", \"possibleValues\": \"ENGINE_OFF,ENGINE_ON\", \"initialValue\": \"ENGINE_OFF\", \"description\": \"State of the car engine\"}, {\"name\": \"drivingState\", \"type\": \"int\", \"possibleValues\": \"CAR_STOPPED,CAR_DRIVING\", \"initialValue\": \"CAR_STOPPED\", \"description\": \"Driving state of the car\"}, {\"name\": \"fuelLevel\", \"type\": \"int\", \"possibleValues\": \"FUEL_EMPTY,FUEL_LOW,FUEL_HALF,FUEL_FULL\", \"initialValue\": \"FUEL_FULL\", \"description\": \"Fuel level of the car\"}]}, {\"processName\": \"window\", \"constants\": [{\"name\": \"WINDOW_OPEN\", \"value\": 0, \"description\": \"Window is fully open\"}, {\"name\": \"WINDOW_HALF_OPENED\", \"value\": 1, \"description\": \"Window is half-opened\"}, {\"name\": \"WINDOW_CLOSED\", \"value\": 2, \"description\": \"Window is closed\"}], \"variables\": [{\"name\": \"windowState\", \"type\": \"int\", \"possibleValues\": \"WINDOW_OPEN,WINDOW_HALF_OPENED,WINDOW_CLOSED\", \"initialValue\": \"WINDOW_CLOSED\", \"description\": \"State of the car window\"}]}]}\nFollow these steps:\n1. **Identify all possible actions for each process**\n- Ensure actions are realistic and align with the system behavior.\n\n2. **Determine the conditions for each action**\n- Under what conditions should an action occur?\n- What values must the system variables have (including variables from other processes) for the action to be valid?\n- **Ensure each condition accounts for dependencies between processes**.\n\n3. Organize the analyzed results into a **JSON format**, each action should have **3 properties**: \"action_name\", \"conditions\" (exhaustive list of related variables and values they should assume), and \"state_changes\" associated with the action (affected variables and their respective new value). For both conditions and state changes, please list the variables with their expected value(s) (the values can be defined constants, numeric values, or expressions combining variables with constants or numbers), instead of using any natural language description. An example JSON is as follows:\n{\n    \"processes\": [\n    {\n        \"processName\": \"Process 1\",\n        \"actions\": [\n        {\n            \"action_name\": \"open\",\n            \"conditions\": {\n            \"owner.i\": \"near\",\n            \"door\": [\"closed\", \"locked\"],\n            \"complex_composite_conditions\": \"((key == with_owner_i and owner.i == in) or (key == in))\"\n            },\n            \"state_changes\": {\n            \"door\": \"open\"\n            }\n        }\n        ]\n    }\n    ]\n}\n\n4. All conditions must be exhaustively listed under the \"conditions\" field. There should **NEVER** be any conditions inside \"state_changes\". If a state change depends on an additional condition, the action **must be split** into multiple more specific actions, each with deterministic conditions and unconditional state changes.\n\n5. In \"conditions\", the reserved keyword \"complex_composite_conditions\" is used to represent complex composite conditions. This is the **only** case where a key may be something other than a variable name. However, using \"complex_composite_conditions\" is **strongly discouraged** and should **ONLY BE USED WHEN THERE IS ABSOLUTELY NO STANDARD WAY TO EXPRESS THE CONDITIONS**. All expressions inside \"complex_composite_conditions\" **MUST** be based solely on **DEFINED VARIABLES** and their valid value relationships.\n\nEnsure that:\n- Action names (action_name) must be **unique** and consists of alphanumeric characters and underscores **only**.\n- All variables used in conditions and state changes **MUST** be declared in the provided list of system variables, and their assigned values MUST come from the corresponding list of defined possible values.\n- The **conditions are specific** and use system variables appropriately by considering dependencies between processes.\n- **Avoid overly generic statements** - each process should feel logically connected to system behavior.\n\nNote that some actions **may not have any conditions or state changes**. In such cases, the corresponding field should be an empty JSON object. This is especially appropriate when conditions and changes cannot be determined through common sense reasoning or by analyzing the system description, or when the intended conditions or changes cannot be expressed using the existing variables.\n\nPlease ensure your response is a valid JSON string that can be parsed directly.",
+        "answerGPT": "{\n  \"processes\": [\n    {\n      \"processName\": \"owner_pos\",\n      \"actions\": [\n        {\n          \"action_name\": \"owner1_approach_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"FAR_AWAY\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_enter_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_exit_car\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"IN_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_leave_area\",\n          \"conditions\": {\n            \"ownerPositions[0]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[0]\": \"FAR_AWAY\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_approach_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"FAR_AWAY\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_enter_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_exit_car\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"IN_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"NEAR_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_leave_area\",\n          \"conditions\": {\n            \"ownerPositions[1]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"ownerPositions[1]\": \"FAR_AWAY\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"key_pos\",\n      \"actions\": [\n        {\n          \"action_name\": \"owner1_pickup_key_far\",\n          \"conditions\": {\n            \"keyPosition\": \"FAR_AWAY\",\n            \"ownerPositions[0]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"WITH_OWNER1\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_pickup_key_in\",\n          \"conditions\": {\n            \"keyPosition\": \"IN_CAR\",\n            \"ownerPositions[0]\": \"IN_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"WITH_OWNER1\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_pickup_key_far\",\n          \"conditions\": {\n            \"keyPosition\": \"FAR_AWAY\",\n            \"ownerPositions[1]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"WITH_OWNER2\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_pickup_key_in\",\n          \"conditions\": {\n            \"keyPosition\": \"IN_CAR\",\n            \"ownerPositions[1]\": \"IN_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"WITH_OWNER2\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_place_key_in_car\",\n          \"conditions\": {\n            \"keyPosition\": \"WITH_OWNER1\",\n            \"ownerPositions[0]\": \"IN_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_place_key_in_car\",\n          \"conditions\": {\n            \"keyPosition\": \"WITH_OWNER2\",\n            \"ownerPositions[1]\": \"IN_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"IN_CAR\"\n          }\n        },\n        {\n          \"action_name\": \"owner1_drop_key\",\n          \"conditions\": {\n            \"keyPosition\": \"WITH_OWNER1\",\n            \"ownerPositions[0]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"FAR_AWAY\"\n          }\n        },\n        {\n          \"action_name\": \"owner2_drop_key\",\n          \"conditions\": {\n            \"keyPosition\": \"WITH_OWNER2\",\n            \"ownerPositions[1]\": \"NEAR_CAR\"\n          },\n          \"state_changes\": {\n            \"keyPosition\": \"FAR_AWAY\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"door_op\",\n      \"actions\": [\n        {\n          \"action_name\": \"unlock_door\",\n          \"conditions\": {\n            \"doorState\": \"DOOR_LOCKED\"\n          },\n          \"state_changes\": {\n            \"doorState\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"open_door\",\n          \"conditions\": {\n            \"doorState\": \"DOOR_UNLOCKED\"\n          },\n          \"state_changes\": {\n            \"doorState\": \"DOOR_OPEN\"\n          }\n        },\n        {\n          \"action_name\": \"close_door\",\n          \"conditions\": {\n            \"doorState\": \"DOOR_OPEN\"\n          },\n          \"state_changes\": {\n            \"doorState\": \"DOOR_UNLOCKED\"\n          }\n        },\n        {\n          \"action_name\": \"lock_door\",\n          \"conditions\": {\n            \"doorState\": \"DOOR_UNLOCKED\"\n          },\n          \"state_changes\": {\n            \"doorState\": \"DOOR_LOCKED\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"motor\",\n      \"actions\": [\n        {\n          \"action_name\": \"start_engine\",\n          \"conditions\": {\n            \"engineState\": \"ENGINE_OFF\",\n            \"fuelLevel\": [\n              \"FUEL_FULL\",\n              \"FUEL_HALF\",\n              \"FUEL_LOW\"\n            ]\n          },\n          \"state_changes\": {\n            \"engineState\": \"ENGINE_ON\"\n          }\n        },\n        {\n          \"action_name\": \"stop_engine\",\n          \"conditions\": {\n            \"engineState\": \"ENGINE_ON\",\n            \"drivingState\": \"CAR_STOPPED\"\n          },\n          \"state_changes\": {\n            \"engineState\": \"ENGINE_OFF\"\n          }\n        },\n        {\n          \"action_name\": \"start_driving\",\n          \"conditions\": {\n            \"drivingState\": \"CAR_STOPPED\",\n            \"engineState\": \"ENGINE_ON\",\n            \"fuelLevel\": [\n              \"FUEL_FULL\",\n              \"FUEL_HALF\",\n              \"FUEL_LOW\"\n            ]\n          },\n          \"state_changes\": {\n            \"drivingState\": \"CAR_DRIVING\"\n          }\n        },\n        {\n          \"action_name\": \"stop_driving\",\n          \"conditions\": {\n            \"drivingState\": \"CAR_DRIVING\"\n          },\n          \"state_changes\": {\n            \"drivingState\": \"CAR_STOPPED\"\n          }\n        },\n        {\n          \"action_name\": \"consume_fuel_full\",\n          \"conditions\": {\n            \"drivingState\": \"CAR_DRIVING\",\n            \"fuelLevel\": \"FUEL_FULL\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_HALF\"\n          }\n        },\n        {\n          \"action_name\": \"consume_fuel_half\",\n          \"conditions\": {\n            \"drivingState\": \"CAR_DRIVING\",\n            \"fuelLevel\": \"FUEL_HALF\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_LOW\"\n          }\n        },\n        {\n          \"action_name\": \"consume_fuel_low\",\n          \"conditions\": {\n            \"drivingState\": \"CAR_DRIVING\",\n            \"fuelLevel\": \"FUEL_LOW\"\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_EMPTY\"\n          }\n        },\n        {\n          \"action_name\": \"refuel\",\n          \"conditions\": {\n            \"engineState\": \"ENGINE_OFF\",\n            \"fuelLevel\": [\n              \"FUEL_EMPTY\",\n              \"FUEL_LOW\",\n              \"FUEL_HALF\"\n            ]\n          },\n          \"state_changes\": {\n            \"fuelLevel\": \"FUEL_FULL\"\n          }\n        }\n      ]\n    },\n    {\n      \"processName\": \"window\",\n      \"actions\": [\n        {\n          \"action_name\": \"window_open_from_closed\",\n          \"conditions\": {\n            \"windowState\": \"WINDOW_CLOSED\"\n          },\n          \"state_changes\": {\n            \"windowState\": \"WINDOW_OPEN\"\n          }\n        },\n        {\n          \"action_name\": \"window_open_from_half\",\n          \"conditions\": {\n            \"windowState\": \"WINDOW_HALF_OPENED\"\n          },\n          \"state_changes\": {\n            \"windowState\": \"WINDOW_OPEN\"\n          }\n        },\n        {\n          \"action_name\": \"window_half_open\",\n          \"conditions\": {\n            \"windowState\": \"WINDOW_CLOSED\"\n          },\n          \"state_changes\": {\n            \"windowState\": \"WINDOW_HALF_OPENED\"\n          }\n        },\n        {\n          \"action_name\": \"window_close_from_open\",\n          \"conditions\": {\n            \"windowState\": \"WINDOW_OPEN\"\n          },\n          \"state_changes\": {\n            \"windowState\": \"WINDOW_CLOSED\"\n          }\n        },\n        {\n          \"action_name\": \"window_close_from_half\",\n          \"conditions\": {\n            \"windowState\": \"WINDOW_HALF_OPENED\"\n          },\n          \"state_changes\": {\n            \"windowState\": \"WINDOW_CLOSED\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "context": {
+            "processes": [
+                {
+                    "processName": "owner_pos",
+                    "constants": [
+                        {
+                            "name": "OWNER_COUNT",
+                            "value": 2,
+                            "description": "Total number of car owners"
+                        },
+                        {
+                            "name": "IN_CAR",
+                            "value": 0,
+                            "description": "Indicates an object is inside the car"
+                        },
+                        {
+                            "name": "NEAR_CAR",
+                            "value": 1,
+                            "description": "Indicates an object is near the car"
+                        },
+                        {
+                            "name": "FAR_AWAY",
+                            "value": 2,
+                            "description": "Indicates an object is far away from the car"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "ownerPositions",
+                            "type": "array",
+                            "possibleValues": "IN_CAR,NEAR_CAR,FAR_AWAY",
+                            "initialValue": [
+                                "FAR_AWAY",
+                                "FAR_AWAY"
+                            ],
+                            "description": "Positions of the two owners relative to the car"
+                        }
+                    ]
+                },
+                {
+                    "processName": "key_pos",
+                    "constants": [
+                        {
+                            "name": "WITH_OWNER1",
+                            "value": 3,
+                            "description": "Key is with owner 1"
+                        },
+                        {
+                            "name": "WITH_OWNER2",
+                            "value": 4,
+                            "description": "Key is with owner 2"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "keyPosition",
+                            "type": "int",
+                            "possibleValues": "IN_CAR,FAR_AWAY,WITH_OWNER1,WITH_OWNER2",
+                            "initialValue": "FAR_AWAY",
+                            "description": "Position of the key relative to the car"
+                        }
+                    ]
+                },
+                {
+                    "processName": "door_op",
+                    "constants": [
+                        {
+                            "name": "DOOR_OPEN",
+                            "value": 0,
+                            "description": "Door is open"
+                        },
+                        {
+                            "name": "DOOR_UNLOCKED",
+                            "value": 1,
+                            "description": "Door is unlocked"
+                        },
+                        {
+                            "name": "DOOR_LOCKED",
+                            "value": 2,
+                            "description": "Door is locked"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "doorState",
+                            "type": "int",
+                            "possibleValues": "DOOR_OPEN,DOOR_UNLOCKED,DOOR_LOCKED",
+                            "initialValue": "DOOR_LOCKED",
+                            "description": "Status of the car door"
+                        }
+                    ]
+                },
+                {
+                    "processName": "motor",
+                    "constants": [
+                        {
+                            "name": "ENGINE_OFF",
+                            "value": 0,
+                            "description": "Engine is turned off"
+                        },
+                        {
+                            "name": "ENGINE_ON",
+                            "value": 1,
+                            "description": "Engine is turned on"
+                        },
+                        {
+                            "name": "CAR_STOPPED",
+                            "value": 0,
+                            "description": "Car is not moving"
+                        },
+                        {
+                            "name": "CAR_DRIVING",
+                            "value": 1,
+                            "description": "Car is in motion"
+                        },
+                        {
+                            "name": "FUEL_EMPTY",
+                            "value": 0,
+                            "description": "Fuel tank is empty"
+                        },
+                        {
+                            "name": "FUEL_LOW",
+                            "value": 25,
+                            "description": "Fuel level is low"
+                        },
+                        {
+                            "name": "FUEL_HALF",
+                            "value": 50,
+                            "description": "Fuel level is half full"
+                        },
+                        {
+                            "name": "FUEL_FULL",
+                            "value": 100,
+                            "description": "Fuel tank is full"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "engineState",
+                            "type": "int",
+                            "possibleValues": "ENGINE_OFF,ENGINE_ON",
+                            "initialValue": "ENGINE_OFF",
+                            "description": "State of the car engine"
+                        },
+                        {
+                            "name": "drivingState",
+                            "type": "int",
+                            "possibleValues": "CAR_STOPPED,CAR_DRIVING",
+                            "initialValue": "CAR_STOPPED",
+                            "description": "Driving state of the car"
+                        },
+                        {
+                            "name": "fuelLevel",
+                            "type": "int",
+                            "possibleValues": "FUEL_EMPTY,FUEL_LOW,FUEL_HALF,FUEL_FULL",
+                            "initialValue": "FUEL_FULL",
+                            "description": "Fuel level of the car"
+                        }
+                    ]
+                },
+                {
+                    "processName": "window",
+                    "constants": [
+                        {
+                            "name": "WINDOW_OPEN",
+                            "value": 0,
+                            "description": "Window is fully open"
+                        },
+                        {
+                            "name": "WINDOW_HALF_OPENED",
+                            "value": 1,
+                            "description": "Window is half-opened"
+                        },
+                        {
+                            "name": "WINDOW_CLOSED",
+                            "value": 2,
+                            "description": "Window is closed"
+                        }
+                    ],
+                    "variables": [
+                        {
+                            "name": "windowState",
+                            "type": "int",
+                            "possibleValues": "WINDOW_OPEN,WINDOW_HALF_OPENED,WINDOW_CLOSED",
+                            "initialValue": "WINDOW_CLOSED",
+                            "description": "State of the car window"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+]

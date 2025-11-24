@@ -1,0 +1,8 @@
+[
+  {
+    "assertion": "#assert keyless_car reaches runwithoutowner;",
+    "trace": "<init -> owner0_approach_car -> owner0_pickup_key_far -> unlock_door_owner0 -> open_door_owner0 -> owner0_enter_car -> start_engine -> drive_consume_fuel_from_full -> owner0_exit_car -> owner0_leave_car>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  }
+]

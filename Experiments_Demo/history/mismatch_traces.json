@@ -1,0 +1,20 @@
+[
+  {
+    "assertion": "#assert tesla reaches keylockinside;",
+    "trace": "<init -> owner1_approach_car -> owner1_pickup_key_far -> owner1_enter_car -> owner1_place_key_in_car -> owner1_exit_car>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches runwithoutowner;",
+    "trace": "<init -> start_engine -> start_driving>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  },
+  {
+    "assertion": "#assert tesla reaches drivewithoutfuel;",
+    "trace": "<init -> start_engine -> start_driving -> consume_fuel_full -> consume_fuel_half -> consume_fuel_low>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  }
+]

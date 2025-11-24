@@ -1,0 +1,20 @@
+=======================================================
+Assertion: tesla() reaches runwithoutowner
+********Verification Result********
+The Assertion (tesla() reaches runwithoutowner) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> owner1_approach_car -> owner1_pickup_key_far -> start_engine -> unlock_door -> open_door -> owner1_enter_car -> start_driving -> owner1_exit_car -> owner1_leave_area>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:1679
+Total Transitions:3986
+Time Used:0.0326872s
+Estimated Memory Used:9379.312KB
+
+

@@ -1,0 +1,20 @@
+[
+  {
+    "assertion": "#assert keyless_car reaches keylockinside;",
+    "trace": "<init -> owner0_approach_car -> owner0_pickup_key_far -> unlock_door_owner0 -> open_door_owner0 -> owner0_enter_car -> owner0_drop_key_in_car -> owner0_exit_car -> close_door_owner0 -> lock_door_using_key_in_car>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches runwithoutowner;",
+    "trace": "<init -> drive_consume_fuel_from_full>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches drivewithoutfuel;",
+    "trace": "<init -> owner0_approach_car -> owner0_pickup_key_far -> drive_consume_fuel_from_full -> drive_consume_fuel_from_75 -> drive_consume_fuel_from_50 -> drive_consume_fuel_from_25 -> start_engine -> start_driving>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  }
+]

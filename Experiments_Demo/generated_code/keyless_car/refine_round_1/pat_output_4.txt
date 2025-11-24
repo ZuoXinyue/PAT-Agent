@@ -1,0 +1,20 @@
+=======================================================
+Assertion: keyless_car() reaches ownerdrivetogether
+********Verification Result********
+The Assertion (keyless_car() reaches ownerdrivetogether) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> owner0_approach_car -> owner1_approach_car -> owner0_pickup_key_far -> unlock_door_owner0 -> open_door_owner0 -> owner0_enter_car -> owner1_enter_car -> start_engine -> drive_consume_fuel_from_full>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:210
+Total Transitions:754
+Time Used:0.0123954s
+Estimated Memory Used:8538.544KB
+
+

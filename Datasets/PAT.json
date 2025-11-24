@@ -1,6 +1,694 @@
 [
     {
         "index": 1,
+        "modelName": "bridge_crossing",
+        "modelDesc": "4 people cross the bridge",
+        "interactionMode": "none",
+        "subsystemCount": 2,
+        "subsystems": [
+            {
+                "name": "South",
+                "description": "To cross the bridge, the maximum crossing time allowed is 17 units, and knight, lady, king, and queen takes 1, 2, 5, 10 units to cross respectively. Knight, Lady, King, Queen each have two possible positions (South or North); initially all at South and time = 0. From South, one or two people may cross to North; crossing time is the maximum of their individual times. After crossing, hand over control to North."
+            },
+            {
+                "name": "North",
+                "description": "From North, in each action one or two people currently on North may cross back to South; crossing time is again the maximum of their individual times. After crossing, hand over control back to South."
+            }
+        ],
+        "assertions": [
+            {
+                "assertionType": "reachability",
+                "component": "South",
+                "stateName": "goal",
+                "reachabilityType": "customize",
+                "customDescription": "all 4 persons on the north side",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "reachability",
+                "component": "South",
+                "stateName": "goal",
+                "reachabilityType": "customize",
+                "customDescription": "the same state as above, assert that it reaches goal with min(time)",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": ""
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Valid",
+                "ltlLogic": "",
+                "ltlTarget": "",
+                "selectedActions": []
+            },
+            {
+                "assertionType": "ltl",
+                "component": "South",
+                "stateName": "",
+                "reachabilityType": "state",
+                "customDescription": "define alter state where: all 4 persons on the north side and time exceeds maximum allowed, or, not all 4 persons on the north side; assert that the component south always alter",
+                "conditions": [
+                  {
+                    "variable": "",
+                    "value": "",
+                    "connector": "AND"
+                  }
+                ],
+                "editingFinished": true,
+                "assertionTruth": "Invalid",
+                "ltlLogic": "",
+                "ltlTarget": "customize",
+                "selectedActions": []
+            }
+        ]
+    },
+    {
+      "index": 2,
+      "modelName": "wolf_goat_cabbage",
+      "modelDesc": "farmer cross the river with wolf, goat, and cabbage",
+      "interactionMode": "none",
+      "subsystemCount": 2,
+      "subsystems": [
+        {
+          "name": "Cross",
+          "description": "There are two river banks A and B. Four objects: farmer, wolf, goat, cabbage, all initially at bank A, want to cross the river. Only the farmer may row the boat, which can carry the farmer alone or the farmer plus one other (one of wolf/goat/cabbage) to bank B. The crossing can only be made provided that after departure, bank A is NOT left with wolf and goat alone nor goat and cabbage alone. After crossing, hand over control to Return."
+        },
+        {
+          "name": "Return",
+          "description": "From bank B, the farmer (and optionally one other) can go back to bank A provided that after departure, bank B is NOT left with wolf and goat alone nor goat and cabbage alone. After crossing, hand over control to Cross."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all 4 objects on bank B",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "wolf_goat_A",
+          "reachabilityType": "customize",
+          "customDescription": "wolf and goat are on bank A, and farmer and cabbage are on bank B",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "modelName": "missionaries_cannibals",
+      "modelDesc": "missionaries and cannibals cross the river",
+      "interactionMode": "none",
+      "subsystemCount": 2,
+      "subsystems": [
+        {
+          "name": "Cross",
+          "description": "There are two river banks A and B. Three missionaries and three cannibals all start on bank A. A boat that holds at most two people (cannot cross empty) can carry one or two of them to bank B. Allowed crossings are: one missionary, two missionaries, one cannibal, two cannibals, or one missionary with one cannibal - provided that on both banks, whenever missionaries are present they are never outnumbered by cannibals. After crossing, hand over control to Return."
+        },
+        {
+          "name": "Return",
+          "description": "From bank B, the boat (with one or two people) returns to bank A under the same safety rule (missionaries never outnumbered by cannibals on either bank). After crossing, hand over control to Cross."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all missionaries and cannibals on bank B",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "out_numbered",
+          "reachabilityType": "customize",
+          "customDescription": "the number of missionaries on bank A is smaller than the number of cannibals on bank A, and the number of missionaries on bank A is not zero",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "Cross",
+          "stateName": "out_numbered2",
+          "reachabilityType": "customize",
+          "customDescription": "the number of missionaries on bank B is smaller than the number of cannibals on bank B, and the number of missionaries on bank B is not zero",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "modelName": "sieve",
+      "modelDesc": "Sieve of Eratosthenes",
+      "interactionMode": "none",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "P",
+          "description": "We want to find all prime numbers up to N = 9. Each number is initially unmarked, it should be an array of 10 elements such that the mth element represent the number m. With i,j,k all starting at 2, as long as i \u2264 SqrtOfN invoke Q(), otherwise terminate (Stop)."
+        },
+        {
+          "name": "Q",
+          "description": "If i is not yet marked, set j = i and k = i + j then proceed to Sieve(); otherwise increment i and loop back to P()."
+        },
+        {
+          "name": "Sieve",
+          "description": "while k \u2264 N set k to be marked and k += j, then recurse Sieve(); once k > N, increment i and return to P()."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "P",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "i is SqrtOfN + 1, number 4, 6, 8, 9 are marked, and number 2, 3, 5, 7 are not marked",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "modelName": "sliding_game",
+      "modelDesc": "A sliding game with 4 possible movements",
+      "interactionMode": "choice",
+      "subsystemCount": 4,
+      "subsystems": [
+        {
+          "name": "Move Left",
+          "description": "The board is a nine\u2011element array initially set to [3,5,6,0,2,7,8,4,1], with the blank (0) in slot\u00a03. If the blank is not in the rightmost column (slots\u00a02,\u00a05,\u00a08), slide the tile immediately to the right of the blank into the blank slot (that tile moves left) and record that the blank has moved one slot to the right."
+        },
+        {
+          "name": "Move Right",
+          "description": "If the blank is not in the leftmost column (slots\u00a00,\u00a03,\u00a06), slide the tile immediately to the left of the blank into the blank slot (that tile moves right) and record that the blank has moved one slot to the left."
+        },
+        {
+          "name": "Move Up",
+          "description": "If the blank is not in the bottom row (slots\u00a06,\u00a07,\u00a08), slide the tile immediately below the blank into the blank slot (that tile moves up) and record that the blank has moved one slot down."
+        },
+        {
+          "name": "Move Down",
+          "description": "If the blank is not in the top row (slots\u00a00,\u00a01,\u00a02), slide the tile immediately above the blank into the blank slot (that tile moves down) and record that the blank has moved one slot up."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "board is [1,2,3,4,5,6,7,8,0]",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "modelName": "lightsOff",
+      "modelDesc": "The game is modeled by 16 separate light variables a00 through a15 (conceptually four per row). Initially lights a02, a03, a05, a07, a08, a09, a10 and a13 are on; all others are off. Each action click_k toggles light a_k and any immediately adjacent lights: the one to its left (if k\u00a0mod\u00a04\u00a0\u2260\u00a00), to its right (if k\u00a0mod\u00a04\u00a0\u2260\u00a03), above (if k\u00a0\u2265\u00a04), and below (if k\u00a0\u2264\u00a011).",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "lightsOff",
+          "description": "The game is modeled by 16 separate light variables a00 through a15 (conceptually four per row). Initially lights a02, a03, a05, a07, a08, a09, a10 and a13 are on; all others are off. Each action click_k toggles light a_k and any immediately adjacent lights: the one to its left (if k\u00a0mod\u00a04\u00a0\u2260\u00a00), to its right (if k\u00a0mod\u00a04\u00a0\u2260\u00a03), above (if k\u00a0\u2265\u00a04), and below (if k\u00a0\u2264\u00a011)."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all lights are off",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "modelName": "hanoi",
+      "modelDesc": "There are two disks (one large and one small) and three pegs (each represented as an array whose size equals the number of disks). Peg\u00a01 initially holds both disks (large on the bottom, small on top), and pegs\u00a02 and\u00a03 are empty (represented by holding empty disk). At each step you may take the top disk from any non\u2011empty peg and place it onto another peg, provided that the destination peg is empty or its top disk is larger than the one being moved. After performing the move, control returns to the same process.",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "hanoi",
+          "description": "There are two disks (one large and one small) and three pegs (each represented as an array whose size equals the number of disks). Peg\u00a01 initially holds both disks (large on the bottom, small on top), and pegs\u00a02 and\u00a03 are empty (represented by holding empty disk). At each step you may take the top disk from any non\u2011empty peg and place it onto another peg, provided that the destination peg is empty or its top disk is larger than the one being moved. After performing the move, control returns to the same process."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "peg\u00a03 holds both disks: the large one on the bottom and the small one on top",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "modelName": "knight",
+      "modelDesc": "The board is a 5\u00a0\u00d7\u00a05 grid of 25 squares, tracked in a 1\u2011D array with only the starting square marked visited, the rest unvisited. The knight\u2019s position, given by coordinates (i,j), starts at (0,0) with steps = 0. From any position it may move two squares in one direction and one square perpendicular (the eight standard \u201c2\u00d71\u201d knight moves), but only onto an unvisited square and provided that the square exists at that position. After each move, that square is marked visited, steps is incremented, and (i,j) is updated, then the process returns to Knight.",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "knight",
+          "description": "The board is a 5\u00a0\u00d7\u00a05 grid of 25 squares, tracked in a 1\u2011D array with only the starting square marked visited, the rest unvisited. The knight\u2019s position, given by coordinates (i,j), starts at (0,0) with steps = 0. From any position it may move two squares in one direction and one square perpendicular (the eight standard \u201c2\u00d71\u201d knight moves), but only onto an unvisited square and provided that the square exists at that position. After each move, that square is marked visited, steps is incremented, and (i,j) is updated, then the process returns to Knight."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "all squares are visited",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "altergoal",
+          "reachabilityType": "customize",
+          "customDescription": "steps equals to 24",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "modelName": "shunting",
+      "modelDesc": "The puzzle is played on a 6\u00a0\u00d7\u00a07 grid stored in a two\u2011dimensional array called board. It is initialized so that row\u00a00 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a01 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a02 contains a,\u00a0a,\u00a0a,\u00a0w,\u00a0a,\u00a0a,\u00a0a; row\u00a03 contains a,\u00a0w,\u00a0a,\u00a0a,\u00a0a,\u00a0w,\u00a0a; row\u00a04 contains o,\u00a0o,\u00a0a,\u00a0w,\u00a0o,\u00a0o,\u00a0o; and row\u00a05 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o. Here o marks an obstacle, a marks an empty track space the box can be moved into, and w marks a box that can be pushed. The player starts at row\u00a03, column\u00a00. On each turn the player may move up, down, left, or right into an adjacent a cell, or if an adjacent cell holds a box (w) and the cell beyond it in the same direction is empty (a), the player may push the box into that space and occupy it. After each move or push the board and the player\u2019s coordinates are updated.",
+      "interactionMode": "skip",
+      "subsystemCount": 1,
+      "subsystems": [
+        {
+          "name": "shunting",
+          "description": "The puzzle is played on a 6\u00a0\u00d7\u00a07 grid stored in a two\u2011dimensional array called board. It is initialized so that row\u00a00 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a01 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a02 contains a,\u00a0a,\u00a0a,\u00a0w,\u00a0a,\u00a0a,\u00a0a; row\u00a03 contains a,\u00a0w,\u00a0a,\u00a0a,\u00a0a,\u00a0w,\u00a0a; row\u00a04 contains o,\u00a0o,\u00a0a,\u00a0w,\u00a0o,\u00a0o,\u00a0o; and row\u00a05 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o. Here o marks an obstacle, a marks an empty track space the box can be moved into, and w marks a box that can be pushed. The player starts at row\u00a03, column\u00a00. On each turn the player may move up, down, left, or right into an adjacent a cell, or if an adjacent cell holds a box (w) and the cell beyond it in the same direction is empty (a), the player may push the box into that space and occupy it. After each move or push the board and the player\u2019s coordinates are updated."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "trouble",
+          "reachabilityType": "customize",
+          "customDescription": "box is in row 0, column 3",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "outside",
+          "reachabilityType": "customize",
+          "customDescription": "box is in row 4, column 1",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "reachability",
+          "component": "",
+          "stateName": "goal",
+          "reachabilityType": "customize",
+          "customDescription": "boxes are in row 2 column 2, row 2 column 3, row 3 column 2, and row 3 column 3",
+          "conditions": [
+            {
+              "variable": "",
+              "value": ""
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "assert that the system always have trouble then not eventually goal",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Valid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        },
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "assert that the system always have trouble then eventually goal",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "modelName": "leader_complete",
+      "modelDesc": "the leader election protocols - complete graph",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "DetectorCorrect",
+          "description": "The system maintains a count detectorcorrect, initially zero. As long as detectorcorrect remains zero, this process may set detectorcorrect to one."
+        },
+        {
+          "name": "RandomDetector",
+          "description": "The system has a flag detector, indicating its state. While detectorcorrect is still zero, this process can either sets the flag to false or to true."
+        },
+        {
+          "name": "Rules",
+          "description": "The system tracks three potential leaders in an array. Initially, each person is randomly set to either a leader or not a leader. The persons can go through demotion or promotion. Demotion rules: Whenever any two distinct persons are both marked as leaders, one of those two can be demoted (set their entry to non\u2011leader). Promotion rules: Whenever any two distinct persons are both non\u2011leaders and no leader has yet been confirmed - either because the variable\u00a0detectorcorrect is still zero while the detector flag remains false, or because detectorcorrect has been set to one but none of the three leader slots has been filled, one of those two can be promoted (set their entry to leader)."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "modelName": "leader_directed",
+      "modelDesc": "the leader election protocols - directed rooted trees",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "DetectorCorrect",
+          "description": "The system maintains a counter\u00a0detectorcorrect, which starts at zero. As long as this counter remains zero, this process may change it to one."
+        },
+        {
+          "name": "RandomDetector",
+          "description": "The system holds a boolean flag\u00a0detector. While\u00a0detectorcorrect is still zero, this process can set\u00a0detector\u00a0to either false or true."
+        },
+        {
+          "name": "Rules",
+          "description": "The system models a rooted tree of three nodes (node\u00a00 is the root, nodes\u00a01 and\u00a02 are its children). Each node has a leadership flag, initially the leadership status for each node is randomly determined. The nodes can go through demotion, promotion, or transfer. Demotion rules: if the root and one of its children are both marked as leaders, that child can be demoted to not be a leader. Promotion rules: if the root and one of its children are non\u2011leaders, and no leader has yet been confirmed (no leader has been confirmed means either the detector hasn\u2019t set\u00a0detectorcorrect to one while\u00a0detector\u00a0remains false, or,\u00a0detectorcorrect has become one but none of the three nodes is leader), then the root may be promoted to become a leader. Transfer rules: if the root is a non\u2011leader while one of its children is a leader, the root may take over leadership and the child will be demoted."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "modelName": "leader_ring",
+      "modelDesc": "the leader election protocols - ring",
+      "interactionMode": "interleaving",
+      "subsystemCount": 5,
+      "subsystems": [
+        {
+          "name": "DetectorCorrect",
+          "description": "The system maintains a counter\u00a0detectorcorrect, initially zero. When detectorcorrect remains zero, this process may set\u00a0detectorcorrect\u00a0to one."
+        },
+        {
+          "name": "RandomDetector",
+          "description": "The system holds a boolean flag\u00a0detector. When detectorcorrect\u00a0remains zero, this process can set\u00a0detector\u00a0to false or to true."
+        },
+        {
+          "name": "Process_0",
+          "description": "There are three nodes, each has 3 properties: whether have bullet, is leader, and have shield. The intial statuses are all randomly set. When saying a leader is confirmed, we mean either the detector flag is raised when detectorcorrect has not been flagged, or, the detectorcorrect flag is raised and at least one node is a leader. Therefore, no leader is confirmed means either both detectorcorrect and detector are not flagged, or detectorcorrect is flagged but no one is a leader yet. This subsystem can: Arm & Elect: If no leader is yet confirmed, node\u00a00 may arm the bullet and shield, and declare itself leader. Hand Off: If node\u00a00 is non\u00adleader but currently shielded and a leader has already been confirmed, it may unshield itself, unarm the next node\u2019s (node 1) bullet, and arm that node\u2019s shield. Shield Transfer: If node\u00a00 is a shielded leader and a leader is confirmed, it may arm the bullet and unarm the shield, the shield is transferred to the next node and that node's bullet will be unarmed. Simply Arm: If node\u00a00 is a leader without shield, the next node has no bullet, and a leader is confirmed, it may simply arm the bullet. Fallback Demotion: If node\u00a00 has no shield, the next node's bullet is armed, and a leader is confirmed, it may arm its bullet and demote itself (clear its leader and shield), and unarm the next node\u2019s bullet."
+        },
+        {
+          "name": "Process_1",
+          "description": "Identical to Process_0 but controlling node\u00a01 and interacting with node\u00a02."
+        },
+        {
+          "name": "Process_2",
+          "description": "Identical to Process_0 but controlling node\u00a02 and interacting with node\u00a00."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "modelName": "leader_odd_ring",
+      "modelDesc": "the leader election protocols - odd size ring",
+      "interactionMode": "interleaving",
+      "subsystemCount": 3,
+      "subsystems": [
+        {
+          "name": "Process_0",
+          "description": "The system tracks for each of three nodes a leader flag, a bullet flag, a label bit, a probe bit and a phase bit. Initially, all the 5 properties for each node is randomly set to one of the 2 states. Process_0 watches positions 0 and 1 on the ring, and depending on whether their labels match or differ, different actions take place. When the labels at 0 and 1 match and the probe at 0 is 1 and phase at 0 is 0, it may set the leader flag at 0 to 1, clear the probe at 0, set phase at 0 to 1 and set the probe at 1. When labels match and probe at 0 is 1 and phase at 0 is 0 and leader at 1 is 1, it may set leader at 0 to 1, clear probe at 0 and set phase at 0 to 1. When labels match and probe at 0 is 1 and phase at 0 is 1 and probe at 1 is 0, it may set leader at 0 to 1, clear probe at 0, clear bullet at 1, flip label at 1 and reset phase at 1. When labels match and probe at 0 is 1 and phase at 0 is 1 and probe at 1 is 1, it may set leader at 0 to 1 and clear probe at 0. When labels match and probe at 0 is 0 and phase at 0 is 0 and leader at 1 is 0, it may set phase at 0 to 1 and set probe at 1. When labels match and probe at 0 is 0 and phase at 0 is 0 and leader at 1 is 1, it may set phase at 0 to 1. When labels match and probe at 0 is 0 and phase at 0 is 1 and probe at 1 is 0, it may clear bullet at 1, flip label at 1 and reset phase at 1. When labels differ and leader at 1 is 1 and bullet at 1 is 1, it may clear leader at 1. When labels differ and leader at 1 is 1 and bullet at 1 is 0, it may set bullet at 0 to 1 and clear probe at 0. When labels differ and leader at 1 is 0 and bullet at 1 is 1 and probe at 0 is 1, it may set bullet at 0 to 1, clear bullet at 1, clear probe at 0 and set probe at 1. When labels differ and leader at 1 is 0 and bullet at 1 is 0 and probe at 0 is 1, it may clear probe at 0 and set probe at 1. When labels differ and leader at 1 is 0 and bullet at 1 is 1 and probe at 0 is 0, it may set bullet at 0 to 1 and clear bullet at 1."
+        },
+        {
+          "name": "Process_1",
+          "description": "Exactly the same behaviour as Process_0 but watches positions 1 and 2."
+        },
+        {
+          "name": "Process_2",
+          "description": "Exactly the same behaviour as Process_0 but watches positions 2 and 0."
+        }
+      ],
+      "assertions": [
+        {
+          "assertionType": "ltl",
+          "component": "",
+          "stateName": "",
+          "reachabilityType": "state",
+          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
+          "conditions": [
+            {
+              "variable": "",
+              "value": "",
+              "connector": "AND"
+            }
+          ],
+          "editingFinished": true,
+          "assertionTruth": "Invalid",
+          "ltlLogic": "",
+          "ltlTarget": "customize",
+          "selectedActions": []
+        }
+      ]
+    },
+    {
+        "index": 14,
         "modelName": "keyless_car",
         "modelDesc": "We would like to model a car in this system, which involves the interaction between owners, car door, the key, and the engine.",
         "interactionMode": "interleaving",
@@ -173,7 +861,7 @@
         ]
     },
     {
-        "index": 2,
+        "index": 15,
         "modelName": "lift",
         "modelDesc": "We would like to model a lift in this system, which involves the interaction between persons and a lift.",
         "interactionMode": "interleaving",
@@ -306,7 +994,7 @@
         ]
     },
     {
-        "index": 3,
+        "index": 16,
         "modelName": "kitchen",
         "modelDesc": "We would like to model a kitchen in this system, which involves the interaction between ",
         "interactionMode": "interleaving",
@@ -430,7 +1118,7 @@
         ]
     },
     {
-        "index": 4,
+        "index": 17,
         "modelName": "tesla",
         "modelDesc": "the tesla car design which tries to guarantee exit opportunities for owners when submerged in water",
         "interactionMode": "processes motor, door_op, key_pos, owner_pos, and window interleave each other and interrupted by a process: (water_sensor_high -> submerge -> Stop)",
@@ -605,694 +1293,6 @@
                 "selectedActions": []
             }
         ]
-    },
-    {
-        "index": 5,
-        "modelName": "bridge_crossing",
-        "modelDesc": "4 people cross the bridge",
-        "interactionMode": "none",
-        "subsystemCount": 2,
-        "subsystems": [
-            {
-                "name": "South",
-                "description": "To cross the bridge, the maximum crossing time allowed is 17 units, and knight, lady, king, and queen takes 1, 2, 5, 10 units to cross respectively. Knight, Lady, King, Queen each have two possible positions (South or North); initially all at South and time = 0. From South, one or two people may cross to North; crossing time is the maximum of their individual times. After crossing, hand over control to North."
-            },
-            {
-                "name": "North",
-                "description": "From North, in each action one or two people currently on North may cross back to South; crossing time is again the maximum of their individual times. After crossing, hand over control back to South."
-            }
-        ],
-        "assertions": [
-            {
-                "assertionType": "reachability",
-                "component": "South",
-                "stateName": "goal",
-                "reachabilityType": "customize",
-                "customDescription": "all 4 persons on the north side",
-                "conditions": [
-                  {
-                    "variable": "",
-                    "value": ""
-                  }
-                ],
-                "editingFinished": true,
-                "assertionTruth": "Valid",
-                "ltlLogic": "",
-                "ltlTarget": "",
-                "selectedActions": []
-            },
-            {
-                "assertionType": "reachability",
-                "component": "South",
-                "stateName": "goal",
-                "reachabilityType": "customize",
-                "customDescription": "the same state as above, assert that it reaches goal with min(time)",
-                "conditions": [
-                  {
-                    "variable": "",
-                    "value": ""
-                  }
-                ],
-                "editingFinished": true,
-                "assertionTruth": "Valid",
-                "ltlLogic": "",
-                "ltlTarget": "",
-                "selectedActions": []
-            },
-            {
-                "assertionType": "ltl",
-                "component": "South",
-                "stateName": "",
-                "reachabilityType": "state",
-                "customDescription": "define alter state where: all 4 persons on the north side and time exceeds maximum allowed, or, not all 4 persons on the north side; assert that the component south always alter",
-                "conditions": [
-                  {
-                    "variable": "",
-                    "value": "",
-                    "connector": "AND"
-                  }
-                ],
-                "editingFinished": true,
-                "assertionTruth": "Invalid",
-                "ltlLogic": "",
-                "ltlTarget": "customize",
-                "selectedActions": []
-            }
-        ]
-    },
-    {
-      "index": 6,
-      "modelName": "wolf_goat_cabbage",
-      "modelDesc": "farmer cross the river with wolf, goat, and cabbage",
-      "interactionMode": "none",
-      "subsystemCount": 2,
-      "subsystems": [
-        {
-          "name": "Cross",
-          "description": "There are two river banks A and B. Four objects: farmer, wolf, goat, cabbage, all initially at bank A, want to cross the river. Only the farmer may row the boat, which can carry the farmer alone or the farmer plus one other (one of wolf/goat/cabbage) to bank B. The crossing can only be made provided that after departure, bank A is NOT left with wolf and goat alone nor goat and cabbage alone. After crossing, hand over control to Return."
-        },
-        {
-          "name": "Return",
-          "description": "From bank B, the farmer (and optionally one other) can go back to bank A provided that after departure, bank B is NOT left with wolf and goat alone nor goat and cabbage alone. After crossing, hand over control to Cross."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "Cross",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "all 4 objects on bank B",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "reachability",
-          "component": "Cross",
-          "stateName": "wolf_goat_A",
-          "reachabilityType": "customize",
-          "customDescription": "wolf and goat are on bank A, and farmer and cabbage are on bank B",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 7,
-      "modelName": "missionaries_cannibals",
-      "modelDesc": "missionaries and cannibals cross the river",
-      "interactionMode": "none",
-      "subsystemCount": 2,
-      "subsystems": [
-        {
-          "name": "Cross",
-          "description": "There are two river banks A and B. Three missionaries and three cannibals all start on bank A. A boat that holds at most two people (cannot cross empty) can carry one or two of them to bank B. Allowed crossings are: one missionary, two missionaries, one cannibal, two cannibals, or one missionary with one cannibal - provided that on both banks, whenever missionaries are present they are never outnumbered by cannibals. After crossing, hand over control to Return."
-        },
-        {
-          "name": "Return",
-          "description": "From bank B, the boat (with one or two people) returns to bank A under the same safety rule (missionaries never outnumbered by cannibals on either bank). After crossing, hand over control to Cross."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "Cross",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "all missionaries and cannibals on bank B",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "reachability",
-          "component": "Cross",
-          "stateName": "out_numbered",
-          "reachabilityType": "customize",
-          "customDescription": "the number of missionaries on bank A is smaller than the number of cannibals on bank A, and the number of missionaries on bank A is not zero",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "reachability",
-          "component": "Cross",
-          "stateName": "out_numbered2",
-          "reachabilityType": "customize",
-          "customDescription": "the number of missionaries on bank B is smaller than the number of cannibals on bank B, and the number of missionaries on bank B is not zero",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 8,
-      "modelName": "sieve",
-      "modelDesc": "Sieve of Eratosthenes",
-      "interactionMode": "none",
-      "subsystemCount": 3,
-      "subsystems": [
-        {
-          "name": "P",
-          "description": "We want to find all prime numbers up to N = 9. Each number is initially unmarked, it should be an array of 10 elements such that the mth element represent the number m. With i,j,k all starting at 2, as long as i \u2264 SqrtOfN invoke Q(), otherwise terminate (Stop)."
-        },
-        {
-          "name": "Q",
-          "description": "If i is not yet marked, set j = i and k = i + j then proceed to Sieve(); otherwise increment i and loop back to P()."
-        },
-        {
-          "name": "Sieve",
-          "description": "while k \u2264 N set k to be marked and k += j, then recurse Sieve(); once k > N, increment i and return to P()."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "P",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "i is SqrtOfN + 1, number 4, 6, 8, 9 are marked, and number 2, 3, 5, 7 are not marked",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 9,
-      "modelName": "sliding_game",
-      "modelDesc": "A sliding game with 4 possible movements",
-      "interactionMode": "choice",
-      "subsystemCount": 4,
-      "subsystems": [
-        {
-          "name": "Move Left",
-          "description": "The board is a nine\u2011element array initially set to [3,5,6,0,2,7,8,4,1], with the blank (0) in slot\u00a03. If the blank is not in the rightmost column (slots\u00a02,\u00a05,\u00a08), slide the tile immediately to the right of the blank into the blank slot (that tile moves left) and record that the blank has moved one slot to the right."
-        },
-        {
-          "name": "Move Right",
-          "description": "If the blank is not in the leftmost column (slots\u00a00,\u00a03,\u00a06), slide the tile immediately to the left of the blank into the blank slot (that tile moves right) and record that the blank has moved one slot to the left."
-        },
-        {
-          "name": "Move Up",
-          "description": "If the blank is not in the bottom row (slots\u00a06,\u00a07,\u00a08), slide the tile immediately below the blank into the blank slot (that tile moves up) and record that the blank has moved one slot down."
-        },
-        {
-          "name": "Move Down",
-          "description": "If the blank is not in the top row (slots\u00a00,\u00a01,\u00a02), slide the tile immediately above the blank into the blank slot (that tile moves down) and record that the blank has moved one slot up."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "board is [1,2,3,4,5,6,7,8,0]",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 10,
-      "modelName": "lightsOff",
-      "modelDesc": "The game is modeled by 16 separate light variables a00 through a15 (conceptually four per row). Initially lights a02, a03, a05, a07, a08, a09, a10 and a13 are on; all others are off. Each action click_k toggles light a_k and any immediately adjacent lights: the one to its left (if k\u00a0mod\u00a04\u00a0\u2260\u00a00), to its right (if k\u00a0mod\u00a04\u00a0\u2260\u00a03), above (if k\u00a0\u2265\u00a04), and below (if k\u00a0\u2264\u00a011).",
-      "interactionMode": "skip",
-      "subsystemCount": 1,
-      "subsystems": [
-        {
-          "name": "lightsOff",
-          "description": "The game is modeled by 16 separate light variables a00 through a15 (conceptually four per row). Initially lights a02, a03, a05, a07, a08, a09, a10 and a13 are on; all others are off. Each action click_k toggles light a_k and any immediately adjacent lights: the one to its left (if k\u00a0mod\u00a04\u00a0\u2260\u00a00), to its right (if k\u00a0mod\u00a04\u00a0\u2260\u00a03), above (if k\u00a0\u2265\u00a04), and below (if k\u00a0\u2264\u00a011)."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "all lights are off",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 11,
-      "modelName": "hanoi",
-      "modelDesc": "There are two disks (one large and one small) and three pegs (each represented as an array whose size equals the number of disks). Peg\u00a01 initially holds both disks (large on the bottom, small on top), and pegs\u00a02 and\u00a03 are empty (represented by holding empty disk). At each step you may take the top disk from any non\u2011empty peg and place it onto another peg, provided that the destination peg is empty or its top disk is larger than the one being moved. After performing the move, control returns to the same process.",
-      "interactionMode": "skip",
-      "subsystemCount": 1,
-      "subsystems": [
-        {
-          "name": "hanoi",
-          "description": "There are two disks (one large and one small) and three pegs (each represented as an array whose size equals the number of disks). Peg\u00a01 initially holds both disks (large on the bottom, small on top), and pegs\u00a02 and\u00a03 are empty (represented by holding empty disk). At each step you may take the top disk from any non\u2011empty peg and place it onto another peg, provided that the destination peg is empty or its top disk is larger than the one being moved. After performing the move, control returns to the same process."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "peg\u00a03 holds both disks: the large one on the bottom and the small one on top",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 12,
-      "modelName": "knight",
-      "modelDesc": "The board is a 5\u00a0\u00d7\u00a05 grid of 25 squares, tracked in a 1\u2011D array with only the starting square marked visited, the rest unvisited. The knight\u2019s position, given by coordinates (i,j), starts at (0,0) with steps = 0. From any position it may move two squares in one direction and one square perpendicular (the eight standard \u201c2\u00d71\u201d knight moves), but only onto an unvisited square and provided that the square exists at that position. After each move, that square is marked visited, steps is incremented, and (i,j) is updated, then the process returns to Knight.",
-      "interactionMode": "skip",
-      "subsystemCount": 1,
-      "subsystems": [
-        {
-          "name": "knight",
-          "description": "The board is a 5\u00a0\u00d7\u00a05 grid of 25 squares, tracked in a 1\u2011D array with only the starting square marked visited, the rest unvisited. The knight\u2019s position, given by coordinates (i,j), starts at (0,0) with steps = 0. From any position it may move two squares in one direction and one square perpendicular (the eight standard \u201c2\u00d71\u201d knight moves), but only onto an unvisited square and provided that the square exists at that position. After each move, that square is marked visited, steps is incremented, and (i,j) is updated, then the process returns to Knight."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "all squares are visited",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "altergoal",
-          "reachabilityType": "customize",
-          "customDescription": "steps equals to 24",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 13,
-      "modelName": "shunting",
-      "modelDesc": "The puzzle is played on a 6\u00a0\u00d7\u00a07 grid stored in a two\u2011dimensional array called board. It is initialized so that row\u00a00 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a01 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a02 contains a,\u00a0a,\u00a0a,\u00a0w,\u00a0a,\u00a0a,\u00a0a; row\u00a03 contains a,\u00a0w,\u00a0a,\u00a0a,\u00a0a,\u00a0w,\u00a0a; row\u00a04 contains o,\u00a0o,\u00a0a,\u00a0w,\u00a0o,\u00a0o,\u00a0o; and row\u00a05 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o. Here o marks an obstacle, a marks an empty track space the box can be moved into, and w marks a box that can be pushed. The player starts at row\u00a03, column\u00a00. On each turn the player may move up, down, left, or right into an adjacent a cell, or if an adjacent cell holds a box (w) and the cell beyond it in the same direction is empty (a), the player may push the box into that space and occupy it. After each move or push the board and the player\u2019s coordinates are updated.",
-      "interactionMode": "skip",
-      "subsystemCount": 1,
-      "subsystems": [
-        {
-          "name": "shunting",
-          "description": "The puzzle is played on a 6\u00a0\u00d7\u00a07 grid stored in a two\u2011dimensional array called board. It is initialized so that row\u00a00 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a01 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o; row\u00a02 contains a,\u00a0a,\u00a0a,\u00a0w,\u00a0a,\u00a0a,\u00a0a; row\u00a03 contains a,\u00a0w,\u00a0a,\u00a0a,\u00a0a,\u00a0w,\u00a0a; row\u00a04 contains o,\u00a0o,\u00a0a,\u00a0w,\u00a0o,\u00a0o,\u00a0o; and row\u00a05 contains o,\u00a0o,\u00a0a,\u00a0a,\u00a0o,\u00a0o,\u00a0o. Here o marks an obstacle, a marks an empty track space the box can be moved into, and w marks a box that can be pushed. The player starts at row\u00a03, column\u00a00. On each turn the player may move up, down, left, or right into an adjacent a cell, or if an adjacent cell holds a box (w) and the cell beyond it in the same direction is empty (a), the player may push the box into that space and occupy it. After each move or push the board and the player\u2019s coordinates are updated."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "trouble",
-          "reachabilityType": "customize",
-          "customDescription": "box is in row 0, column 3",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "outside",
-          "reachabilityType": "customize",
-          "customDescription": "box is in row 4, column 1",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "reachability",
-          "component": "",
-          "stateName": "goal",
-          "reachabilityType": "customize",
-          "customDescription": "boxes are in row 2 column 2, row 2 column 3, row 3 column 2, and row 3 column 3",
-          "conditions": [
-            {
-              "variable": "",
-              "value": ""
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "ltl",
-          "component": "",
-          "stateName": "",
-          "reachabilityType": "state",
-          "customDescription": "assert that the system always have trouble then not eventually goal",
-          "conditions": [
-            {
-              "variable": "",
-              "value": "",
-              "connector": "AND"
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Valid",
-          "ltlLogic": "",
-          "ltlTarget": "customize",
-          "selectedActions": []
-        },
-        {
-          "assertionType": "ltl",
-          "component": "",
-          "stateName": "",
-          "reachabilityType": "state",
-          "customDescription": "assert that the system always have trouble then eventually goal",
-          "conditions": [
-            {
-              "variable": "",
-              "value": "",
-              "connector": "AND"
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "customize",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 14,
-      "modelName": "leader_complete",
-      "modelDesc": "the leader election protocols - complete graph",
-      "interactionMode": "interleaving",
-      "subsystemCount": 3,
-      "subsystems": [
-        {
-          "name": "DetectorCorrect",
-          "description": "The system maintains a count detectorcorrect, initially zero. As long as detectorcorrect remains zero, this process may set detectorcorrect to one."
-        },
-        {
-          "name": "RandomDetector",
-          "description": "The system has a flag detector, indicating its state. While detectorcorrect is still zero, this process can either sets the flag to false or to true."
-        },
-        {
-          "name": "Rules",
-          "description": "The system tracks three potential leaders in an array. Initially, each person is randomly set to either a leader or not a leader. The persons can go through demotion or promotion. Demotion rules: Whenever any two distinct persons are both marked as leaders, one of those two can be demoted (set their entry to non\u2011leader). Promotion rules: Whenever any two distinct persons are both non\u2011leaders and no leader has yet been confirmed - either because the variable\u00a0detectorcorrect is still zero while the detector flag remains false, or because detectorcorrect has been set to one but none of the three leader slots has been filled, one of those two can be promoted (set their entry to leader)."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "ltl",
-          "component": "",
-          "stateName": "",
-          "reachabilityType": "state",
-          "customDescription": "define a state oneLeader where only one of the three is a leader, assert that the system eventually always has oneLeader",
-          "conditions": [
-            {
-              "variable": "",
-              "value": "",
-              "connector": "AND"
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "customize",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 15,
-      "modelName": "leader_directed",
-      "modelDesc": "the leader election protocols - directed rooted trees",
-      "interactionMode": "interleaving",
-      "subsystemCount": 3,
-      "subsystems": [
-        {
-          "name": "DetectorCorrect",
-          "description": "The system maintains a counter\u00a0detectorcorrect, which starts at zero. As long as this counter remains zero, this process may change it to one."
-        },
-        {
-          "name": "RandomDetector",
-          "description": "The system holds a boolean flag\u00a0detector. While\u00a0detectorcorrect is still zero, this process can set\u00a0detector\u00a0to either false or true."
-        },
-        {
-          "name": "Rules",
-          "description": "The system models a rooted tree of three nodes (node\u00a00 is the root, nodes\u00a01 and\u00a02 are its children). Each node has a leadership flag, initially the leadership status for each node is randomly determined. The nodes can go through demotion, promotion, or transfer. Demotion rules: if the root and one of its children are both marked as leaders, that child can be demoted to not be a leader. Promotion rules: if the root and one of its children are non\u2011leaders, and no leader has yet been confirmed (no leader has been confirmed means either the detector hasn\u2019t set\u00a0detectorcorrect to one while\u00a0detector\u00a0remains false, or,\u00a0detectorcorrect has become one but none of the three nodes is leader), then the root may be promoted to become a leader. Transfer rules: if the root is a non\u2011leader while one of its children is a leader, the root may take over leadership and the child will be demoted."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "ltl",
-          "component": "",
-          "stateName": "",
-          "reachabilityType": "state",
-          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
-          "conditions": [
-            {
-              "variable": "",
-              "value": "",
-              "connector": "AND"
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "customize",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 16,
-      "modelName": "leader_ring",
-      "modelDesc": "the leader election protocols - ring",
-      "interactionMode": "interleaving",
-      "subsystemCount": 5,
-      "subsystems": [
-        {
-          "name": "DetectorCorrect",
-          "description": "The system maintains a counter\u00a0detectorcorrect, initially zero. When detectorcorrect remains zero, this process may set\u00a0detectorcorrect\u00a0to one."
-        },
-        {
-          "name": "RandomDetector",
-          "description": "The system holds a boolean flag\u00a0detector. When detectorcorrect\u00a0remains zero, this process can set\u00a0detector\u00a0to false or to true."
-        },
-        {
-          "name": "Process_0",
-          "description": "There are three nodes, each has 3 properties: whether have bullet, is leader, and have shield. The intial statuses are all randomly set. When saying a leader is confirmed, we mean either the detector flag is raised when detectorcorrect has not been flagged, or, the detectorcorrect flag is raised and at least one node is a leader. Therefore, no leader is confirmed means either both detectorcorrect and detector are not flagged, or detectorcorrect is flagged but no one is a leader yet. This subsystem can: Arm & Elect: If no leader is yet confirmed, node\u00a00 may arm the bullet and shield, and declare itself leader. Hand Off: If node\u00a00 is non\u00adleader but currently shielded and a leader has already been confirmed, it may unshield itself, unarm the next node\u2019s (node 1) bullet, and arm that node\u2019s shield. Shield Transfer: If node\u00a00 is a shielded leader and a leader is confirmed, it may arm the bullet and unarm the shield, the shield is transferred to the next node and that node's bullet will be unarmed. Simply Arm: If node\u00a00 is a leader without shield, the next node has no bullet, and a leader is confirmed, it may simply arm the bullet. Fallback Demotion: If node\u00a00 has no shield, the next node's bullet is armed, and a leader is confirmed, it may arm its bullet and demote itself (clear its leader and shield), and unarm the next node\u2019s bullet."
-        },
-        {
-          "name": "Process_1",
-          "description": "Identical to Process_0 but controlling node\u00a01 and interacting with node\u00a02."
-        },
-        {
-          "name": "Process_2",
-          "description": "Identical to Process_0 but controlling node\u00a02 and interacting with node\u00a00."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "ltl",
-          "component": "",
-          "stateName": "",
-          "reachabilityType": "state",
-          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
-          "conditions": [
-            {
-              "variable": "",
-              "value": "",
-              "connector": "AND"
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "customize",
-          "selectedActions": []
-        }
-      ]
-    },
-    {
-      "index": 17,
-      "modelName": "leader_odd_ring",
-      "modelDesc": "the leader election protocols - odd size ring",
-      "interactionMode": "interleaving",
-      "subsystemCount": 3,
-      "subsystems": [
-        {
-          "name": "Process_0",
-          "description": "The system tracks for each of three nodes a leader flag, a bullet flag, a label bit, a probe bit and a phase bit. Initially, all the 5 properties for each node is randomly set to one of the 2 states. Process_0 watches positions 0 and 1 on the ring, and depending on whether their labels match or differ, different actions take place. When the labels at 0 and 1 match and the probe at 0 is 1 and phase at 0 is 0, it may set the leader flag at 0 to 1, clear the probe at 0, set phase at 0 to 1 and set the probe at 1. When labels match and probe at 0 is 1 and phase at 0 is 0 and leader at 1 is 1, it may set leader at 0 to 1, clear probe at 0 and set phase at 0 to 1. When labels match and probe at 0 is 1 and phase at 0 is 1 and probe at 1 is 0, it may set leader at 0 to 1, clear probe at 0, clear bullet at 1, flip label at 1 and reset phase at 1. When labels match and probe at 0 is 1 and phase at 0 is 1 and probe at 1 is 1, it may set leader at 0 to 1 and clear probe at 0. When labels match and probe at 0 is 0 and phase at 0 is 0 and leader at 1 is 0, it may set phase at 0 to 1 and set probe at 1. When labels match and probe at 0 is 0 and phase at 0 is 0 and leader at 1 is 1, it may set phase at 0 to 1. When labels match and probe at 0 is 0 and phase at 0 is 1 and probe at 1 is 0, it may clear bullet at 1, flip label at 1 and reset phase at 1. When labels differ and leader at 1 is 1 and bullet at 1 is 1, it may clear leader at 1. When labels differ and leader at 1 is 1 and bullet at 1 is 0, it may set bullet at 0 to 1 and clear probe at 0. When labels differ and leader at 1 is 0 and bullet at 1 is 1 and probe at 0 is 1, it may set bullet at 0 to 1, clear bullet at 1, clear probe at 0 and set probe at 1. When labels differ and leader at 1 is 0 and bullet at 1 is 0 and probe at 0 is 1, it may clear probe at 0 and set probe at 1. When labels differ and leader at 1 is 0 and bullet at 1 is 1 and probe at 0 is 0, it may set bullet at 0 to 1 and clear bullet at 1."
-        },
-        {
-          "name": "Process_1",
-          "description": "Exactly the same behaviour as Process_0 but watches positions 1 and 2."
-        },
-        {
-          "name": "Process_2",
-          "description": "Exactly the same behaviour as Process_0 but watches positions 2 and 0."
-        }
-      ],
-      "assertions": [
-        {
-          "assertionType": "ltl",
-          "component": "",
-          "stateName": "",
-          "reachabilityType": "state",
-          "customDescription": "define a state oneLeader where only one of the three nodes is a leader, assert that the system eventually always has oneLeader",
-          "conditions": [
-            {
-              "variable": "",
-              "value": "",
-              "connector": "AND"
-            }
-          ],
-          "editingFinished": true,
-          "assertionTruth": "Invalid",
-          "ltlLogic": "",
-          "ltlTarget": "customize",
-          "selectedActions": []
-        }
-      ]
     },
     {
       "index": 18,

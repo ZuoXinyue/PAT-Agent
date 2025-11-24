@@ -1,0 +1,8 @@
+[
+  {
+    "assertion": "#assert tesla reaches runwithoutowner;",
+    "trace": "<init -> owner1_approach_car -> owner1_pickup_key_far -> start_engine -> unlock_door -> open_door -> owner1_enter_car -> start_driving -> owner1_exit_car -> owner1_leave_area>",
+    "current_result": "Valid",
+    "desired_result": "Invalid"
+  }
+]

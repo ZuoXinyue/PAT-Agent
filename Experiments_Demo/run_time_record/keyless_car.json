@@ -1,0 +1,35 @@
+{
+    "const-var-time": {
+        "runTime": 70.05666216695681
+    },
+    "action-time": {
+        "runTime": 81.06824404094368
+    },
+    "nl-annotation-time": {
+        "runTime": 74.83544055605307
+    },
+    "codegen-time_2025-11-24-10-23-27": {
+        "runTime": 34.12783022178337
+    },
+    "verification-time_2025-11-24-10-23-30": {
+        "runTime": 2.2192733930423856,
+        "hasMismatch": true,
+        "codegenFailed": false
+    },
+    "refine-time_1_2025-11-24-10-24-08": {
+        "runTime": 38.24399241292849
+    },
+    "verification-time_2025-11-24-10-24-10": {
+        "runTime": 2.0186238740570843,
+        "hasMismatch": true,
+        "codegenFailed": false
+    },
+    "refine-time_2_2025-11-24-10-24-49": {
+        "runTime": 38.70924354507588
+    },
+    "verification-time_2025-11-24-10-24-51": {
+        "runTime": 2.0194104730617255,
+        "hasMismatch": false,
+        "codegenFailed": false
+    }
+}

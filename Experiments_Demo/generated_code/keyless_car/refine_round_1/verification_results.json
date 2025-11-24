@@ -1,0 +1,50 @@
+[
+  {
+    "assertion": "#assert keyless_car deadlockfree;",
+    "patResult": "The Assertion (keyless_car() deadlockfree) is VALID.",
+    "actualResult": "Valid",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car |= []<> drive_consume_fuel_from_full;",
+    "patResult": "The Assertion (keyless_car() |= []<> drive_consume_fuel_from_full) is NOT valid.\nA counterexample is presented as follows.\n<init -> owner1_approach_car -> (owner1_leave_car -> owner1_approach_car)*>",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches keylockinside;",
+    "patResult": "The Assertion (keyless_car() reaches keylockinside) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches runwithoutowner;",
+    "patResult": "The Assertion (keyless_car() reaches runwithoutowner) is VALID.\nThe following trace leads to a state where the condition is satisfied.\n<init -> owner0_approach_car -> owner0_pickup_key_far -> unlock_door_owner0 -> open_door_owner0 -> owner0_enter_car -> start_engine -> drive_consume_fuel_from_full -> owner0_exit_car -> owner0_leave_car>",
+    "actualResult": "Valid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches ownerdrivetogether;",
+    "patResult": "The Assertion (keyless_car() reaches ownerdrivetogether) is VALID.\nThe following trace leads to a state where the condition is satisfied.\n<init -> owner0_approach_car -> owner1_approach_car -> owner0_pickup_key_far -> unlock_door_owner0 -> open_door_owner0 -> owner0_enter_car -> owner1_enter_car -> start_engine -> drive_consume_fuel_from_full>",
+    "actualResult": "Valid",
+    "desiredOutcome": "Valid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches drivewithoutengineon;",
+    "patResult": "The Assertion (keyless_car() reaches drivewithoutengineon) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches drivewithoutfuel;",
+    "patResult": "The Assertion (keyless_car() reaches drivewithoutfuel) is NOT valid.",
+    "actualResult": "Invalid",
+    "desiredOutcome": "Invalid"
+  },
+  {
+    "assertion": "#assert keyless_car reaches drivewithoutkeyholdbyother;",
+    "patResult": "The Assertion (keyless_car() reaches drivewithoutkeyholdbyother) is VALID.\nThe following trace leads to a state where the condition is satisfied.\n<init -> owner1_approach_car -> owner1_pickup_key_far -> unlock_door_owner1 -> open_door_owner1 -> owner1_enter_car -> start_engine -> drive_consume_fuel_from_full>",
+    "actualResult": "Valid",
+    "desiredOutcome": "Valid"
+  }
+]

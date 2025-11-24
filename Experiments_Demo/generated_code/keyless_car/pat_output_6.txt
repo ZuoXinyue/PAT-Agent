@@ -1,0 +1,20 @@
+=======================================================
+Assertion: keyless_car() reaches drivewithoutfuel
+********Verification Result********
+The Assertion (keyless_car() reaches drivewithoutfuel) is VALID.
+The following trace leads to a state where the condition is satisfied.
+<init -> owner0_approach_car -> owner0_pickup_key_far -> drive_consume_fuel_from_full -> drive_consume_fuel_from_75 -> drive_consume_fuel_from_50 -> drive_consume_fuel_from_25 -> start_engine -> start_driving>
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Shortest Witness Trace using Breadth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:512
+Total Transitions:2941
+Time Used:0.0283189s
+Estimated Memory Used:9001.056KB
+
+
