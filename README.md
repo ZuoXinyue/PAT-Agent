@@ -2,6 +2,8 @@
 **Accepted by ASE 2025 (International Conference on Automated Software Engineering)**
 [![Paper](https://img.shields.io/badge/Paper-arXiv%3A2509.23675-b31b1b?logo=arxiv)](https://arxiv.org/abs/2509.23675)
 
+This repository is an **experimental research prototype** developed for academic purposes only.
+
 This project focuses on natural language autoformalization and formal code repair. We provide both a fully automated pipeline that accepts natural language inputs, as well as an interactive interface that allows controllable step-by-step model developement.
 
 ## Folder Structure
