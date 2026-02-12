@@ -1,8 +1,6 @@
 # PAT-Agent
 **Accepted by ASE 2025 (International Conference on Automated Software Engineering)**
-[![Paper](https://img.shields.io/badge/Paper-arXiv%3A2509.23675-b31b1b?logo=arxiv)](https://arxiv.org/abs/2509.23675)
-
-This repository is an **experimental research prototype** developed for academic purposes only.
+[![Paper](https://img.shields.io/badge/Paper-IEEE_Xplore-00629B?logo=ieee)](https://ieeexplore.ieee.org/document/11334568)
 
 This project focuses on natural language autoformalization and formal code repair. We provide both a fully automated pipeline that accepts natural language inputs, as well as an interactive interface that allows controllable step-by-step model developement.
 
@@ -66,3 +64,20 @@ The demo video illustrates how to use the PAT-Agent interface to interactively d
 **Click the image below to watch on YouTube:**
 
 [![Watch the demo on YouTube](https://img.youtube.com/vi/1dAPfLEG3wU/0.jpg)](https://youtu.be/1dAPfLEG3wU)
+
+## Citation
+
+For academic references, please cite our ASE 2025 paper:
+
+```bibtex
+@inproceedings{zuo2025pat,
+  title={PAT-Agent: Autoformalization for Model Checking},
+  author={Zuo, Xinyue and Zhang, Yifan and Wang, Hongshu and Cai, Yufan and Hou, Zhe and Sun, Jing and Dong, Jin Song},
+  booktitle={2025 40th IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages={2122--2133},
+  year={2025},
+  organization={IEEE}
+}
+```
+
+This repository is an **experimental research prototype** developed for academic purposes only.
